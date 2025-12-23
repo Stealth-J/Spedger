@@ -1,0 +1,146 @@
+@import url('styles.css');
+
+
+header nav{
+    padding: 1em;
+    text-align: center;
+}
+main{
+    background-color: var(--bgcol-lighter);
+    display: grid;
+    grid-template-columns: 30% 70%;
+    margin: 0 1em 4em;
+    border: var(--border-main);
+    border-radius: 10px;
+    padding: 1.5em 1em;
+}
+.toc{
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+.toc strong{
+    display: block;
+    text-align: center;
+    font-weight: 500;
+    font-size: 120%;
+}
+.toc nav{
+    margin-top: 1em;
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+}
+.toc nav a{
+    padding-bottom: 0.3em;
+}
+.toc .meta{
+    color: var(--col-sub);
+    font-size: 80%;
+    margin-top: 2em;
+}
+.toc .meta i{
+    color: inherit;
+}
+.terms_content{
+    margin: 1em;
+}
+#termsTitle{
+    text-align: center;
+    font-size: 1.7em;
+    margin-bottom: 1rem;
+}
+.section{
+    border-bottom: var(--border-main);
+    padding: 0.5em 0;
+}
+.section:last-of-type{
+    border-bottom: none;
+}
+.section h2{
+    font-size: 1.2em;
+    font-weight: 500;
+    margin-bottom: 0.2em;
+}
+.section p{
+    font-size: 85%;
+}
+
+
+#privacyPage{
+    display: block;
+    padding: 2em;
+}
+#privacyPage h1{
+    text-align: center;
+    font-size: 1.7em;
+    margin-bottom: 1rem;
+}
+.section dl{
+    margin: 0.4em 0em;
+}
+.section dt{
+    font-size: 1em;
+}
+.section dd{
+    margin-bottom: 0.5em;
+}
+.section dd{
+    font-size: 85%;
+}
+.section ul{
+    font-size: 80%;
+    padding-left: 2em;
+    margin: 0.5em 0 ;
+}
+#privacyPage > article.card{
+    margin-bottom: 4rem;
+}
+#privacyPage > p {
+    color: var(--col-sub);
+    font-size: 80%;
+    margin-top: 2em;
+    text-align: right;
+}
+#privacyPage > p i{
+    color: inherit;
+}
+
+
+
+
+@media screen and (max-width: 50rem) {
+    header nav{
+        margin-bottom: 1em;
+    }
+    main{
+        display: flex;
+        flex-direction: column;
+    }
+    .toc{
+        order: 2;
+        position: static;
+        height: auto;
+        margin-top: 4rem;
+    }
+    #termsTitle, #privacyPage h1{
+        font-size: 1.3em;
+        font-weight: 500;
+    }
+    #privacyPage{
+        padding: 2em 1.3em;
+    }
+    #privacyPage h1{
+        margin-bottom: 2rem;
+    }
+    .section h2{
+        font-size: 1.1em;
+    }
+    .section dt{
+        margin-bottom: 0.2em;
+        margin-top: 0.7em;
+        font-size: 0.95rem;
+        font-weight: 400;
+    }
+}
+

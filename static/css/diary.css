@@ -1,0 +1,716 @@
+
+@import url('styles.css');
+
+
+summary{
+    list-style-type: none;
+}
+
+
+.my_diary{
+    border: var(--border-main);
+    padding: 1em;
+    background-color: var(--bgcol-lighter);
+    margin: 1em;
+    border-radius: 10px;
+}
+.my_diary i{
+    color: inherit;
+}
+.heading_animation{
+    margin-top: 1em;
+    height: 7em;
+    max-height: 10em;
+    display: block;
+    overflow: hidden;
+    border: var(--border-main);
+    margin-bottom: 1em;
+}
+.my_diary header p{
+    color: var(--col-muted);
+    font-size: 0.85em;
+    text-align: center;
+}
+.tab_btns_holder{
+    display: flex;
+    justify-content: space-around;
+    margin: 3em 0 3em;
+}
+.tab_btns_holder > div{
+    width: 40%;
+    border-radius: 15px;
+    height: 10em;
+    border: var(--border-main);
+    background-color: var(--bgcol-card);
+    color: var(--col-muted);
+    transition: transform 0.2s ease;
+}
+.tab_btns_holder > div:hover, .active_tab_btn{
+    box-shadow: var(--bxs-light);
+}
+.active_tab_btn{
+    transform: scale(1.1);
+}
+.entries_tab{
+    display: grid;
+    grid-template-rows: 80% 20%;
+}
+.entries_tab figure{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.entries_tab figure:hover{
+    color: var(--col-sub);
+}
+.entries_tab.active_tab_btn figure{
+    color: var(--col-main);
+}
+.entries_tab .helper_btns{
+    display: flex;
+}
+.helper_btns button{
+    width: 50%;
+    border: none;
+    border-radius: 0 0 15px 15px;
+    border-top: var(--border-main);
+    color: var(--col-muted);
+}
+#deleteAllEntries{
+    border-bottom-left-radius: 0;
+    border-left: var(--border-main);
+}
+.helper_btns button:hover{
+    border-color: var(--bgcol-focus);
+}
+.create_entries_tab{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.create_entries_tab:hover{
+    color: var(--col-sub);
+}
+.create_entries_tab.active_tab_btn{
+    color: var(--col-main);
+}
+
+
+.select_btn{
+    font-size: 90%;
+}
+span > .select_btn{
+    margin-right: 0.5em;
+}
+#deleteSelectedBtn{
+    color: var(--col-error);
+    background-color: #fff;
+    border: 1px solid var(--col-error);
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+#deleteSelectedBtn:hover{
+    background-color: var(--col-error);
+    color: #fff;
+    border: 1px solid #fff;
+}
+#deleteSelectedBtn[disabled]{
+    opacity: 0;
+}
+#deleteSelectedBtn span{
+    font-size: 75%;
+}
+.entries header{
+    position: sticky;
+    top: var(--height-sticky);
+    background-color: var(--bgcol-lighter);
+    padding: 1em;
+    z-index: 11;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    text-align: right;
+}
+.entries_list{
+    padding: 1.5em 0;
+}
+.entry{
+    display: flex;
+    align-items: flex-start;
+    border-radius: 10px;
+    font-family: var(--ff-slip);
+    margin-bottom: 0.8rem;
+}
+.entry > details{
+    width: 100%;
+}
+.entry_slip{
+    padding: 0.7em 1em;
+    border: var(--border-main);
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 10px;
+}
+.entry_main .slip_code{
+    font-size: 1.2rem;
+    margin-bottom: 0.7rem;
+}
+.entry_main span{
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--col-sub);
+}
+span.award_icon{
+    color: var(--bgcol-award);
+    padding-left: 0.5em;
+}
+.entry_main .total_games{
+    padding-right: 0.5em;
+    border-right: var(--border-last);
+}
+.slip_date{
+    color: var(--col-muted);
+    font-size: 0.6rem;
+    margin-left: 1.5em;
+}
+.entry_main .percent{
+    padding-left: 0.5em;
+}
+.entry_btns{
+    display: flex;
+    align-items: end;
+}
+.entry_btn{
+    border: none;
+    background-color: transparent;
+    color: var(--col-sub);
+    cursor: pointer;
+    margin-right: 0.4em;
+    font-size: 1.2rem;
+    transition: transform 0.1s ease-out;
+}
+.entry_btn:hover{
+    transform: scale(1.2);
+    color: var(--col-main);
+}
+
+.games_list{
+    margin: 1em;
+    font-size: 0.75rem;
+    display: grid;
+    grid-template-columns: 30% 30% 30%;
+    gap: 1em;
+    justify-content: center;
+}
+.game{
+    border: var(--border-main);
+    border-radius: 0 20px 5px 5px;
+    padding: 1em 0.7em 0.2em;
+    margin-bottom: 0.5em;
+    min-height: 10em;
+    display: flex;
+    flex-direction: column;
+    color: var(--col-sub);
+    background-color: var(--bgcol-card);
+    position: relative;
+}
+.game::before{
+    content: "";
+    top: 0;
+    left: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 1.2rem solid var(--bgcol-focus);
+    border-right: 1.2em solid transparent;
+    transition: transform 0.25s ease, filter 0.25s ease;
+    transform-origin: top left;
+}
+.game:hover{
+    box-shadow: var(--bxs-darker);
+    color: var(--col-main);
+}
+.game:hover::before {
+    transform: rotate(-6deg) translate(-2px, -2px);
+    filter: drop-shadow(2px 3px 4px rgba(149,157,165,.2));
+}
+.top_row{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: var(--border-main);
+    margin-bottom: 0.7em;
+    padding-bottom: 0.2em;
+}
+.top_row button{
+    border: none;
+    background-color: transparent;
+    color: var(--col-sub);
+    cursor: pointer;
+}
+.top_row button:hover{
+    color: var(--col-main);
+}
+.game_body{
+    font-weight: lighter;
+}
+.game_body .odds{
+    font-size: 0.8rem;
+    font-weight: normal;
+    margin: 0.5rem 0;
+    text-align: right;
+}
+.game_footer{
+    text-align: right;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+}
+.sport_icon{
+    width: 1em;
+}
+.success_icon i {
+    font-size: 1.5em;
+}
+i[class *= ri-checkbox-circle-fill]{
+    color: var(--col-success);
+}
+i[class *= ri-close-circle-fill]{
+    color: var(--col-error);
+}
+i[class *= "ri-indeterminate-circle-fill"]{
+    color: var(--bgcol-focus);
+}
+
+.game .dropdown{
+    font-size: 0.7rem;
+    color: var(--col-muted);
+    width: 9rem;
+    padding: 0.7em;
+    z-index: 10;
+}
+.game_extra:not(.game_extra:last-of-type){
+    display: block;
+    margin-bottom: 0.2em;
+}
+.game_extra i{
+    margin-right: 0.5em;
+}
+
+.checkbox_container{
+    margin-left: 0.7em;
+    margin-top: 0.5em;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-10px);
+    transition: opacity 0.1s ease, transform 0.1s ease-in-out;
+}
+.checkbox_container.show{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+input[name = deleted_item]{
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+}
+.checkbox_container .custom{
+    border-radius: 5px;
+    display: block;
+    border: 1px solid var(--col-sub);
+    width: 1em;
+    height: 2em;
+    cursor: pointer;
+    border-width: 1px;
+    transition: border .1s ease;
+}
+input[name = deleted_item]:checked + .custom{
+    border-color: var(--col-sub);
+    border-width: 4px;
+}
+
+.entry_details.checked{
+    opacity: 0.5;
+    pointer-events: none;
+    border-radius: 10px;
+    border: var(--border-sub);
+}
+
+
+section.create_entry{
+    display: flex;
+    gap: 2%;
+    align-items: flex-start;
+}
+#createEntryForm{
+    width: 44%;
+    border: var(--border-main);
+    padding: 1em;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bgcol-lighter);
+    margin-bottom: 1.4em;
+    position: sticky;
+    top: var(--height-sticky);
+}
+#createEntryForm input{
+    color: var(--col-sub);
+    width: 80%;
+    border: var(--border-main);
+    padding: 0.5em;
+    background-color: transparent;
+}
+#createEntryForm input:focus{
+    outline: none;
+    border: 1px solid var(--col-sub);
+}
+#createEntryForm .form_header{
+    color: var(--col-sub);
+    font-size: 1.2rem;
+    margin-bottom: 1.6rem;
+    text-align: center;
+}
+#createEntryForm > .form_flex{
+    font-family: var(--ff-slip);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.3em;
+}
+#createEntryForm .dropdown_container{
+    margin-left: auto;
+}
+button[data-dropdown = "formHelpDropdown"] {
+    color: var(--col-muted); 
+    padding-left: 0;
+    padding-right: 0;
+}
+#formHelpDropdown p{
+    color: var(--col-muted);
+    font-size: 0.75rem;
+    margin-bottom: 0.4rem;
+}
+#createEntryForm .errors{
+    color: var(--col-error);
+    font-size: 0.75rem;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+.form_action_btn{
+    padding: 0.5em ;
+}
+
+
+.slip_preview{
+    font-family: var(--ff-slip);
+    width: 54%;
+    border: var(--border-main);
+}
+.slip_preview header{
+    font-size: 1.2rem;
+    color: var(--col-muted);
+    padding: 0.3em 0 0.2em;
+    margin-bottom: 0.5em;
+    background-color: var(--bgcol-card);
+    border-bottom: var(--border-main);
+}
+.p_game > details{
+    padding: 0.5em 1em;
+}
+.p_game{
+    border-bottom: var(--border-main);
+}
+.p_game:last-of-type{
+    border-bottom: none;
+}
+.p_summary{
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--col-sub);
+}
+.rhs, .lhs{
+    display: flex;
+    flex-direction: column;
+}
+.lhs .sport_icon{
+    margin-top: auto;
+}
+span.rhs .p_odds{
+    margin-top: auto;
+    font-size: 1.1rem;
+}
+.p_extra{
+    margin-top: 0.3rem;
+    padding: 0.3rem 0.7rem;
+    color: var(--col-muted);
+    font-size: 0.75rem;
+    display: flex;
+    gap: 4%;
+    border: var(--border-main);
+    border-radius: 10px;
+    background: var(--bgcol-card);
+    margin: 0.4em 0.7em;
+    margin-right: 0;
+}
+.p_extra:hover{
+    box-shadow: var(--bxs-darker);
+}
+.p_extra .left_row{
+    width: 50%;
+    border-right: var(--border-main);
+}
+.p_pick{
+    font-size: 0.9rem ;
+    margin-top: 0.3em;
+}
+.p_extra .right_row{
+    text-align: right;
+    width: 46%;
+    color: var(--col-muted);
+}
+#removeSelectionBtn{
+    border-radius: none;
+    color: var(--col-sub);
+    transition: transform 0.1s ease-in-out;
+}
+#removeSelectionBtn:hover{
+    color: var(--col-main);
+    transform: scale(1.05);
+}
+
+
+
+.del_modal .modal{
+    border-radius: 5px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 0;
+    width: 20rem;
+    color: var(--col-sub);
+}
+.del_modal article{
+    margin-bottom: 1rem;
+    padding: 0.7em 0;
+}
+.del_modal p:first-of-type{
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+.del_modal p:last-of-type{
+    font-size: 0.85rem;
+}
+.del_modal .modal_footer{
+    margin-top: auto;
+    display: flex;
+}
+.modal_footer button{
+    width: 50%;
+    border-radius: 0;
+    border: none;
+    border-top: var(--border-main);
+    margin: 0;
+    background-color: var(--bgcol-card);
+    color: var(--col-sub);
+}
+.modal_footer button:active{
+    background-color: var(--bgcol-card);
+}
+.modal_footer button:hover{
+    color: var(--col-main);
+}
+.modal_footer button:first-child{
+    border-bottom-left-radius: 5px;
+}
+.modal_footer button:last-child{
+    border-bottom-right-radius: 5px;
+    border-left: var(--border-main);
+}
+#filterEntriesModal .modal{
+    border-radius: 5px;
+    height: auto;
+    padding: 0;
+    width: 28rem;
+}
+#filterEntriesModal .heading_text{
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 0.5em 0 1em;
+}
+#filterEntriesModal form{
+    padding-bottom: 2em;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: center;
+}
+#filterEntriesModal table{
+    border-collapse: collapse;
+}
+td.label{
+    color: var(--col-muted);
+}
+.filter_input_grp{
+    display: flex;
+}
+#filterEntriesModal td{
+    padding: 0.2em 0.5em;
+}
+.filter_input_grp .share_btn{
+    margin: 0;
+    border-radius: 0;
+}
+.filter_input_grp .filter_input, .filter_input_grp .filter_input:focus{
+    border-right: none;
+}
+.filter_input_grp .filter_input:focus ~ .share_btn{
+    border-left: var(--border-last);
+}
+.filter_input{
+    padding: 0.3em 0.7em;
+    border-radius: 0;
+    border: var(--border-main);
+    color: var(--col-sub);
+    width: 10em;
+}
+.filter_input:focus{
+    outline: none;
+    border: var(--border-last);
+}
+.last_tr td{
+    text-align: right;
+}
+.last_tr button{
+    font-size: 0.85rem ;
+    margin: 0;
+}
+td input[type = checkbox]{
+    height: 1.3em;
+    width: 1.3em;
+    vertical-align: bottom;
+}
+#filterEntriesModal .modal_footer button{
+    width: 100%;
+}
+.conjunction{
+    margin: 0 0.3em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media screen and (max-width: 64rem) {
+    .games_list{
+        grid-template-columns: 45% 45%;
+        gap: 1em;
+    }
+}
+
+
+@media screen and (max-width: 50rem) {
+    .tab_btns_holder > div{
+        height: 8em;
+        width: 43%;
+        font-size: 85%;
+    }
+    .active_tab_btn{
+        transform: scale(1.05);
+    }
+    .entries_tab{
+        grid-template-rows: 70% 30%;
+    }
+    .entries header{
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .entry_slip{
+        padding: 0.5em 0.3em;
+        padding-left: 0.9em;
+    }
+    .entry_main .slip_code{
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    .entry_main span{
+        font-size: 0.75rem;
+    }
+    .slip_date{
+        font-size: 0.55rem;
+    }
+    .entry_btn{
+        margin-right: 0.2em;
+        font-size: 1rem;
+    }
+    .entry_btn:hover{
+        transform: none;
+    }
+
+    .games_list{
+        grid-template-columns: 95%;
+        gap: 0.8em;
+        font-size: 0.7rem;
+    }
+    .game{
+        min-height: 8em;
+        margin-bottom: 0.35em;
+    }
+
+
+    section.create_entry{
+        gap: 0;
+        flex-direction: column;
+    }
+    #createEntryForm{
+        width: 100%;
+    }    
+    .slip_preview{
+        width: 100%;
+    }
+
+
+    .del_modal .modal{
+        width: 80vw;
+    }
+    #filterEntriesModal .modal_footer button{
+        padding: 0.5em;
+    }
+    #filterEntriesModal form{
+        padding: 0 1.5em 2em;
+        font-size: 0.8rem;
+    } 
+    .filter_input{
+        width: 80%;
+    }
+    td input[type = checkbox]{
+        height: 1.1em;
+        width: 1.1em;
+    }
+    #filterEntriesModal input[type = date]{
+        margin-bottom: 0.3em;
+    }
+}

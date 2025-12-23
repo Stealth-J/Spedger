@@ -22,6 +22,9 @@ docker-compose.dev.yml
 # Logs
 *.log
 
+# project records
+extra/
+
 # IDEs / Editors
 .vscode/
 .idea/

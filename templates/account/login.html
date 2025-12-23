@@ -1,0 +1,40 @@
+{% extends 'form_base.html' %}
+
+{% load static %}
+
+{% block title %} Login {% endblock %}
+
+{% block form_content %}
+
+    <form class="centerForm" method = "post">
+        {% csrf_token %}
+
+        <p class="form_header">Log in</p>
+        <p>Don't have an account? <a href="{% url 'account_signup' %}" class="link">Create one</a> </p>
+
+        <div class="fields_container">
+            <div class="input_field">
+                <input type="email" placeholder="Email" name="login" class="form_input" required>
+            </div>
+
+            <div class="input_field">
+                <input type="password" placeholder="Password" name="password" class="form_input" required>
+
+                <button class="input_btn hide_btn" data-state="hide">
+                    <i class="ri-eye-close-line"></i>
+                </button>                    
+            </div>
+
+            <a href="{% static 'account_password_reset' %}" class="link"><small>Forgot your password?</small></a>
+
+            <span class="form_error_txt">
+                <small></small>
+            </span>
+
+            <input type="submit" value="Log in" class="form_action_btn">
+        </div>
+        
+    </form>
+
+{% endblock form_content %}
+    
