@@ -1,0 +1,31 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+*.venv
+
+# Django database (if ever using SQLite locally)
+*.sqlite3
+
+# Media / static files
+media/
+staticfiles/
+
+# Docker files you don’t want in Git
+docker-compose.override.yml
+docker-compose.dev.yml
+
+# Logs
+*.log
+
+# IDEs / Editors
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
