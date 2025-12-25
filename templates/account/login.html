@@ -5,12 +5,13 @@
 {% block title %} Login {% endblock %}
 
 {% block form_content %}
+<section class = "form_container">
 
-    <form class="centerForm" method = "post">
+    <form class="centerForm" method = "post" >
         {% csrf_token %}
 
         <p class="form_header">Log in</p>
-        <p>Don't have an account? <a href="{% url 'account_signup' %}" class="link">Create one</a> </p>
+        <p>Don't have an account? <a href="{% url 'signup' %}" class="link">Create one</a> </p>
 
         <div class="fields_container">
             <div class="input_field">
@@ -25,9 +26,12 @@
                 </button>                    
             </div>
 
-            <a href="{% static 'account_password_reset' %}" class="link"><small>Forgot your password?</small></a>
+            <a href="{% url 'account_reset_password' %}" class="link"><small>Forgot your password?</small></a>
 
             <span class="form_error_txt">
+                {{ form.password.errors }}
+                {{ form.login.errors }}
+                {{ form.non_field_errors }}
                 <small></small>
             </span>
 
@@ -35,6 +39,7 @@
         </div>
         
     </form>
+</section>
 
 {% endblock form_content %}
     

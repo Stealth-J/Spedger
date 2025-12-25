@@ -34,6 +34,27 @@ let modalObj, dropdownObj, tabObj, floatObj, tab2Obj;
 let dropdownObjs = [];
 let changeIconTimeout, formerIconName;
 
+let loadingTimeout;
+let loadingCancelled;
+
+
+// PREVENT FLASH ON FAST LOADS
+document.body.addEventListener('htmx:configRequest', function(e) {
+    let indicatorElem = find( e.target.getAttribute('hx-indicator') )
+    loadingCancelled = false
+    
+    loadingTimeout = setTimeout(() => {
+        if (loadingCancelled) return;
+        if (indicatorElem) indicatorElem.style.display = 'block'
+    }, 400); 
+});
+document.body.addEventListener('htmx:afterRequest', function(e) {
+    let indicatorElem = find( e.target.getAttribute('hx-indicator') )
+    loadingCancelled = true
+    clearTimeout(loadingTimeout);
+
+    if (indicatorElem) indicatorElem.style.display = 'none'
+});
 
 
 // ALL BUTTONS AND BUTTON LIKE ELEMENTS CAN BE CLICKED WITH KEYBOARD
@@ -407,15 +428,17 @@ class FloatObj{
         closeBtn.innerHTML = '<i class="ri-close-large-line"></i>';
         closeBtn.addEventListener('click', this.hideFloat.bind(this));
         floatElem.append(closeBtn);
-        this.floatContainer = document.createElement('aside');
-        this.floatContainer.classList.add('float_container');
-        this.floatContainer.append(floatElem);
-        document.body.append(this.floatContainer);
-
+        // this.floatContainer = document.createElement('aside');
+        // this.floatContainer.classList.add('float_container');
+        // this.floatContainer.append(floatElem);
+        // document.body.append(this.floatContainer);
+        
         let floatRemoveTimeout;
         this.floatRemoveTimeout = floatRemoveTimeout;
         this.showFloatEvent = new CustomEvent('showFloat', {bubbles: true, cancelable: true, detail: {float_elem: floatElem }});
         bdy.addEventListener('keyup', this.hideFloatWithEscape.bind(this));
+
+        this.showFloat()
     }
     showFloat(){
         clearTimeout(this.floatRemoveTimeout);

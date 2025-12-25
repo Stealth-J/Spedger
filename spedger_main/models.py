@@ -95,6 +95,9 @@ class DiaryEntry(models.Model):
 
     def __str__(self):
         return f'{self.slip.slip_code} - {self.slip.entry_date}'
+    
+    class Meta:
+        verbose_name_plural = 'DiaryEntries'
 
 
 class Duel(models.Model):
@@ -110,6 +113,8 @@ class DuellistInfo(models.Model):
     duel_obj = models.ForeignKey(Duel, related_name = 'duellists', on_delete = models.CASCADE)
     recipient = models.BooleanField(default = False)
 
+    class Meta:
+        verbose_name_plural = 'DuellistInfo'
 
 
 

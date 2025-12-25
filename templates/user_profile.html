@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %} 
+    {% if profile_obj.user == user %}
+        My Profile
+    {% else %}
+        {{ profile_obj.user }} Profile
+    {% endif %}
+{% endblock title %}
+
+{% block styles %}
+  <style>
+    #customSpinner{
+      display: none;
+    }
+    #customSpinner.htmx-request{
+      display: block;
+      text-align: center;
+    }
+    .center_info{
+        min-height: 7em;
+    }
+  </style>
+{% endblock %}
+
+
+{% block content %} 
+    <div class="profile_page">
+        <section class="user_info">
+            <figure>
+                <img class="profile_img" src="{% static 'img/others/Cats.jpg' %}" alt="Display photo">
+
+                <p>{{ profile_obj.user }} <i class="ri-lock-line"></i>
+                
+                    <button class="btn2_ share_btn" data-modal = "shareModal" aria-expanded="false" data-button ><i class="ri-share-fill"></i></button>
+                </p>
+                
+                <span class="flags_c">
+                    <img src="{% static 'img/flags/'|add:country_code|add:'.png' %}" alt="{{ profile_obj.nationality }}" title="{{ profile_obj.nationality }}">
+                </span>
+            </figure>
+
+            <article class="current_info1">
+                <p class="attribute_line">
+                    <label for="">Favourite Team </label>
+                    <span>{{ profile_obj.fav_team }}</span>
+                </p>
+                <p class="attribute_line">
+                    <label for="">Date joined </label>
+                    <span>{{ profile_obj.created_at|date:"jS F, Y" }}</span>
+                </p>
+                <p class="attribute_line">
+                    <label for="">Full Name </label>
+                    <span> {{ profile_obj.full_name }} </span>
+                </p>
+                <p class="attribute_line">
+                    <label for="">Current Group </label>
+                    <span> {{ profile_obj.groups.first }} </span>
+                </p>
+                <p class="attribute_line">
+                    <label for="">Total Odds </label>
+                    <span>39000</span>
+                </p>
+                <div class="attribute_line helper">
+                    <label for="">Total Pure Odds </label>
+                    <span>
+                        <span>900</span>
+
+                        <span class="dropdown_container">
+                            <button class="btn2_" data-dropdown="pureOddsDropdown" ><i class="ri-information-line"></i></button>
+                            
+                            <div class="dropdown w_20 not_list p_07" id="pureOddsDropdown">
+                                <p class="form_help_txt">
+                                    Pure odds are the odds of slips in which all the predictions are correct.
+                                </p>
+                            </div>
+                        </span>
+
+                    </span>
+                </div>
+            </article>
+            
+            <footer class="info_footer">
+                {% if profile_obj.user == user %}
+                    <button class="delete_acct btn_" data-modal="deleteReasonModal" data-button aria-expanded="false" ><i class="ri-delete-bin-line"></i> Delete Account</button>
+                {% elif user not in profile_obj.friends.all %}
+                    <button class = 'btn_'>
+                        <i class = "ri-add-large-fill"></i>
+                        Add as Friend
+                    </button>
+                {% endif %}
+            </footer>
+        </section>
+
+        <section class="extra_info">
+            <article class="current_info2">
+                <header>
+                    <h1 class="section_header">Prediction Stats</h1>
+                </header>
+
+                <p class="attribute_line">
+                    <label for="">Accuracy</label>
+                    <span>56%</span>
+                </p>
+                <p class="attribute_line">
+                    <label for="">Pure Percentage (slips)</label>
+                    <span>8 / 98 (8.2%)</span>
+                </p>
+                <p class="attribute_line">
+                    <label for="">Highest winning odds</label>
+                    <span>780</span>
+                </p>
+                <p class="attribute_line">
+                    <label for="">Average Odds</label>
+                    <span>59</span>
+                </p>
+                <div class="attribute_line helper">
+                    <label for="">Average Winning Odds</label>
+                    <span class="dropdown_container">
+                        <span>9</span>
+
+                        <span>
+                            <button class="btn2_" data-dropdown="averageWinningOdds" ><i class="ri-information-line"></i></button>
+
+                            <div class="dropdown w_10 not_list p_07" id="averageWinningOdds">
+                                <p class="form_help_txt">
+                                    The average odds per each winning slip.
+                                </p>
+                            </div>
+                        </span>
+                    </span>
+                </div>
+                <p class="attribute_line">
+                    <label for="">Last Weekly Finish</label>
+                    <span>5</span>
+                </p>
+                <p class="attribute_line">
+                    <label for="">Highest Weekly Finish</label>
+                    <span>1</span>
+                </p>
+            </article>
+
+            
+            
+        </section>
+
+        <section class="history_info">
+            <article class="current_info2 history_sect">
+
+                <button class="btn2_ share_btn" hx-post = "{% url 'profile' profile_obj.public_id  %}" hx-target = "#loggingHistory" hx-indicator = "#customSpinner" hx-vals = '{"show_history": "true"}'>
+                    <i class="ri-history-line"></i> See history 
+                </button>
+
+                <span class = "htmx-indicator" id = "customSpinner"> 
+                    <div class="loader">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </span>
+
+                <p class="total_visits"></p>
+
+                <div class="logging_history" id = "loggingHistory">
+                    {% block logging_history_block %}
+                    {% if show_history %}
+
+                        {% if profile_obj.user.slips.all %}
+                            <table>
+                                <tbody>
+                                    {% for slip in profile_obj.user.slips.all %}
+
+                                        <tr {% if slip.slip_won %} class="winning_slip" {% endif %}>
+                                            <td id = "slipCode{{ slip.id }}"> {{ slip.slip_code }} </td>
+
+                                            <td>{{ slip.entry_date|date:"d-m-Y" }}</td>
+
+                                            <td>{{ slip.win_percentage }}%</td>
+
+                                            <td class="btn_td">
+                                                <button class="icon_btn" data-copy = "slipCode{{ slip.slip_code }}">
+                                                    <i class="ri-file-copy-line"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+
+                            <button class="btn2_ share_btn" id="loadMoreBtn">
+                                <i class="ri-loader-3-fill"></i> Load More
+                            </button>
+
+                        {% else %}
+
+                            <div class="center_info">
+                                <p class="center_info_txt">No previous slips</p>
+                            </div>
+
+                        {% endif %}
+                        
+                    {% endif %}
+                    {% endblock %}
+                </div>
+
+            </article>
+        </section>
+    </div>
+
+{% endblock content %}
+
+
+{% block modals %} 
+    <div class="modalContainer" id="shareModal">
+        <div class="modal" role="dialog">
+            <div class="share_row">
+                <input type="text" value="{{ request.build_absolute_uri }}" readonly id="shareLinkTxt">
+
+                <button class="btn2_ share_btn" data-copied="shareLinkTxt" title="copy"><i class ="ri-file-copy-line"></i></button>
+            </div>
+
+        </div>
+    </div>
+    
+    <div class="modalContainer" id="deleteReasonModal">
+        <div class="modal" role="dialog">
+            <div class="md_header">
+                <p>Why are you deleting this account?</p>
+            </div>
+            
+            <form action="">
+                <div>
+                    <input type="radio" name="delete_reason" id="reason1">
+                    <label for="reason1">This tool didnt satisfy my expectations</label>
+                </div>
+                <div>
+                    <input type="radio" name="delete_reason" id="reason2">
+                    <label for="reason2">I have beat my addiction</label>
+                </div>
+            </form>
+                    
+            <footer>
+                <button class="msg_btn md_close">Close</button>
+                <button class="msg_btn md_close delete">Delete</button>
+            </footer>
+        </div>
+    </div>
+{% endblock modals %}

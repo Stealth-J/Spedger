@@ -1,6 +1,6 @@
 Hello {{ user.username }},
 
-Please click the link below to confirm your email address for our-logo.com:
+Please click the link below to confirm your email address for Spedger.com:
 
 {{ activate_url }}
 

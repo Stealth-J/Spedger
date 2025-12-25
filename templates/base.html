@@ -8,7 +8,7 @@
     <meta name="description" content="Log your predictions in a clear, easy-to-read format and compete with others to test your knowledge and make connections with other users.">
 
     <title>
-        {% block title %}  {% endblock %}
+        {% block title %}  {% endblock %} - Spedger - Log your Sports Predictions
     </title>
 
     <link rel="apple-touch-icon" sizes="180x180" href= "{% static 'favicon/apple-touch-icon.png' %}">
@@ -25,13 +25,158 @@
     
 </head>
 
-<body>
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
 
-    <h2>Hello and get ready to speak Yapanese - {{con}}</h2>
-    <input type="text" name="" id="" value="Stop with the nonsense">
+    <div class="layout">
+        <aside class="sidebar">
+            <header>
+                <figure class="profile dropdown_container">
+                    <a href="{% url 'profile' user.user_profile.public_id %}" >
+                        <img src="https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=612x612&w=0&k=20&c=dhV2p1JwmloBTOaGAtaA3AW1KSnjsdMt7-U_3EZElZ0=" alt="Profile photo" class="logo" title="Profile">
+                    </a>
+
+                    <span data-dropdown="logoutDropdown" >
+                        <p class="username">
+                            {% if user.user_profile.private_acct %}
+                                <i class="ri-lock-line" title="Private account"></i>
+                            {% endif %}
+                            {{ user.username }}
+                        </p> 
+                        <p><i class="ri-arrow-down-s-line"></i> </p>
+                    </span>
+
+                    <div class="dropdown w_12" id="logoutDropdown">
+                        <ul class="dropdown_list">
+                            <li class="buttoned">
+                                <a href="{% url 'account_logout' %}">Log out</a>
+                            </li>
+                            <li class="buttoned">
+                                <a href="">Switch Accounts?</a>
+                            </li>
+                        </ul>
+                    </div>
+                </figure>
+
+                <a href="" class="icon_btn notifs" >
+                    <i class="ri-notification-2-line"></i>
+                </a>
+                
+            </header>
+
+            <nav class="sidebar_nav">
+                <a href="" class="sidebar_main">
+                    My Diary 
+                </a>
+
+                <ul class="mainlist">
+                    <li><a href="" class="sidebar_item {% if request.path == '/home' %} active_item {% endif %}" data-icon-fill>
+                        <i class="ri-home-3-line"></i> Home
+                    </a></li>
+
+                    <li><a href="" class="sidebar_item {% if request.path == '/users' %} active_item {% endif %}"" data-icon-fill>
+                        <i class="ri-user-3-line"></i> Users
+                    </a></li>
+
+                    <li><a href="" class="sidebar_item {% if request.path == '/groups' %} active_item {% endif %}"" data-icon-fill>
+                        <i class="ri-group-3-line"></i> Groups
+                    </a></li>
+
+                    <li><a href="" class="sidebar_item item_hidden {% if request.path == '/leaderboards' %} active_item {% endif %}"" data-icon-fill>
+                        <i class="ri-bar-chart-line"></i> Leaderboards
+                    </a></li>
+
+                    <li><a href="" class="sidebar_item {% if request.path == '/collection' %} active_item {% endif %}"" data-icon-fill>
+                        <i class="ri-diamond-line"></i> Collection
+                    </a></li>
+
+                    <li><a href="" class="sidebar_item {% if request.path == '/insights' %} active_item {% endif %}"" data-icon-fill>
+                        <i class="ri-lightbulb-line"></i> Insights
+                    </a></li>
+
+                    <li><a href="" class="sidebar_item {% if request.path == '/settings' %} active_item {% endif %}"" data-icon-fill>
+                        <i class="ri-settings-3-line"></i> Settings
+                    </a></li>
+
+                    <li><a href="" class="sidebar_item {% if request.path == '/support' %} active_item {% endif %}"" data-icon-fill>
+                        <i class="ri-question-line"></i> Help & Support
+                    </a></li>
+                </ul>
+            </nav>
+
+            <footer class="sidebar_footer">
+                <article class="contact">
+                    <ul class="button_group">
+                        <li>
+                            <a href="https://x.com/yameh_office" class="btn_" target="_blank"> <i class="ri-twitter-x-line"></i> </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/Stealth-J" class = "btn_" target="_blank"><i class="ri-github-fill"></i></a>
+                        </li>
+                        <li>
+                            <span class="dropdown_container">
+                                <a class="btn_" data-dropdown = 'phoneDropdown'>
+                                    <i class="ri-phone-fill"></i>
+                                </a>
+                            
+                                <div class="dropdown not_list" id="phoneDropdown">
+                                    <p><i class="ri-mail-line"></i> nosayamejeffrey@gmail.com</p>
+                                    <p>08025193751</p>
+                                </div>
+                            </span>
+                        </li>
+                    </ul>
+                </article>
+                
+                <article class="copyright">
+                    <small>&copy; 2025 Spedger. All rights reserved.</small>
+                </article>
+            </footer>
+        </aside>
+        
+
+        <main class="main_content">
+            <!-- TOGGLE BUTTON -->
+            <nav class="main_nav"> 
+                <figure class="mobile_show">
+                    <img src="{% static 'img/logos/spedger_short_logo.png' %}" alt="Logo" class="logo">
+                </figure>
+
+                <button class="sidebar_toggler mobile_show" onclick="toggleSidebar()">
+                    <i class="ri-menu-line"></i>
+                </button>
+
+                <a class="icon_btn boards_btn" >
+                    <i class="ri-bar-chart-line"></i> Leaderboards
+                </a>
+            </nav>
+
+            
+            {% block content %}
+
+            {{request.path}}
+            {% endblock %}
+        </main>
+    </div>
+
+    <div class="sidebar_overlay" onclick="toggleSidebar()"></div>
 
 
 
+    {% if messages %}
+        <aside class="float_container">
+            {% for message in messages %}
+                <div data-float>
+                    <p class="float_msg">{{ message }}</p>
+                </div>
+            {% endfor %}
+        </aside>
+    {% endif %}
+
+
+    {% block modals %}  {% endblock %}
+
+    
+    <script src="{% static 'js/htmx.min.js' %}"></script>
     <script src="{% static 'js/base.js' %}"></script>
     {% block scripts %}  {% endblock %}
 

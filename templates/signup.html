@@ -1,0 +1,255 @@
+{% extends "form_base.html" %}
+{% load static %}
+
+{% block title %} SignUp {% endblock %}
+
+{% block styles %}
+  <style>
+    .form_action_btn{
+      margin-top: 0.5em;
+    }
+    #customSpinner{
+      display: none;
+    }
+    #customSpinner.htmx-request{
+      display: block;
+      text-align: center;
+    }
+    .form_error_txt:has(#errorMsgContainer){
+      margin-top: 1.5em;
+    }
+  </style>
+{% endblock %}
+
+
+{% block form_content %}
+<section class = "form_container">
+
+  <form action="" class="signupForm" hx-post = "{% url 'signup' %}" hx-target = "#errorMsgContainer" hx-indicator = "#customSpinner">
+    <div class="activity_bar">
+        <div class="bar" data-bar="1"></div>
+        <div class="bar" data-bar="2"></div>
+        <div class="bar" data-bar="3"></div>
+        <div class="bar" data-bar="4"></div>
+    </div>
+    
+    <div class="form_content">
+        <p class="form_header">Sign Up</p>
+        <p>Already have an account? <a href="{% url 'account_login' %}" class="link">Log in</a></p>
+
+        <!-- FORM SLIDE 1 -->
+        <div class="form_page fields_container active_page" data-page="1" >
+            <div class="input_field">
+                <input type="text" placeholder="Full Name" name="fname" class="form_input" data-required>
+            </div>
+
+            <div class="input_field">
+                <input type="email" placeholder="Email" name="email" class="form_input" data-required>
+            </div>
+
+            <div class="input_field">
+                <input  type="password" placeholder="Enter password" name="pwd" class="form_input pwd_input" data-required>
+
+                <button class="input_btn hide_btn" data-state="hide">
+                    <i class="ri-eye-close-line"></i>
+                </button>                    
+            </div>
+
+            <div class="input_field">
+                <input  type="password" placeholder="Confirm password" name="pwd2" class="form_input pwd_input2" data-required>
+
+                <button class="input_btn hide_btn" data-state="hide">
+                    <i class="ri-eye-close-line"></i>
+                </button>                    
+            </div>
+
+            <span class="form_error_txt">
+                <small></small>
+            </span>
+            
+        </div>
+
+        <!-- FORM SLIDE 2 -->
+        <div class="form_page fields_container" data-page="2">
+            <div class="input_field2">
+                <p class="input_label">Nationality</p>
+
+                <input type="text" class="aux_input" readonly placeholder="Pick Country"  id="nationality" name = 'nationality' data-modal = "countryModal" aria-expanded="false" data-button data-required>
+            </div>
+
+            <div class="input_field2">
+                <p class="input_label">Favourite Team*</p>
+
+                <input type="text" name = "fav_team" class="aux_input" readonly placeholder="Pick Team"  id="favTeam" data-modal = "favTeamModal" aria-expanded="false" data-button>
+
+                <small class="help_txt">* You can skip this field</small>
+            </div>
+
+            <span class="form_error_txt">
+                <small></small>
+            </span>
+        </div>
+
+        <!-- FORM SLIDE 3 -->
+        <div class="form_page fields_container" data-page="3">
+            <div class="input_field2">
+                <p class="input_label">Why are you signing up?</p>
+                
+                <div class="radioForm">
+                    <div>
+                        <input type="radio" id="fun" name="reason" value="fun">
+                        <label for="fun">For fun</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="addict" name="reason" value="addiction">
+                        <label for="addict">To curb addiction</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="record" name="reason" value="record">
+                        <label for="record">To record your predictions</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input_field2">
+                <p class="input_label">
+                    <input type="checkbox" name="privacy" id="private" value="privacy">
+
+                    <label for="private">Private Account</label>
+
+                    <button type="button" class="detail_toggler">
+                        <i class="ri-information-line"></i>
+                    </button>
+                </p>
+
+                <div class="form_field_detail" hidden>
+                    A private account cannot be seen by other users. You would also be exempted from any of the leaderboards.
+                </div>
+            </div>
+            
+            <span class="form_error_txt">
+                <small></small>
+            </span>
+        </div>
+
+        <!-- FORM SLIDE 4 -->
+        <div class="form_page fields_container" data-page="4">
+            <div class="input_field">
+                <input type="text" placeholder="Username" name="username" class="form_input" data-required >
+            </div>
+            <span class="help_txt">
+                <ul>
+                    <li>Username must begin with a letter</li>
+                    <li>No consecutive underscore ( __ )</li>
+                    <li>Between 3-20 characters</li>
+                </ul>
+            </span>
+
+            <p class="input_label review">
+                <input type="checkbox" name="terms" id="terms" >
+                <label for="terms">I agree to Spedger's <a href="">terms and conditions</a></label>
+            </p>
+
+            <span class="form_error_txt">
+                <small id = "errorMsgContainer"></small>
+            </span>
+            
+            <span class = "htmx-indicator" id = "customSpinner"> 
+              <div class="loader">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </span>
+
+            <input type="submit" value="Sign Up" class="form_action_btn">
+        </div>
+
+        <div class="form_footer">
+            <button class="prev_btn msg_btn">Previous</button>
+            <button class="next_btn msg_btn">Next</button>
+        </div>
+    </div>
+      
+  </form>
+</section>
+
+{% endblock form_content %}
+
+
+{% block modals %}
+
+  <div class="modalContainer" id="countryModal">
+      <div class="modal" role="listbox">
+          <div class="md_content">
+              <div class="md_head">
+                  <button class="icon_btn">
+                      <i class="ri-close-large-line md_close"></i>
+                  </button>
+              </div>
+
+              <div class="md_body">
+                  <div class="md_header">
+                      <span class="input_group">
+                          <input type="text" class="input search_countries" placeholder="Search country...">
+                          <button class="msg_btn"><i class="ri-search-line"></i></button>
+                      </span>
+                      <p class="country_output"></p>
+                  </div>
+                  
+                  <div class="md_main">
+                      <ul class="main_list country_list"></ul>
+                  </div>                    
+              </div>
+
+              <div class="md_footer">
+                  <div class="button_group">
+                      <button class="msg_btn md_close">Close</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div class="modalContainer" id="favTeamModal">
+      <div class="modal" role="listbox">
+          <div class="md_content">
+              <div class="md_head">
+                  <button class="icon_btn">
+                      <i class="ri-close-large-line md_close"></i>
+                  </button>
+              </div>
+
+              <div class="md_body">
+                  <div class="md_header">
+                      <span class="input_group">
+                          <input type="text" class="input search_teams" placeholder="Search teams...">
+                          <button class="msg_btn"><i class="ri-arrow-down-s-line"></i></button>
+                      </span>
+                      
+                      <p class="team_output"></p>
+                  </div>
+                  
+                  <div class="md_main">
+                      <ul class="main_list team_list"></ul>
+                  </div>                    
+              </div>
+
+              <div class="md_footer">
+                  <div class="button_group">
+                      <button class="msg_btn md_close">Close</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+{% endblock modals %}
+
+
+{% block scripts %} 
+  <script src = "{% static 'js/countries.js' %}" ></script>
+  <script src = "{% static 'js/teams.js' %}" ></script>
+  <script src = "{% static 'js/signup.js' %}" ></script>
+{% endblock scripts %}

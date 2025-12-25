@@ -1,11 +1,26 @@
-{% extends "base.html" %}
+{% extends "form_base.html" %}
 
-{% block content %}
-<div class="alert alert-info d-flex justify-content-between align-items-center" role="alert">
-    <div>
-      <strong>We’ve sent a confirmation email to {{ user.email }}</strong>.<br>
-      Please check your inbox and click the link to verify.
-    </div>
-    <a href="/" class="btn btn-sm btn-outline-primary ms-3">Return Home</a>
-</div>
+{% block title %} Email Confirmation Link Sent {% endblock %}
+
+{% block styles %} 
+  <style>
+    .basic_msg p{
+      margin-bottom: 0.5em;
+      font-size: 1.1rem;
+    }
+    .basic_msg strong{
+      font-weight: 600;
+    }
+  </style>
+{% endblock %}
+
+{% block form_content %}
+
+  <section class="msg_container">
+      <article class="basic_msg">
+          <p> <strong>We've sent a confirmation email to {{ user.email }}</strong> </p>
+          <p>Please check your inbox and click the link to verify</p>
+      </article>
+
+  </section>
 {% endblock %}

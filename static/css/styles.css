@@ -64,6 +64,36 @@ button[disabled]{
     opacity: 0.5;
     pointer-events: none;
 }
+.loader {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7em;
+}
+.loader span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--col-base-lighter), var(--col-base));
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+.loader span:nth-child(1) { animation-delay: 0s; }
+.loader span:nth-child(2) { animation-delay: 0.15s; }
+.loader span:nth-child(3) { animation-delay: 0.3s; }
+.loader span:nth-child(4) { animation-delay: 0.45s; }
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  40% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
 .txt_ellipse{
     white-space: nowrap;
     overflow: hidden;
@@ -299,6 +329,7 @@ footer{
 }
 .basic_msg{
     padding: 1em;
+    font-size: 1.2rem;
 }
 .msg_btn_container{
     padding: 0.5em 0;
@@ -318,6 +349,13 @@ footer{
 }
 .msg_btn:active{
     background-color: var(--bgcol-focus);
+}
+.msg_btn_container a{
+    color: inherit;
+}
+.msg_btn_container .msg_btn{
+    padding: 0.5em 1em !important;
+    font-size: 1em;
 }
 .msg_btn[disabled]{
     opacity: 0.5;
@@ -479,6 +517,7 @@ figure.profile > span{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-left: 0.5em;
 }
 .notifs{
     padding: 0;
@@ -576,7 +615,7 @@ ul.button_group li{
     position: fixed;
     background-color: var(--bgcol-lighter);
     border-radius: 0.7rem;
-    height: 80%;
+    height: 60%;
     width: 550px;
     max-width: 90%;
     padding: 1rem;
@@ -937,7 +976,7 @@ h1.section_header{
     background-color: var(--bgcol-table);
 }
 .logging_history tr.winning_slip{
-    border-left: 4px solid var(--col-main);
+    border-left: 4px solid #2424bc;
 }
 .logging_history tr:hover{
     font-weight: normal;
@@ -1018,28 +1057,33 @@ h1.section_header{
 /* FLOATS */
 .float_container{
     display: flex;
-    justify-content: right;
+    flex-direction: column;
+    align-items: end;
     position: fixed;
     bottom: 2em;
     width: 100%;
+    z-index: 420;
 }
 [data-float]{
     opacity: 0;
     transform: translateY(-0.5em);
     border-radius: 5px;
-    width: 70vw;
+    max-width: 70vw;
+    gap: 1em;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0.5em;
     padding-left: 2em;
     margin-right: 2.5em;
+    margin-bottom: 1em;
     transition: opacity 0.5s ease, transform 0.3s ease;
     background: rgba(255, 105, 00, 0.5);
     color: #fff;
     pointer-events: none;
     font-weight: 500;
     font-family: var(--ff-duel);
+    font-size: 1.2rem
 }
 [data-float] .icon_btn{
     order: 2;
@@ -2226,10 +2270,10 @@ ul.indented > li{
     }
 
     .float_container{
-        justify-content: center;
+        align-items: center;
     }
     [data-float]{
-        width: 90vw;
+        max-width: 90vw;
         margin-right: 0;
         font-weight: 400;
     }

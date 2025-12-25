@@ -1,15 +1,20 @@
-{% extends "base.html" %}
+{% extends "form_base.html" %}
 
-{% block content %}
-<div class="container mt-5">
-    <div class="card shadow-sm border-0 p-4">
-        <h4 class="mb-3">Sign Out</h4>
-        <p>Are you sure you want to sign out?</p>
-        <form method="post" action="{% url 'account_logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Yes, log me out</button>
-            <a href="/" class="btn btn-secondary">Cancel</a>
-        </form>
-    </div>
-</div>
+{% block title %} Logout {% endblock %}
+
+{% block form_content %}
+
+    <section class="msg_container">
+        <article class="basic_msg">
+            <p class="form_header">Sign Out</p>
+            <p>Are you sure you want to sign out?</p>
+        </article>
+        <div class="msg_btn_container">
+            <form method = 'post' action="{% url 'account_logout' %}">
+                {% csrf_token %}
+                <button type = "submit" class="msg_btn">Log out </button>
+                <a href="{% url 'home' %}" class="msg_btn">Cancel</a>
+            </form>
+        </div>
+    </section>
 {% endblock %}
