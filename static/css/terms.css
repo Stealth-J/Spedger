@@ -1,5 +1,9 @@
-@import url('styles.css');
-
+body{
+    background-color: var(--bgcol-card);
+}
+main{
+    margin-bottom: 4rem;
+}
 
 header nav{
     padding: 1em;
@@ -9,8 +13,6 @@ main{
     background-color: var(--bgcol-lighter);
     display: grid;
     grid-template-columns: 30% 70%;
-    margin: 0 1em 4em;
-    border: var(--border-main);
     border-radius: 10px;
     padding: 1.5em 1em;
 }
@@ -32,6 +34,7 @@ main{
     height: 90%;
 }
 .toc nav a{
+    color: #2424bc;
     padding-bottom: 0.3em;
 }
 .toc .meta{
@@ -111,7 +114,7 @@ main{
 
 @media screen and (max-width: 50rem) {
     header nav{
-        margin-bottom: 1em;
+        margin-bottom: 0;
     }
     main{
         display: flex;
@@ -126,10 +129,7 @@ main{
     #termsTitle, #privacyPage h1{
         font-size: 1.3em;
         font-weight: 500;
-    }
-    #privacyPage{
-        padding: 2em 1.3em;
-    }
+    } 
     #privacyPage h1{
         margin-bottom: 2rem;
     }

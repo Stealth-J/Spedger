@@ -4,12 +4,22 @@
 
 {% block styles %} 
   <style>
+    .basic_msg{
+      padding-bottom: 0.5em;
+    }
     .basic_msg p{
       margin-bottom: 0.5em;
       font-size: 1.1rem;
     }
     .basic_msg strong{
       font-weight: 600;
+    }
+    .login_p{
+      font-size: 0.9rem;
+      margin-bottom: 0.2em !important;
+    }
+    .login_p a:hover{
+      text-decoration: underline;
     }
   </style>
 {% endblock %}
@@ -18,8 +28,13 @@
 
   <section class="msg_container">
       <article class="basic_msg">
-          <p> <strong>We've sent a confirmation email to {{ user.email }}</strong> </p>
-          <p>Please check your inbox and click the link to verify</p>
+          <p> <strong>We've sent a confirmation email to you</strong> </p>
+
+          <p class = "login_p">Please check your inbox and click the link to verify</p>
+
+          <p class = "login_p">
+            If you haven't received any message, try to <a href="{% url 'custom_logout' %}" class="link">login</a> again
+          </p>
       </article>
 
   </section>

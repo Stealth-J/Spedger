@@ -1,0 +1,6 @@
+
+{% for message in messages %}
+    <div data-float class ="{{ message.level_tag }}">
+        <p class="float_msg">{{ message }}</p>
+    </div>
+{% endfor %}

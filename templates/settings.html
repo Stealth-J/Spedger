@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %} Settings {% endblock %}
+
+{% block styles %} 
+  <style>
+    .settings_description p:nth-of-type(2){
+        margin-top: 0.5em;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="settings_page">
+        <header class="settings_title">
+            <h1><i class="ri-settings-3-line"></i> Settings</h1>
+        </header>
+
+        <section class="setting_block edit_info">
+            <header>
+                <h1>Edit Personal Info</h1>
+                <button class = "btn2_ share_btn" id = "editPersonalInfoBtn">
+                    <i class="ri-edit-line"></i>
+                </button>
+            </header>
+
+            <div class = "custom_details" data-detail-toggle = "editPersonalInfoBtn">
+                <div>
+                    {% block edit_info_form_block %}
+
+                    <form method = "post" class = "edit_personal_info_form" hx-post="{% url 'settings' %}" hx-vals = '{"update_info": "true"}' hx-target = ".edit_personal_info_form" hx-indicator = "#customSpinner" hx-swap = "outerHTML">
+                        {% csrf_token %}
+                        
+                        <label for="usernameEdit">
+                            <p>Username</p>
+                            <input type="text" class="edit_personal_info_input" name = "username" value = "{{ user.username }}" id = "usernameEdit">
+                        </label>
+                        
+                        <label for="fullNameEdit">
+                            <p>Full Name</p>
+                            <input type="text" class="edit_personal_info_input" name = "full_name" value = "{{ profile_obj.full_name }}" id = "fullNameEdit">
+                        </label>
+                        
+                        <a href="{% url 'account_change_password' %}" class="link">Change Password</a>
+
+                        <span class="form_error_txt">
+                            {% if form_error %}
+                                <small>{{ form_error }}</small>
+                            {% endif %}
+                        </span>
+
+                        <span class = "htmx-indicator" id = "customSpinner"> 
+                            <div class="loader">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </span>
+
+                        <button type = "submit" class="form_action_btn">Save changes</button>
+                    </form>
+
+                    {% endblock %}
+                </div>
+            </div>
+        </section>
+
+        <section class="setting_block">
+            <header>
+                <h1>Private Account</h1>
+
+                {% block private_acct_form_block %}
+                    <form method = "post" hx-post = "{% url 'settings' %}" hx-swap = 'outerHTML' id = "privateAcctForm" hx-target = "#privateAcctForm" hx-trigger = "change from:#privateAcctCb" hx-vals = '{"acct_privacy": "true"}'>
+                        {% csrf_token %}
+
+                        <label for = "privateAcctCb">
+                            <input type="checkbox" name="private_acct" id="privateAcctCb" {% if profile_obj.private_acct %} checked {% endif %}>
+                        </label>
+                    </form>
+                {% endblock %}
+            </header>
+
+            <article class="settings_description">
+                <p>If this option is ticked, users would not be able to search your account or look at your progress. You would also be unable to join leagues, partake in weekly competitions amongst other things.</p>
+            </article>
+        </section>
+        
+        <section class="setting_block">
+            <header>
+                <h1>Reveal your slips</h1>
+
+                {% block reveal_slip_form_block %}
+
+                    <form method = "post" hx-post = "{% url 'settings' %}" hx-swap = 'outerHTML' id = "revealSlipForm" hx-target = "#revealSlipForm" hx-trigger = "change from:#revealSlipCb" hx-vals = '{"slips_reveal": "true"}'>
+                        {% csrf_token %}
+
+                        <label for="revealSlipCb">    
+                            <input type="checkbox" name="reveal_slip" id="revealSlipCb" {% if profile_obj.reveal_slips %} checked {% endif %}>
+                        </label>
+                    </form>
+                
+                {% endblock %}
+            </header>
+
+            <article class="settings_description">
+                <p>Other users would be able to view your codes and copy them if this option is ticked. </p>
+                <p>If the account is private, then there is no need as your account cannot be viewed by other users. You can tick the option though if you plan on making the account public in the near future and wish to share your codes.</p>
+            </article>
+        </section>
+
+        <section class="setting_block">
+            <header>
+                <h1>Log every slip into your diary</h1>
+
+                {% block log_all_slips_form_block %}
+
+                    <form method = "post" hx-post = "{% url 'settings' %}" hx-swap = 'outerHTML' id = "logEverySlipForm" hx-target = "#logEverySlipForm" hx-trigger = "change from:#logEverySlipCb" hx-vals = '{"log_all_slips": "true"}'>
+                        {% csrf_token %}
+
+                        <label for = "logEverySlipCb">
+                            <input type="checkbox" name="log_every_slip" id="logEverySlipCb" {% if profile_obj.log_all_slips %} checked {% endif %}>
+                        </label>
+                    </form>
+                
+                    {% endblock %}
+            </header>
+
+            <article class="settings_description">
+                <p>If this option is checked, every slip entered whether duels or Weekly would be entered into your diary also</p>
+            </article>
+        </section>
+    </div>
+  
+{% endblock %}
+

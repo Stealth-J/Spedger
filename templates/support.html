@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %} Help & Support {% endblock %}
+
+{% block styles %} 
+    <style>
+        .legal_btns .btn2_{
+            padding: 0;
+        }
+        .legal_btns a {
+            color: inherit;
+            display: block;
+            padding: 0.375em 0.75em;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="support_page">
+        <section class="support_block">
+            <header>
+                <h1>How to Use?</h1>
+            </header>
+            
+        </section>
+
+        <section class="legal_btns">
+
+            <button class="btn2_ share_btn">
+                <a href = "{% url 'terms' %}"> View Terms and Conditions </a>
+            </button>
+            <button class="btn2_ share_btn"> 
+                <a href = "{% url 'privacy_policy' %}"> Privacy Policy </a>
+            </button>
+        </section>
+
+        <section class="support_block">
+            <header>
+                <h1>Feedback / Complaints</h1>
+            </header>
+
+            <form action="" id="feedbackForm" hx-post = "{% url 'support' %}" hx-swap = "none">
+                {% csrf_token %}
+
+                <textarea type="text" placeholder="Tell us..." name = "feedback" required></textarea>
+
+                <button id="submitFeedbackFormBtn" type="submit" class="msg_btn">
+                    Send <i class="ri-mail-send-line"></i>
+                </button>
+                
+            </form>
+
+        </section>
+
+        <section class="support_block" id="faqs">
+            <header>
+                <h1>Frequently asked Questions</h1>
+            </header>
+            
+            <div class="question_block">
+                <details>
+                    <summary>
+                        <p class="question">
+                            <i class="ri-megaphone-line"></i> Can you make money from this app?
+                        </p>
+                        <span><i class="ri-arrow-down-s-line"></i></span>
+
+                    </summary>
+
+                    <p class="answer">
+                        No. You cannot make money directly from this app. Its services may aid you make money through other platforms though.
+                    </p>
+                </details>
+            </div>
+            <div class="question_block">
+                <details>
+                    <summary>
+                        <p class="question">
+                            <i class="ri-megaphone-line"></i> Is this a betting application?
+                        </p>
+                        <span><i class="ri-arrow-down-s-line"></i></span>
+                        
+                    </summary>
+
+                    <p class="answer">
+                        No it's not. Because of how synonymous prediction is with betting, they might get mixed together but you do not need any stake or money to be wagered before predictions can be made
+                    </p>
+                </details>
+
+            </div>
+        </section>
+
+        <section class="support_block">
+            <header>
+                <h1>About this app</h1>
+            </header>
+
+            <article class="support_desc">
+                <p>
+                    Spedger is a platform designed to encourage healthy, non-financial sports prediction. It allows users to enjoy the challenge of making predictions and competing with others, similar to a fantasy-style experience, but without any monetary risk. The platform also provides advanced insights based on past predictions to help users improve the accuracy of their future picks.
+                </p>
+
+                <p class="version_number">Version 1.0.0</p>
+
+            </article>
+        </section>
+    </div>
+  
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        let feedbackForm = document.getElementById('feedbackForm');
+        feedbackForm.addEventListener('htmx:afterRequest', (e) => {
+            find('textarea', feedbackForm).value = '';
+        })
+    </script>
+{% endblock %}

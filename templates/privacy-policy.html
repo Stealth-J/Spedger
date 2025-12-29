@@ -1,0 +1,77 @@
+
+{% extends "form_base.html" %}
+{% load static %}
+
+{% block title %} Privacy Policy {% endblock %}
+
+{% block styles %} 
+    <link rel="stylesheet" href="{% static 'css/terms.css' %}">
+{% endblock %}
+
+
+{% block form_content %}
+
+    <main class="container" id="privacyPage">
+        <article class="card">
+            <h1>Privacy Policy — Spedger</h1>
+
+            <section class="section">
+                <h2>What we collect</h2>
+                <dl>
+                    <dt><i class="ri-file-text-line"></i> Account info</dt>
+                    <dd>Full name, username, password (hashed), nationality, reason for signing up, favourite team (optional), and privacy setting.</dd>
+
+                    <dt><i class="ri-bubble-chart-line"></i> Prediction & usage data</dt>
+                    <dd>Predictions you make, timestamps, and aggregated behaviour data used to provide analytics on prediction patterns.</dd>
+
+                    <dt><i class="ri-bank-line"></i> Local storage</dt>
+                    <dd>Only theme preference is stored in localStorage. No personal data is kept in the browser localStorage.</dd>
+                </dl>
+            </section>
+
+            <section class="section">
+                <h2>How we use data</h2>
+                <p>We use collected data to:</p>
+                <ul>
+                    <li><i class="ri-quill-pen-line"></i> Create and maintain your account</li>
+                    <li><i class="ri-quill-pen-line"></i> Deliver prediction analytics</li>
+                    <li><i class="ri-quill-pen-line"></i> Personalize the experience</li>
+                    <li><i class="ri-quill-pen-line"></i> Secure the platform</li>
+                    <li><i class="ri-quill-pen-line"></i> And Improve features</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Sharing & third parties</h2>
+                <p>We do not sell or trade personal data. We may share minimal data if required by law or to protect our rights. We do not share prediction data with third parties except in aggregated and anonymized form.</p>
+            </section>
+
+            <section class="section">
+                <h2>Retention</h2>
+                <p>We retain account data while your account is active. If you delete your account, personal data is removed and prediction logs are anonymized.</p>
+            </section>
+
+            <section class="section">
+                <h2>Your rights</h2>
+                <p>You may request access to or deletion of your personal data through your Profile. You can also update your personal information in the Settings section.</p>
+            </section>
+
+            <section class="section">
+                <h2>Security</h2>
+                <p>We use standard measures to protect your data (password hashing, secure storage). No system is perfect — keep your password safe.</p>
+            </section>
+
+            <section class="section">
+                <h2>Contact</h2>
+                <p>For privacy requests, contact us through Support.</p>
+            </section>
+        </article>
+        
+        <p class="small">
+            <i class="ri-calendar-line"></i>
+            Last updated: <time id="ppDate">27-12-25</time>
+        </p>
+    </main>
+  
+{% endblock %}
+

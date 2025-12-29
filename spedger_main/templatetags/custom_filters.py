@@ -7,3 +7,10 @@ register = template.Library()
 def country_flag(country_name):
     country_code = COUNTRY_CODES.get(country_name.lower())
     return f'imgs/flags/{country_code}.png'
+
+
+@register.filter
+def return_none(val):
+    if val == '':
+        return 'None'
+    return val

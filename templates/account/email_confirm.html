@@ -2,11 +2,29 @@
 
 {% block title %} Email Confirmed Successfully {% endblock title %}
 
+{% block styles %}
+    <style>
+        .home_p{
+            margin-top: 1em;
+            text-align: right;
+        }
+        .home_p a{
+            color: #2424bc;
+        }
+        .home_p i{
+            color: inherit;
+        }
+    </style>
+{% endblock %}
+
 {% block form_content %}
 
     <section class="msg_container">
         <article class="basic_msg">
             <p>Thank you for confirming your address</p>
+            <p class = "home_p">
+                <a href="{% url 'home' %}"><i class="ri-home-3-line"></i> Home</a>
+            </p>
         </article>
     </section>
 

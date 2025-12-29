@@ -117,7 +117,22 @@ class DuellistInfo(models.Model):
         verbose_name_plural = 'DuellistInfo'
 
 
+class DeleteReason(models.Model):
+    reason = models.TextField()
+    date = models.DateTimeField(auto_now_add = True)
 
+    def __str__(self):
+        return self.reason
+    
+
+class Feedback(models.Model):
+    user = models.ForeignKey(User, null = True, blank = True, on_delete = models.SET_NULL)
+    message = models.TextField()
+    status = models.CharField(max_length = 20, choices = [('unattended', 'Unattended'), ('replied', 'Replied')], default = 'unattended')
+    created_at = models.DateTimeField(auto_now_add = True)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.message}'
 
 
 # work weekly logic later on

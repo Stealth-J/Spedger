@@ -6,21 +6,28 @@
     {% if profile_obj.user == user %}
         My Profile
     {% else %}
-        {{ profile_obj.user }} Profile
+        Profile ({{ profile_obj.user }})
     {% endif %}
 {% endblock title %}
 
 {% block styles %}
   <style>
-    #customSpinner{
-      display: none;
-    }
-    #customSpinner.htmx-request{
-      display: block;
-      text-align: center;
-    }
     .center_info{
         min-height: 7em;
+    }
+    #deleteReasonInput{
+        padding: 0.5em;
+        border-radius: 5px;
+        border: var(--border-main);
+        color: var(--col-main);
+        width: 100%;
+        resize: none;
+        font-size: 1rem;
+        font-family: var(--ff-main);
+    }
+    #deleteReasonInput:focus{
+        outline: none;
+        border: var(--border-sub);
     }
   </style>
 {% endblock %}
@@ -32,7 +39,10 @@
             <figure>
                 <img class="profile_img" src="{% static 'img/others/Cats.jpg' %}" alt="Display photo">
 
-                <p>{{ profile_obj.user }} <i class="ri-lock-line"></i>
+                <p>{{ profile_obj.user }} 
+                    {% if profile_obj.private_acct %}
+                        <i class="ri-lock-line"></i>
+                    {% endif %}
                 
                     <button class="btn2_ share_btn" data-modal = "shareModal" aria-expanded="false" data-button ><i class="ri-share-fill"></i></button>
                 </p>
@@ -45,7 +55,7 @@
             <article class="current_info1">
                 <p class="attribute_line">
                     <label for="">Favourite Team </label>
-                    <span>{{ profile_obj.fav_team }}</span>
+                    <span>{{ profile_obj.fav_team|return_none }}</span>
                 </p>
                 <p class="attribute_line">
                     <label for="">Date joined </label>
@@ -86,7 +96,7 @@
                 {% if profile_obj.user == user %}
                     <button class="delete_acct btn_" data-modal="deleteReasonModal" data-button aria-expanded="false" ><i class="ri-delete-bin-line"></i> Delete Account</button>
                 {% elif user not in profile_obj.friends.all %}
-                    <button class = 'btn_'>
+                    <button class = 'btn2_ share_btn'>
                         <i class = "ri-add-large-fill"></i>
                         Add as Friend
                     </button>
@@ -233,20 +243,16 @@
                 <p>Why are you deleting this account?</p>
             </div>
             
-            <form action="">
+            <form action="{% url 'delete_acct' profile_obj.public_id %}" method = "post" id = "deleteReasonForm">
+                {% csrf_token %}
                 <div>
-                    <input type="radio" name="delete_reason" id="reason1">
-                    <label for="reason1">This tool didnt satisfy my expectations</label>
-                </div>
-                <div>
-                    <input type="radio" name="delete_reason" id="reason2">
-                    <label for="reason2">I have beat my addiction</label>
+                    <textarea type="text" name="delete_reason" id="deleteReasonInput"></textarea>
                 </div>
             </form>
                     
             <footer>
                 <button class="msg_btn md_close">Close</button>
-                <button class="msg_btn md_close delete">Delete</button>
+                <button type = "submit" form = "deleteReasonForm" class="msg_btn md_close delete">Delete</button>
             </footer>
         </div>
     </div>

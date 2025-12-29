@@ -18,7 +18,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     {% block styles %}  {% endblock %}
@@ -69,7 +69,7 @@
                 </a>
 
                 <ul class="mainlist">
-                    <li><a href="" class="sidebar_item {% if request.path == '/home' %} active_item {% endif %}" data-icon-fill>
+                    <li><a href="{% url 'home' %}" class="sidebar_item {% if request.path == '/home' %} active_item {% endif %}" data-icon-fill>
                         <i class="ri-home-3-line"></i> Home
                     </a></li>
 
@@ -93,11 +93,11 @@
                         <i class="ri-lightbulb-line"></i> Insights
                     </a></li>
 
-                    <li><a href="" class="sidebar_item {% if request.path == '/settings' %} active_item {% endif %}"" data-icon-fill>
+                    <li><a href="{% url 'settings' %}" class="sidebar_item {% if request.path == '/settings' %} active_item {% endif %}"" data-icon-fill>
                         <i class="ri-settings-3-line"></i> Settings
                     </a></li>
 
-                    <li><a href="" class="sidebar_item {% if request.path == '/support' %} active_item {% endif %}"" data-icon-fill>
+                    <li><a href="{% url 'support' %}" class="sidebar_item {% if request.path == '/support' %} active_item {% endif %}"" data-icon-fill>
                         <i class="ri-question-line"></i> Help & Support
                     </a></li>
                 </ul>
@@ -120,7 +120,7 @@
                             
                                 <div class="dropdown not_list" id="phoneDropdown">
                                     <p><i class="ri-mail-line"></i> nosayamejeffrey@gmail.com</p>
-                                    <p>08025193751</p>
+                                    <p>+2348025193751</p>
                                 </div>
                             </span>
                         </li>
@@ -138,7 +138,7 @@
             <!-- TOGGLE BUTTON -->
             <nav class="main_nav"> 
                 <figure class="mobile_show">
-                    <img src="{% static 'img/logos/spedger_short_logo.png' %}" alt="Logo" class="logo">
+                    <a href = "{% url 'home' %}"> <img src="{% static 'img/logos/spedger_short_logo.png' %}" alt="Logo" class="logo"> </a>
                 </figure>
 
                 <button class="sidebar_toggler mobile_show" onclick="toggleSidebar()">
@@ -153,29 +153,23 @@
             
             {% block content %}
 
-            {{request.path}}
             {% endblock %}
+
         </main>
     </div>
 
     <div class="sidebar_overlay" onclick="toggleSidebar()"></div>
 
 
+    <aside class="float_container" hx-get = "{% url 'htmx_messages' %}" hx-trigger = "hx_message_init from:body">
+        {% include 'partials/messages.html' %}
+    </aside>
 
-    {% if messages %}
-        <aside class="float_container">
-            {% for message in messages %}
-                <div data-float>
-                    <p class="float_msg">{{ message }}</p>
-                </div>
-            {% endfor %}
-        </aside>
-    {% endif %}
 
 
     {% block modals %}  {% endblock %}
 
-    
+
     <script src="{% static 'js/htmx.min.js' %}"></script>
     <script src="{% static 'js/base.js' %}"></script>
     {% block scripts %}  {% endblock %}

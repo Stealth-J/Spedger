@@ -30,7 +30,7 @@ function selectWithKeyboard(e){
     if (e.key == 'Enter') e.currentTarget.click();
 }
 let sidebar = find('.sidebar');
-let modalObj, dropdownObj, tabObj, floatObj, tab2Obj;
+let modalObj, dropdownObj, tabObj, floatObj, tab2Obj, customDetailsObj;
 let dropdownObjs = [];
 let changeIconTimeout, formerIconName;
 
@@ -428,10 +428,6 @@ class FloatObj{
         closeBtn.innerHTML = '<i class="ri-close-large-line"></i>';
         closeBtn.addEventListener('click', this.hideFloat.bind(this));
         floatElem.append(closeBtn);
-        // this.floatContainer = document.createElement('aside');
-        // this.floatContainer.classList.add('float_container');
-        // this.floatContainer.append(floatElem);
-        // document.body.append(this.floatContainer);
         
         let floatRemoveTimeout;
         this.floatRemoveTimeout = floatRemoveTimeout;
@@ -457,7 +453,25 @@ class FloatObj{
         if (e.key == 'Escape') this.hideFloat();
     }
 }
+function initFloats(){
+    finds('[data-float]').forEach((float) => {
+        floatObj = new FloatObj(float);
+    })
+}
+initFloats()
+bdy.addEventListener('hx_message', initFloats)
 
-finds('[data-float]').forEach((float) => {
-    floatObj = new FloatObj(float);
+
+class CustomDetailsObj{
+    constructor(elem){
+        this.toggleBtn = document.getElementById( elem.dataset.detailToggle );
+        this.detailsElem = elem;
+        this.toggleBtn.addEventListener('click', this.toggleDetailsOpen.bind(this));
+    }
+    toggleDetailsOpen(e){
+        this.detailsElem.classList.toggle('open');
+    }
+}
+finds('[data-detail-toggle]').forEach((elem) => {
+    customDetailsObj = new CustomDetailsObj(elem);
 })

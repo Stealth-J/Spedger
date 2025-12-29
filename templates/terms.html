@@ -1,0 +1,97 @@
+{% extends "form_base.html" %}
+{% load static %}
+
+{% block title %} Terms and Conditions {% endblock %}
+
+{% block styles %} 
+    <link rel="stylesheet" href="{% static 'css/terms.css' %}">
+{% endblock %}
+
+
+{% block form_content %}
+
+    <main class="container" role="main">
+        <aside class="toc card" aria-label="Table of contents">
+            <strong>On this page</strong>
+            <nav>
+                <a href="#about">About Spedger</a>
+                <a href="#eligibility">Eligibility</a>
+                <a href="#no-financial">No Financial Transactions</a>
+                <a href="#user-resp">User Responsibilities</a>
+                <a href="#interactions">Interactions Between Users</a>
+                <a href="#external">External Game Info</a>
+                <a href="#liability">Limitation of Liability</a>
+                <a href="#changes">Changes</a>
+                <a href="#contact">Contact</a>
+                <a href="#booking-slip">Booking Slips</a>
+
+                <span class="meta">
+                    <i class="ri-calendar-line"></i>
+                    Last updated: <time id="lastUpdated">04-12-25</time>
+                </span>
+            </nav>
+        </aside>
+
+        <article class="card terms_content" aria-labelledby="termsTitle">
+            <h1 id="termsTitle">Terms &amp; Conditions — Spedger</h1>
+
+            <section id="about" class="section">
+                <h2>About Spedger</h2>
+                <p>Spedger is a free prediction platform for recreational use. Users create, track, and analyze prediction activity. Spedger is <strong>not</strong> a betting or wagering service; the Platform does not host monetary transactions, nor does it pay out cash prizes.</p>
+            </section>
+
+            <section id="eligibility" class="section">
+                <h2>Eligibility</h2>
+                <p>Spedger is intended for users 18 years or older, or for younger users with parental supervision. By using the Platform you confirm you meet this requirement or have parental permission.</p>
+            </section>
+
+            <section id="no-financial" class="section">
+                <h2>No Financial Transactions</h2>
+                <p>The Platform does not support depositing, staking, sending, or receiving money. Spedger is free to use and does not facilitate financial winnings, prizes, or payouts.</p>
+            </section>
+
+            <section id="user-resp" class="section">
+                <h2>User Responsibilities</h2>
+                <p>Users agree to use Spedger lawfully and not to abuse or attempt to compromise the Platform. You are responsible for any content you submit and the accuracy of the information you provide.</p>
+            </section>
+
+            <section id="interactions" class="section">
+                <h2>Interactions Between Users</h2>
+                <p>Any communications or agreements made between users outside the Platform are solely between those users. Spedger is not responsible for private arrangements, disputes, or consequences resulting from off-platform interactions.</p>
+            </section>
+
+            <section id="external" class="section">
+                <h2>External Game Information</h2>
+                <p>
+                    Spedger does not stream or host live games. Users may obtain match details from external sources and use Spedger to submit predictions. Spedger is not affiliated with bookmakers or game providers.
+                </p>
+            </section>
+
+            <section id="booking-slip" class="section">
+                <h2>Booking Slips</h2>
+                <p>
+                    Also, the outcome of any prediction slip on Spedger is determined solely by the results provided by the external betting provider (e.g., Sporty). Spedger does not influence, alter, or override these results in any way. If a provider grades a slip as a loss, it will be reflected the same way on Spedger, regardless of user expectations.
+                </p>
+            </section>
+
+            <section id="liability" class="section">
+                <h2>Limitation of Liability</h2>
+                <p>Spedger is provided “as-is.” We are not liable for losses related to predictions, loss of access, or damages from external sites. Use the Platform at your own risk.</p>
+            </section>
+
+            <section id="changes" class="section">
+                <h2>Changes to These Terms</h2>
+                <p>We may update these Terms occasionally. Continued use after changes means you accept the new Terms.</p>
+            </section>
+
+            <section id="contact" class="section">
+                <h2>Contact</h2>
+                <p>For support or questions, visit the Support page in the Platform.</p>
+                <p class="small">If you need a copy of these Terms in another format (PDF), contact support.</p>
+            </section>
+        </article>
+
+    </main>
+  
+{% endblock %}
+
