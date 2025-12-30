@@ -114,7 +114,13 @@
 {% block scripts %}
     <script>
         let feedbackForm = document.getElementById('feedbackForm');
+        let submitFeedbackFormBtn = document.getElementById('submitFeedbackFormBtn');
+
+        feedbackForm.addEventListener('htmx:configRequest', (e) => {
+            submitFeedbackFormBtn.disabled = true;
+        })
         feedbackForm.addEventListener('htmx:afterRequest', (e) => {
+            submitFeedbackFormBtn.disabled = false;
             find('textarea', feedbackForm).value = '';
         })
     </script>

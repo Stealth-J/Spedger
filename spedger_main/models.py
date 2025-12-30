@@ -34,11 +34,14 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
     
+    def avatar(self):
+        return self.profile_src or '/img/avatars/Erin Hunting.jpeg'
+    
 
 class FriendRequest(models.Model):
     sender = models.ForeignKey(User, related_name = "sent_friend_requests", on_delete = models.CASCADE)
     recipient = models.ForeignKey(User, related_name = "received_friend_requests", on_delete = models.CASCADE)
-    accepted = models.BooleanField(default = False)
+    status = models.CharField(max_length = 10, choices = [('open', 'Open'), ('accepted', 'Accepted'), ('rejected', 'Rejected')], default = 'open')
     time_sent = models.DateTimeField(auto_now_add = True)
 
 

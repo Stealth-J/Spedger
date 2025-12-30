@@ -73,7 +73,7 @@
                         <i class="ri-home-3-line"></i> Home
                     </a></li>
 
-                    <li><a href="" class="sidebar_item {% if request.path == '/users' %} active_item {% endif %}"" data-icon-fill>
+                    <li><a href="{% url 'users' %}" class="sidebar_item {% if request.path == '/users' %} active_item {% endif %}"" data-icon-fill>
                         <i class="ri-user-3-line"></i> Users
                     </a></li>
 
@@ -85,8 +85,9 @@
                         <i class="ri-bar-chart-line"></i> Leaderboards
                     </a></li>
 
-                    <li><a href="" class="sidebar_item {% if request.path == '/collection' %} active_item {% endif %}"" data-icon-fill>
-                        <i class="ri-diamond-line"></i> Collection
+                    <li><a href="{% url 'preview' %}" class="sidebar_item {% if request.path == '/preview' %} active_item {% endif %}"" data-icon-fill>
+                        <i class="ri-edit-line"></i>
+                        Preview Slip
                     </a></li>
 
                     <li><a href="" class="sidebar_item {% if request.path == '/insights' %} active_item {% endif %}"" data-icon-fill>
@@ -164,6 +165,7 @@
     <aside class="float_container" hx-get = "{% url 'htmx_messages' %}" hx-trigger = "hx_message_init from:body">
         {% include 'partials/messages.html' %}
     </aside>
+
 
 
 

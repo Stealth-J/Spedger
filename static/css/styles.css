@@ -1071,6 +1071,7 @@ h1.section_header{
     bottom: 2em;
     width: 100%;
     z-index: 420;
+    pointer-events: none;
 }
 .float_container i{
     color: inherit;
@@ -1351,13 +1352,13 @@ p.version_number{
 .lb_jumbotron .btn_:hover{
     color: var(--bgcol-main);
 }
-.wkly_form_holder{
+.wkly_form_holder, .form_holder{
     display: flex;
     gap: 0.5em;
     margin: 1em;
     align-items: flex-start;
 }
-#wklyGameForm{
+#wklyGameForm, #previewSlipForm{
     padding: 1em;
     border: var(--border-main);
     width: 50%;
@@ -1367,10 +1368,19 @@ p.version_number{
     background-color: var(--bgcol-lighter);
     border-radius: 10px;
 }
-#wklyGameForm .form_header{
+#previewSlipForm{
+    height: auto;
+}
+#previewSlipForm .custom_details{
+    margin: 0.4em 0;
+}
+#previewSlipForm .custom_details.open{
+    max-height: 120px;
+}
+#wklyGameForm .form_header, #previewSlipForm .form_header{
     font-size: 1.2rem;
 }
-#wklyGameForm .form_flex{
+#wklyGameForm .form_flex, #previewSlipForm .form_flex{
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
     width: 80%;
@@ -1378,7 +1388,7 @@ p.version_number{
     justify-content: space-between;
     align-items: center;
 }
-#wklyGameForm input{
+#wklyGameForm input, #previewSlipForm input{
     width: 80%;
     padding: 0.5em;
     color: var(--col-sub);
@@ -1386,24 +1396,24 @@ p.version_number{
     font-family: var(--ff-slip);
     background-color: transparent;
 }
-#wklyGameForm input:focus{
+#wklyGameForm input:focus, #previewSlipForm input:focus{
     outline: none;
     border: var(--border-last);
 }
-#wklyGameForm output, .wkly_games_list{
+#wklyGameForm output, #previewSlipForm output, .wkly_games_list{
     font-family: var(--ff-slip);
 }
-#wklyGameForm .errors{
-    font-size: 0.75em;
+#wklyGameForm .errors, #previewSlipForm .errors{
+    font-size: 0.85em;
     color: var(--col-error);
 }
-#wklyPreview{
+#wklyPreview, #previewDisplay{
     border: var(--border-main);
     width: 50%;
     height: 50vh;
     background-color: var(--bgcol-lighter);
 }
-#wklyPreview header{
+#wklyPreview header, #previewDisplay header{
     text-align: center;
     color: var(--col-muted);
     padding: 0.3em 0 0.2em;
@@ -1505,10 +1515,10 @@ ul.indented > li{
 .rules strong{
     font-weight: 500;
 }
-#wklyPreview .center_info{
+#wklyPreview .center_info, #previewDisplay .center_info{
     padding: 2em;
 }
-#wklyPreview .center_info_txt{
+#wklyPreview .center_info_txt, #previewDisplay .center_info_txt{
     margin-bottom: 1rem;
 }
 
@@ -2435,19 +2445,26 @@ ul.indented > li{
     .lb_jumbotron{
         display: none;
     }
-    .wkly_form_holder{
+    .wkly_form_holder, .form_holder{
         flex-direction: column;
     }
-    #wklyGameForm, #wklyPreview{
+    #wklyGameForm, #wklyPreview, #previewDisplay, #previewSlipForm{
         width: 100%;
     }
-    #wklyGameForm{
+    #wklyGameForm, #previewSlipForm{
         height: auto;
         margin-bottom: 0.7em;
+    }
+    #previewSlipForm{
+        position: static !important;
     }
     #wklyPreview{
         height: 30vh;
         max-height: 50vh;
+    }
+    #previewDisplay{
+        height: auto;
+        margin-bottom: 20vh;
     }
     .user_card{
         gap: 2%;

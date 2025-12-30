@@ -1,4 +1,3 @@
-let tab2Obj;
 
 
 // CHANGING ICON AFTER TOGGLING DETAILS
@@ -29,14 +28,14 @@ finds('summary').forEach((sum) => {
 
 // CLOSE DETAILS AFTER CLICKING THE TABS
 function closeDetailAfterClickingTab(e){
-    if (e.target.closest('.mobile_tab')) {
+    if (e.target.closest('.mobile_tab') || e.target.closest('.mobile_users_options')) {
         e.currentTarget.open = false;
     }
 }
 find('.menu_details').addEventListener('click', closeDetailAfterClickingTab);
 
 // CLEAR INPUT WHEN CHECKBOX IS UNCHECKED
-document.getElementById('minimumOddsCb').addEventListener('change', (e) => {
+document.getElementById('minimumOddsCb')?.addEventListener('change', (e) => {
     if (e.currentTarget.checked){
         find('.min_odds_input').value = '';
     }

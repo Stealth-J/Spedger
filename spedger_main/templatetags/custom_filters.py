@@ -14,3 +14,9 @@ def return_none(val):
     if val == '':
         return 'None'
     return val
+
+
+@register.filter
+def format_timesince(date):
+    dates = date.split(', ')
+    return dates[0]

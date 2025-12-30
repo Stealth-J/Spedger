@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Preview Slip {% endblock %}
+
+{% block styles %} 
+    <link rel="stylesheet" href="{% static 'css/users.css' %}">
+
+    <style>
+        .form_holder{
+            margin-top: 2em;
+            margin-bottom: 4em;
+        }
+        #previewSlipForm{
+            position: sticky;
+            top: var(--height-nav);
+        }
+        #previewDisplay{
+            height: auto;
+        }
+        .form_header{
+            font-size: 1.5rem !important;
+            text-align: center;
+        }
+        .slip_preview header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--col-main) !important;
+        }
+        #previewHeader{
+            padding: 1.3em 0 !important;
+        }
+        .preview_code_group{
+            font-family: var(--ff-slip);
+            padding-left: 1em;
+        }
+        .preview_code_group + p{
+            padding-right: 0.7em;
+        }
+        .game{
+            padding-top: 0.9em;
+        }
+        .game:last-of-type{
+            padding-bottom: 1em;
+        }
+        .preview_form_span{
+            display: block;
+            text-align: right;
+        }
+        .errors i{
+            color: inherit;
+        }
+        .slip_preview .center_info{
+            min-height: 15rem;
+        }
+
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    
+    <section class="form_holder">
+
+        <form action="" id="previewSlipForm">
+            <p class="form_header"> Preview Slip </p>
+            
+            <div class="form_flex">
+                <input type="text" placeholder="Slip code..." value="987UTX">
+            </div>
+            
+            <span class = "preview_form_span">
+                <button type = "button" class = "icon_btn" id = "previewFormInfo">
+                    <i class = "ri-information-line"></i>
+                </button>
+            </span>
+            
+            <article class = "custom_details" data-detail-toggle = "previewFormInfo">
+                <p class="preview_help_info">
+                    Games that have been played or markets and sports not supported will be removed automatically from the preview. 
+                </p>
+                <p class="preview_help_info">
+                    After editing slip, use the save changes button to generate the new code. 
+                </p>
+            </article>
+
+            <div class="errors">
+                <i class="ri-error-warning-line"></i>
+                This slip doesnt exist 
+            </div>
+
+            <button type="submit" class="form_action_btn"> Preview</button>
+            <button class="icon_btn save_changes_btn">Save changes</button>
+
+        </form>
+
+        <article class="slip_preview" id="previewDisplay">
+            <header id = "previewHeader">
+                <span class="preview_code_group">
+                    <p class="heading_txt" id="previewCode">73D7AC</p>
+                    <button  data-copied="previewCode"><i class="ri-file-copy-line"></i></button>
+                </span>
+                <p>14 (234.9)</p>
+            </header>
+
+            <div class="wkly_games_list">
+            
+                <article class="game">
+                    <div class="game_lhs">
+                        <p class="home txt_ellipse">New York Yankees </p>
+                        <p class="away">Cincinatti Reds</p>
+                        <img class="sport_icon" src = "{% static 'img/sports_icons/baseball.svg' %}">
+                    </div>
+
+                    <span class="game_rhs">
+                        <button class="icon_btn" title="remove selection"><i class="ri-close-large-line"></i></button>
+                        
+                        <p class="odds">4.56</p>
+                    </span>
+                </article>
+
+                <article class="game">
+                    <div class="game_lhs">
+                        <p class="home">Phoenix Suns </p>
+                        <p class="away">Los Angeles Lakers</p>
+                        <img class="sport_icon" src = "{% static 'img/sports_icons/basketball.svg' %}">
+                    </div>
+
+                    <span class="game_rhs">
+                        <button class="icon_btn" title="remove selection"><i class="ri-close-large-line"></i></button>
+                        
+                        <p class="odds">42.56</p>
+                    </span>
+                </article>
+
+                <article class="game">
+                    <div class="game_lhs">
+                        <p class="home">Arizona Cardinals </p>
+                        <p class="away">Kansas City Chiefs</p>
+                        <img class="sport_icon" src = "{% static 'img/sports_icons/a_football.svg' %}">
+                    </div>
+
+                    <span class="game_rhs">
+                        <button class="icon_btn" title="remove selection"><i class="ri-close-large-line"></i></button>
+                        
+                        <p class="odds">1.5</p>
+                    </span>
+                </article>
+
+            </div>
+
+            {% comment %} <div class="center_info">
+                <span class="center_icon"><i class="ri-information-line"></i></span>
+                <p class="center_info_txt">Slip preview would appear here</p>
+            </div>  {% endcomment %}
+
+        </article>
+
+    </section>
+{% endblock %}
+
+
