@@ -49,11 +49,19 @@ document.body.addEventListener('htmx:configRequest', function(e) {
     }, 400); 
 });
 document.body.addEventListener('htmx:afterRequest', function(e) {
-    let indicatorElem = find( e.target.getAttribute('hx-indicator') )
-    loadingCancelled = true
+    let indicatorElem = find( e.target.getAttribute('hx-indicator') );
+    loadingCancelled = true;
     clearTimeout(loadingTimeout);
+    if (indicatorElem) indicatorElem.style.display = 'none';
 
-    if (indicatorElem) indicatorElem.style.display = 'none'
+    if (!e.target.closest('.float_container')) {
+        initCustomDetails();
+        initTabs2();
+        initCopyLogic();
+        finds('[hx-clear-input]').forEach((inp) => {
+            inp.value = '';
+        })
+    }
 });
 
 
@@ -158,15 +166,18 @@ function changeIconForSeconds(e){
     }
     
     find('i', e.currentTarget).className = 'ri-check-line';
-    
     changeIconTimeout = setTimeout(() => {
         if (formerIconName) iElem.className = formerIconName;
     }, 3000);
 }
-finds('[data-copied]').forEach((c_btn) => {
-    c_btn.addEventListener('click', copyText);
-    c_btn.addEventListener('click', changeIconForSeconds);
-})
+
+function initCopyLogic(){
+    finds('[data-copied]').forEach((c_btn) => {
+        c_btn.addEventListener('click', copyText);
+        c_btn.addEventListener('click', changeIconForSeconds);
+    })
+}
+initCopyLogic()
 
 // CHANGING ICON AFTER TOGGLING DETAILS
 function changeDetailIcon(e){
@@ -261,11 +272,12 @@ class ModalObj{
         if (e.key == 'Escape') this.closeModal();
     }
 }
-
-finds('[data-modal]').forEach((btn) => {
-    modalObj = new ModalObj(btn);
-})
-
+function initModals(){
+    finds('[data-modal]').forEach((btn) => {
+        modalObj = new ModalObj(btn);
+    })
+}
+initModals()
 
 
 class DropdownObj{
@@ -414,10 +426,12 @@ class Tab2Obj{
     }
 }
 
-finds('[data-tab2]').forEach((btn) => {
-    tab2Obj = new Tab2Obj(btn);
-})
-
+function initTabs2(){
+    finds('[data-tab2]').forEach((btn) => {
+        tab2Obj = new Tab2Obj(btn);
+    })
+}
+initTabs2()
 
 
 class FloatObj{
@@ -469,9 +483,14 @@ class CustomDetailsObj{
         this.toggleBtn.addEventListener('click', this.toggleDetailsOpen.bind(this));
     }
     toggleDetailsOpen(e){
-        this.detailsElem.classList.toggle('open');
+        if (!e.target.closest('.detail_dead_zone')){
+            this.detailsElem.classList.toggle('open');
+        }
     }
 }
-finds('[data-detail-toggle]').forEach((elem) => {
-    customDetailsObj = new CustomDetailsObj(elem);
-})
+function initCustomDetails(){
+    finds('[data-detail-toggle]').forEach((elem) => {
+        customDetailsObj = new CustomDetailsObj(elem);
+    })
+}
+initCustomDetails()

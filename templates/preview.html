@@ -1,61 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 
 {% block title %} Preview Slip {% endblock %}
 
 {% block styles %} 
     <link rel="stylesheet" href="{% static 'css/users.css' %}">
-
-    <style>
-        .form_holder{
-            margin-top: 2em;
-            margin-bottom: 4em;
-        }
-        #previewSlipForm{
-            position: sticky;
-            top: var(--height-nav);
-        }
-        #previewDisplay{
-            height: auto;
-        }
-        .form_header{
-            font-size: 1.5rem !important;
-            text-align: center;
-        }
-        .slip_preview header{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--col-main) !important;
-        }
-        #previewHeader{
-            padding: 1.3em 0 !important;
-        }
-        .preview_code_group{
-            font-family: var(--ff-slip);
-            padding-left: 1em;
-        }
-        .preview_code_group + p{
-            padding-right: 0.7em;
-        }
-        .game{
-            padding-top: 0.9em;
-        }
-        .game:last-of-type{
-            padding-bottom: 1em;
-        }
-        .preview_form_span{
-            display: block;
-            text-align: right;
-        }
-        .errors i{
-            color: inherit;
-        }
-        .slip_preview .center_info{
-            min-height: 15rem;
-        }
-
-    </style>
+    <link rel="stylesheet" href="{% static 'css/preview.css' %}">
 {% endblock %}
 
 
@@ -63,101 +14,168 @@
     
     <section class="form_holder">
 
-        <form action="" id="previewSlipForm">
+        <form action="" id="previewSlipForm" hx-post = "{% url 'preview' %}" hx-target = "#previewDisplay" hx-indicator = "#customSpinner">
             <p class="form_header"> Preview Slip </p>
             
             <div class="form_flex">
-                <input type="text" placeholder="Slip code..." value="987UTX">
+                <input type="text" placeholder="Slip code..." name = "slip_code" maxlength = "10" hx-clear-input required>
             </div>
             
             <span class = "preview_form_span">
-                <button type = "button" class = "icon_btn" id = "previewFormInfo">
+                <button type = "button" class = "icon_btn" data-button data-modal = "previewFormInfoModal" aria-expanded = "false">
                     <i class = "ri-information-line"></i>
                 </button>
             </span>
-            
-            <article class = "custom_details" data-detail-toggle = "previewFormInfo">
-                <p class="preview_help_info">
-                    Games that have been played or markets and sports not supported will be removed automatically from the preview. 
-                </p>
-                <p class="preview_help_info">
-                    After editing slip, use the save changes button to generate the new code. 
-                </p>
-            </article>
-
-            <div class="errors">
-                <i class="ri-error-warning-line"></i>
-                This slip doesnt exist 
-            </div>
 
             <button type="submit" class="form_action_btn"> Preview</button>
-            <button class="icon_btn save_changes_btn">Save changes</button>
+
+            <button class="icon_btn save_changes_btn" hx-post = "{% url 'make_preview_changes' %}" hx-include = "#editSlipDetails" hx-target = "#previewDisplay" hx-indicator = "#customSpinner">
+                Save changes
+            </button>
 
         </form>
 
         <article class="slip_preview" id="previewDisplay">
-            <header id = "previewHeader">
-                <span class="preview_code_group">
-                    <p class="heading_txt" id="previewCode">73D7AC</p>
-                    <button  data-copied="previewCode"><i class="ri-file-copy-line"></i></button>
+            {% block preview_display_block %}
+                <span id = "editSlipDetails">
+                    <input type="hidden" name = "removed_ids" >
                 </span>
-                <p>14 (234.9)</p>
-            </header>
+            {% if valid_games %}
 
-            <div class="wkly_games_list">
-            
-                <article class="game">
-                    <div class="game_lhs">
-                        <p class="home txt_ellipse">New York Yankees </p>
-                        <p class="away">Cincinatti Reds</p>
-                        <img class="sport_icon" src = "{% static 'img/sports_icons/baseball.svg' %}">
-                    </div>
-
-                    <span class="game_rhs">
-                        <button class="icon_btn" title="remove selection"><i class="ri-close-large-line"></i></button>
-                        
-                        <p class="odds">4.56</p>
+                <div class="center_info indicator_grp">
+                    <span class = "htmx-indicator" id = "customSpinner"> 
+                        <div class="loader">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                     </span>
-                </article>
+                </div>
 
-                <article class="game">
-                    <div class="game_lhs">
-                        <p class="home">Phoenix Suns </p>
-                        <p class="away">Los Angeles Lakers</p>
-                        <img class="sport_icon" src = "{% static 'img/sports_icons/basketball.svg' %}">
+                <div class = "preview_main">
+                    <header id = "previewHeader">
+                        <span class="preview_code_group">
+                            <p class="heading_txt" id="previewCode">
+                                {{ slip_code }}
+                            </p>
+                            <button  data-copied="previewCode">
+                                <i class="ri-file-copy-line"></i>
+                            </button>
+                        </span>
+
+                        <p class = "preview_extra_info">
+                            {{ slip_info.selections_no }} ({{ slip_info.total_odds|intcomma }})
+                        </p>
+                    </header>
+
+                    <div class="wkly_games_list">
+                        {% for game in valid_games %}
+                    
+                            <article class="game" id = "game{{ game.id_ }}">
+                                <article class="game_main">
+                                    <div class="game_lhs">
+                                        <p class="home txt_ellipse">{{ game.home_team }} </p>
+                                        <p class="away txt_ellipse">{{ game.away_team }}</p>
+
+                                        {% if game.sport_icon %}
+                                            <img class="sport_icon" src = "{% static game.sport_icon %}" alt = '{{ game.sport }} icon'>
+                                        {% endif %}
+                                    </div>
+
+                                    <span class="game_rhs">
+                                        <button class="icon_btn remove_selection_btn detail_dead_zone" title="remove selection">
+                                            <i class="ri-close-large-line"></i>
+                                        </button>
+                                        
+                                        <p class="odds">{{ game.odds }}</p>
+                                    </span>
+                                </article>
+
+                                <article class="game_sub custom_details" data-detail-toggle = "game{{ game.id_ }}">
+                                    <div class="market_info">
+                                        <p class="pick"> {{ game.pick }}</p>
+                                        <p class="market">{{ game.market_type }}</p>
+                                    </div>
+
+                                    <div class="comp_info">
+                                        <p class="comp_name">{{ game.league }} </p>
+                                        <p class="time">{{ game.start_time }}</p>
+                                    </div>
+                                </article>
+                            </article>
+
+                        {% endfor %}
                     </div>
+                </div>
 
-                    <span class="game_rhs">
-                        <button class="icon_btn" title="remove selection"><i class="ri-close-large-line"></i></button>
-                        
-                        <p class="odds">42.56</p>
+            {% else %}
+                <div class="center_info">
+                    <span class = "htmx-indicator" id = "customSpinner"> 
+                        <div class="loader">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                     </span>
-                </article>
-
-                <article class="game">
-                    <div class="game_lhs">
-                        <p class="home">Arizona Cardinals </p>
-                        <p class="away">Kansas City Chiefs</p>
-                        <img class="sport_icon" src = "{% static 'img/sports_icons/a_football.svg' %}">
-                    </div>
-
-                    <span class="game_rhs">
-                        <button class="icon_btn" title="remove selection"><i class="ri-close-large-line"></i></button>
-                        
-                        <p class="odds">1.5</p>
-                    </span>
-                </article>
-
-            </div>
-
-            {% comment %} <div class="center_info">
-                <span class="center_icon"><i class="ri-information-line"></i></span>
-                <p class="center_info_txt">Slip preview would appear here</p>
-            </div>  {% endcomment %}
-
+                    
+                    {% if not error_msg %}
+                        <div class = "center_info_holder">
+                            <span class="center_icon">
+                                <i class="ri-information-line"></i>
+                            </span>
+                            <p class="center_info_txt">{{ center_info_msg }}</p>
+                        </div>
+                    {% else %}
+                        <div class = "center_info_holder">
+                            <span class="center_icon error">
+                                <i class="ri-error-warning-line"></i>
+                            </span>
+                            <p class="center_info_txt error">{{ error_msg }}</p>
+                        </div>
+                    {% endif %}
+                </div> 
+                
+            {% endif %}
+            {% endblock %}
         </article>
 
     </section>
 {% endblock %}
 
+{% block modals %}
+    <div class="modalContainer" id="previewFormInfoModal">
+        <div class="modal">
+            <header>
+                <button class = "icon_btn md_close">
+                    <i class = "ri-close-large-line"></i>
+                </button>
+            </header>
 
+            <article>
+
+                <p class="preview_help_info">
+                    Selections involving any of the following would be removed automatically from the preview: 
+                    <span class="preview_help_item">Live games</span>
+                    <span class="preview_help_item">Already played games</span>
+                    <span class="preview_help_item">Suspended games</span>
+                    <span class="preview_help_item">Markets and Sports not supported</span>
+                </p>
+                <p class="preview_help_info">
+                    In the case of contingent outcomes, only one selection is left which is chosen at random.
+                </p>
+                <p class="preview_help_info">
+                    Individual odds are determined by the betting platform, while total odds are calculated using Spedger’s internal system.
+                </p>
+                
+                <p class="preview_help_info">
+                    After editing slip, use the save changes button to generate the new code. 
+                </p>
+            </article>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block scripts %} <script src="{% static 'js/preview.js' %}"></script> {% endblock %}

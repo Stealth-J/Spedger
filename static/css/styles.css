@@ -95,13 +95,35 @@ button[disabled]{
   }
 }
 
-#customSpinner{
+[id ^= customSpinner]{
     display: none;
 }
-#customSpinner.htmx-request{
-    display: block;
+[id ^= customSpinner].htmx-request{
     text-align: center;
 }
+
+.typing {
+    display: inline-flex;
+    gap: 6px;
+}
+.typing span {
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: blink 1.4s infinite both;
+}
+.typing span:nth-child(1) { animation-delay: 0s; }
+.typing span:nth-child(2) { animation-delay: .2s; }
+.typing span:nth-child(3) { animation-delay: .4s; }
+
+@keyframes blink {
+  0%   { opacity: .3; }
+  20%  { opacity: 1; }
+  100% { opacity: .3; }
+}
+
 .txt_ellipse{
     white-space: nowrap;
     overflow: hidden;
@@ -476,7 +498,7 @@ button.detail_toggler{
 /* SIDEBAR */
 .layout{
     display: grid;
-    grid-template-columns: 22% 1fr;
+    grid-template-columns: 15rem 1fr;
 }
 .sidebar{
     position: sticky;
@@ -1121,6 +1143,7 @@ h1.section_header{
 }
 [data-float].show_float .float_msg{
     opacity: 1;
+    overflow-wrap: anywhere;
 }
 
 
@@ -1370,12 +1393,13 @@ p.version_number{
 }
 #previewSlipForm{
     height: auto;
+    border-radius: 15px;
 }
 #previewSlipForm .custom_details{
     margin: 0.4em 0;
 }
 #previewSlipForm .custom_details.open{
-    max-height: 120px;
+    max-height: 15rem;
 }
 #wklyGameForm .form_header, #previewSlipForm .form_header{
     font-size: 1.2rem;
@@ -1391,10 +1415,15 @@ p.version_number{
 #wklyGameForm input, #previewSlipForm input{
     width: 80%;
     padding: 0.5em;
+    padding-left: 1em;
     color: var(--col-sub);
     border: var(--border-main);
     font-family: var(--ff-slip);
     background-color: transparent;
+}
+#previewSlipForm input{
+    letter-spacing: 0;
+    font-size: 1.2rem;
 }
 #wklyGameForm input:focus, #previewSlipForm input:focus{
     outline: none;
@@ -2453,7 +2482,7 @@ ul.indented > li{
     }
     #wklyGameForm, #previewSlipForm{
         height: auto;
-        margin-bottom: 0.7em;
+        margin-bottom: 2em;
     }
     #previewSlipForm{
         position: static !important;

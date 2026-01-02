@@ -58,7 +58,7 @@
 
                         <ul class="friends_list">
                             {% for friend in profile_obj.friends.all %}
-                                <li class="friend">
+                                <li class="friend" data-user = "{{ friend.id }}">
                                     <span class="friend_main">
                                         <a href="{% url 'profile' friend.user_profile.public_id %}">
                                             <img src="{% static friend.user_profile.avatar %}" alt="{{ friend.username }} profile">
@@ -101,7 +101,7 @@
 
         <section class="user_display">
 
-            <section class="user_option active_tab2" id="searchUser" aria-labelledby="searchUser" role="tabpanel">
+            <section class="user_option " id="searchUser" aria-labelledby="searchUser" role="tabpanel">
                 <form hx-post = "{% url 'search_users' %}" hx-target = "#searchResults" hx-indicator = "#customSpinner" hx-trigger = "keyup delay:0.5s, click from:#searchSubmitBtn" >
                     {% csrf_token %}
                     
@@ -185,7 +185,7 @@
                         <div class="user_requests_list">
 
                             {% for f_request in sent_requests %}
-                                <div class="user_request" hx-post = "{% url 'delete_request' f_request.id %}" hx-trigger = "click from:.delete_sent_btn" hx-swap = "delete swap:1s">
+                                <div class="user_request" hx-post = "{% url 'delete_request' f_request.id %}" hx-trigger = "click from:.delete_sent_btn{{ f_request.id }}" hx-swap = "delete swap:1s" hx-target = "this">
 
                                     <figure class="request_main">
                                         <a href="{% url 'profile' f_request.recipient.user_profile.public_id %}"> 
@@ -205,7 +205,7 @@
                                     <div class="request_sub">
                                         <span class = "request_status {{ f_request.status }}"></span>
 
-                                        <button class="icon_btn delete_sent_btn" > 
+                                        <button class="icon_btn delete_sent_btn{{ f_request.id }}" > 
                                             <i class="ri-delete-bin-line"></i> 
                                         </button>
                                     </div>
@@ -286,7 +286,7 @@
             </section>
 
 
-            <section class="user_option" id="duels" aria-labelledby="duels" role="tabpanel">
+            <section class="user_option active_tab2" id="duels" aria-labelledby="duels" role="tabpanel">
                 <form class="duels_filter">
                     <div>
                         <label for="activeDuels" class="duels_filter_cb">
@@ -305,6 +305,7 @@
                 </form>
 
                 <article class="duels_history">
+                    {% for duel in your_duels %}
 
                     <article class="duel">
                         <details class="duel_details">
@@ -312,7 +313,7 @@
                                 <article class="duel_main summary_toggle_btn">
                                     <div class="you duelist">
                                         <figure>
-                                            <a href=""> <img src="{% static 'img/avatars/(´･ᴗ･ ` ) Avatar (1).jpeg' %}" alt="profile img"> </a>
+                                            <a href="{% url 'profile' duel. %}"> <img src="{% static 'img/avatars/(´･ᴗ･ ` ) Avatar (1).jpeg' %}" alt="profile img"> </a>
                                             <figcaption class="txt_ellipse">You</figcaption>
                                         </figure>
                                         <article class="duel_stats winner">
@@ -453,6 +454,8 @@
                         </details>
                     </article>
 
+                    {% endfor %}
+
                 </article>
 
                 <div class="footer_btn">
@@ -470,7 +473,7 @@
 
                 <ul class="friends_list">
                     {% for friend in profile_obj.friends.all %}
-                        <li class="friend">
+                        <li class="friend" data-user = "{{ friend.id }}">
                             <span class="friend_main">
                                 <a href="{% url 'profile' friend.user_profile.public_id %}">
                                     <img src="{% static friend.user_profile.avatar %}" alt="{{ friend.username }} profile">
@@ -526,26 +529,37 @@
 
     <div class="modalContainer" id="startDuelModal">
         <div class="modal" role="contentinfo">
-            <form action="" class="duel_form">
+            <form action="" class="duel_form" hx-post = "{% url 'send_duel_request' %}" hx-indicator = "#customSpinner2" hx-swap = "none">
+
                 <section class="your_code user_code">
                     <p class="txt_ellipse">You</p>
-                    <input type="text" placeholder="Your Code..." maxlength="15" required>
+                    <input type="text" placeholder="Your Code..." maxlength="15" name = "slip_code" hx-clear-input required>
                 </section>
 
                 <section class="their_code user_code">
                     <p class="txt_ellipse">buggy</p>
                     <input type="text" readonly>
+                    <input type="hidden" name = "recipient">
                 </section>
 
                 <section class="min_odds">
                     <label for="minimumOddsCb">
-                        <input type="checkbox" id="minimumOddsCb" >
+                        <input type="checkbox" id="minimumOddsCb">
                         <span> Minimum odds </span>
                     </label>
                     <div class="input_holder">
-                        <input type="number" max="100" class="min_odds_input">
+                        <input type="number" max="100" class="min_odds_input" name = "minimum_odds" hx-clear-input>
                     </div>
                 </section>
+
+                <span class = "htmx-indicator" id = "customSpinner2"> 
+                    <div class="loader">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </span>
 
                 <section class="help_section">
                     <details>
@@ -629,6 +643,7 @@
                             </article>
 
                         </article>
+
                     </details>
                 </section>
 

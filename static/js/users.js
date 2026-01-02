@@ -49,8 +49,10 @@ function updateDuelForm(e){
 
     if (e.currentTarget.closest('.friends')){
         let user = e.target.closest('.friend');
+        let userId = user.dataset.user
         other_username = find('.friend_username', user).textContent;
         find('.their_code p', modal_container).textContent = other_username;
+        find('.their_code input[type = hidden]', modal_container).value = userId;
     } 
     else if (e.currentTarget.closest('#duels')) {
         let duel = e.target.closest('.duel');
@@ -62,6 +64,8 @@ function restoreDuelForm(e){
     let modal_container = e.detail.modal_container;
     if (e.currentTarget.closest('.friends')){
         find('.their_code p', modal_container).textContent = '';
+        finds('input', modal_container).forEach((inp) => { inp.value = '' })
+        find('#minimumOddsCb', modal_container).checked = false;
     } 
     else if (e.currentTarget.closest('#duels')) {
         find('.username_input', modal_container).value = '';

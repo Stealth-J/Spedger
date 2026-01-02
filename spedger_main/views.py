@@ -12,6 +12,8 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.db.models import Q
 from .countries import COUNTRY_CODES
+from .preview_slip import preview, get_slip_details, save_preview_changes, create_slip_obj
+from .booking import book
 import random
 import time
 import re
@@ -151,12 +153,14 @@ def users(request):
     total_requests = FriendRequest.objects.select_related('sender', 'recipient')
     sent_requests = total_requests.filter(sender = request.user)
     received_requests = total_requests.filter(recipient = request.user, status = 'open')
+    your_duels = Duel.objects.prefetch_related('duellists').filter(duellists__slip__user = request.user)
 
     context = {
         'center_info_msg': center_info_msg,
         'profile_obj': profile_obj,
         'sent_requests': sent_requests,
         'received_requests': received_requests,
+        'your_duels': your_duels,
     }
     return render(request, 'users.html', context)
 
@@ -352,8 +356,141 @@ def privacy_policy(request):
 
 
 def preview_slip(request):
-    context = {}
+    center_info_msg = 'Slip preview would appear here'
+    request.session.pop('valid_games', None)
+    context = {'center_info_msg': center_info_msg}
+
+    if request.htmx:
+        try:
+            code = request.POST.get('slip_code').strip()
+            success, valid_games = preview(code)
+            if not success:
+                raise valid_games
+            if len(valid_games) < 1:
+                raise Exception('No valid selection found')
+            
+            preview_result = True
+            slip_info = get_slip_details(valid_games)
+            request.session['valid_games'] = slip_info.valid_games_raw
+            request.session['slip_code'] = code
+
+            context = {
+                'slip_info': slip_info,
+                'slip_code': code,
+                'valid_games': valid_games,
+                'center_info_msg': ''
+            }
+
+        except Exception as e:
+            print(f'Error - {e}')
+            preview_result = False
+            # raise e
+            context = { 'error_msg': str(e)}
+
+        html = render_block_to_string('preview.html', 'preview_display_block', context, request)
+        response = HttpResponse(html)
+
+        if preview_result:
+            response['HX-Trigger-After-Swap'] = 'preview_success'
+
+        return response
+    
     return render(request, 'preview.html', context)
+
+
+def make_preview_changes(request):
+    context = {}
+    msg = ''
+
+    try:
+        removed_ids = request.POST.get('removed_ids')
+        valid_games = request.session.get('valid_games')
+        slip_code = request.session.get('slip_code')
+
+        if not valid_games:
+            raise Exception('An Error occurred. Input the code and try again')
+        
+        valid_games_left = save_preview_changes(valid_games, removed_ids)
+        slip_info = get_slip_details(valid_games_left)
+        preview_result = True
+        
+        if removed_ids == '':
+            msg = 'There are no changes to be made'
+        else:
+            success, slip_code = book(valid_games_left)
+            if not success:
+                raise Exception(slip_code)
+
+            request.session['slip_code'] = slip_code
+            request.session['valid_games'] = slip_info.valid_games_raw
+
+        context = {
+            'slip_info': slip_info,
+            'slip_code': slip_code,
+            'valid_games': valid_games_left,
+            'center_info_msg': ''
+        }
+        
+    except Exception as e:
+        print(f'Error - {e}')
+        preview_result = False
+        # raise e
+        context = { 'error_msg': str(e)}
+
+    html = render_block_to_string('preview.html', 'preview_display_block', context, request)
+    response = HttpResponse(html)
+
+    if preview_result:
+        response['HX-Trigger-After-Swap'] = 'preview_success'
+    if msg != '':
+        messages.info(request, msg)
+        response['HX-Trigger'] = 'hx_message_init'
+
+    return response
+
+
+def send_duel_request(request):
+    code = request.POST.get('slip_code')
+    recipient_id = request.POST.get('recipient')
+    minimum_odds = request.POST.get('minimum_odds') or None
+    if minimum_odds: 
+        minimum_odds = float(minimum_odds)
+    recipient_obj = User.objects.filter(id = recipient_id).first()
+
+    try:
+        success, valid_games = preview(code)
+        if not success:
+            raise valid_games
+        elif len(valid_games) < 1:
+            raise Exception('No valid selection found')
+        elif not recipient_obj:
+            raise Exception('No user found')
+        
+        if not request.user in recipient_obj.user_profile.friends.all():
+            raise Exception('You can only duel friends')
+        else:
+            slip_obj = create_slip_obj( request, valid_games, get_slip_details(valid_games), code)
+
+            duel_obj = Duel.objects.create(minimum_odds = minimum_odds)
+            challenger_obj = DuellistInfo.objects.create(slip = slip_obj, duel_obj = duel_obj)
+            recipient_obj = DuellistInfo.objects.create(duel_obj = duel_obj, recipient = True)
+            messages.success(request, 'Duel request was sent successfully')
+        
+    except Exception as e:
+        print(f'Error - {e}')
+        messages.error(request, str(e))
+
+    response = HttpResponse("")
+    response['HX-Trigger'] = 'hx_message_init'
+    return response
+
+
+def accept_duel(request):
+    pass
+
+
+def reject_duel(request):
+    pass
 
 
 

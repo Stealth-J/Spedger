@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.utils.timezone import now
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 class Group(models.Model):
@@ -48,7 +49,6 @@ class FriendRequest(models.Model):
 class Slip(models.Model):
     user = models.ForeignKey(User, related_name = 'slips', on_delete = models.CASCADE)
     slip_code = models.CharField(max_length = 30)
-    total_odds = models.DecimalField(max_digits = 30, null = True, blank = True)
     settled = models.BooleanField(default = False)
     slip_won = models.BooleanField(default = False)
     total_odds = models.DecimalField(max_digits = 30, null = True, blank = True, decimal_places = 2)
@@ -56,7 +56,7 @@ class Slip(models.Model):
     entry_date = models.DateTimeField(auto_now_add = True)
 
     def __str__(self):
-        return f'{self.user.username} - {self.slip_code}. {self.entry_date}'
+        return f'{self.user.username} - {self.slip_code}'
 
     @property
     def total_events(self):
@@ -79,7 +79,7 @@ class Slip(models.Model):
 
 class SlipEvent(models.Model):
     slip = models.ForeignKey(Slip, related_name = 'slip_events', on_delete = models.CASCADE)
-    participants = models.JSONField()
+    participants = models.JSONField(default = list, blank = True)
     pick = models.CharField(max_length = 200)
     market = models.CharField(max_length = 200)
     sport = models.CharField(max_length = 50)
@@ -87,17 +87,26 @@ class SlipEvent(models.Model):
     event_odd = models.DecimalField(max_digits = 30, null = True, blank = True, decimal_places = 2)
     event_won = models.BooleanField(default = False)
     event_settled = models.BooleanField(default = False)
-    event_date = models.DateTimeField(auto_now_add = True)
+    event_date = models.DateTimeField()
 
     def __str__(self):
         return f'{self.slip.slip_code.upper()} - {self.participants}'
+    
+    @property
+    def home_team(self):
+        return self.participants[0] if self.participants else None
+    
+    @property
+    def away_team(self):
+        return self.participants[1] if len(self.participants) < 1 else None
 
 
 class DiaryEntry(models.Model):
     slip = models.ForeignKey(Slip, related_name = 'slip', on_delete = models.CASCADE)
+    created_at = models.DateTimeField(default = timezone.now)
 
     def __str__(self):
-        return f'{self.slip.slip_code} - {self.slip.entry_date}'
+        return f'{self.slip.slip_code}'
     
     class Meta:
         verbose_name_plural = 'DiaryEntries'
@@ -107,12 +116,20 @@ class Duel(models.Model):
     accepted = models.BooleanField(default = False)
     settled = models.BooleanField(default = False)
     settled_date = models.DateTimeField(null = True, blank = True)
+    minimum_odds = models.DecimalField(max_digits = 30, decimal_places = 2, null = True, blank = True)
+    created_at = models.DateTimeField(default = timezone.now)
 
     def winner(self):
         return
+    
+    def challenger(self):
+        return self.duellists.filter(recipient = False)
+    
+    def recipient(self):
+        return self.duellists.filter(recipient = True)
 
 class DuellistInfo(models.Model):
-    slip = models.ForeignKey(Slip, related_name = 'duel', on_delete = models.CASCADE)
+    slip = models.ForeignKey(Slip, related_name = 'duel', on_delete = models.CASCADE, null = True, blank = True)
     duel_obj = models.ForeignKey(Duel, related_name = 'duellists', on_delete = models.CASCADE)
     recipient = models.BooleanField(default = False)
 

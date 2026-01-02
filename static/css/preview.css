@@ -1,0 +1,95 @@
+
+.form_holder{
+    margin-top: 2em;
+    margin-bottom: 4em;
+}
+#previewSlipForm{
+    position: sticky;
+    top: var(--height-nav);
+}
+#previewDisplay{
+    height: auto;
+}
+.form_header{
+    font-size: 1.5rem !important;
+    text-align: center;
+}
+#previewHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff !important;
+    padding: 1.3em 0 !important;
+    border-bottom: none !important;
+    background-color: var(--col-base) !important;
+    position: sticky;
+    top: var(--height-nav);
+}
+.preview_code_group{
+    font-family: var(--ff-slip);
+    padding-left: 1rem;
+    font-size: 1.5rem;
+}
+.preview_code_group + p{
+    padding-right: 0.7em;
+}
+.preview_code_group button{
+    font-size: 1.2rem !important;
+}
+.game{
+    padding-top: 0.9em;
+}
+.game:last-of-type{
+    padding-bottom: 1em;
+}
+.preview_form_span{
+    display: block;
+    text-align: right;
+}
+.errors i{
+    color: inherit;
+}
+.slip_preview .center_info{
+    min-height: 15rem;
+    height: auto;
+}
+.slip_preview .center_info_txt{
+    overflow-wrap: anywhere;
+}
+.modal{
+    height: auto;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.modal header{
+    display: flex;
+    justify-content: end;
+    padding: 1rem 0;
+}
+.modal header button{
+    font-size: 1.2rem;
+    padding: 0;
+    margin: 0;
+}
+.center_info .error{
+    color: var(--col-error);
+}
+.indicator_grp{
+    display: none;
+}
+.indicator_grp:has(.htmx-request){
+    display: flex;
+}
+#customSpinner + .center_info_holder, .indicator_grp:has(#customSpinner) + .preview_main {
+    display: block;
+}
+#customSpinner.htmx-request + .center_info_holder, .indicator_grp:has(#customSpinner.htmx-request) + .preview_main{
+    display: none;
+}
+#editSlipDetails{
+    display: none;
+}
+.remove_game{
+    transform: translateX(-2em);
+    opacity: 0;
+}
