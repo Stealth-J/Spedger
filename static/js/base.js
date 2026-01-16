@@ -29,9 +29,16 @@ let results;
 function selectWithKeyboard(e){
     if (e.key == 'Enter') e.currentTarget.click();
 }
+let pageURL = new URL(window.location);
 let sidebar = find('.sidebar');
 let modalObj, dropdownObj, tabObj, floatObj, tab2Obj, customDetailsObj;
 let dropdownObjs = [];
+let tab2Objs = [];
+let modalObjs = [];
+let modalBtns = [];
+let tab2Elems = [];
+let copyBtns = [];
+let customDetailsElems = [];
 let changeIconTimeout, formerIconName;
 
 let loadingTimeout;
@@ -47,6 +54,10 @@ document.body.addEventListener('htmx:configRequest', function(e) {
         if (loadingCancelled) return;
         if (indicatorElem) indicatorElem.style.display = 'block'
     }, 400); 
+
+    finds('[hx-disable-submit]').forEach((btn) => {
+        btn.disabled = true;
+    })
 });
 document.body.addEventListener('htmx:afterRequest', function(e) {
     let indicatorElem = find( e.target.getAttribute('hx-indicator') );
@@ -60,6 +71,10 @@ document.body.addEventListener('htmx:afterRequest', function(e) {
         initCopyLogic();
         finds('[hx-clear-input]').forEach((inp) => {
             inp.value = '';
+        })
+
+        finds('[hx-disable-submit]').forEach((btn) => {
+            btn.disabled = false;
         })
     }
 });
@@ -130,11 +145,13 @@ function toggleSidebar(){
 function fillInIcon(iconBtn){
     if (iconBtn) {
         let iElem = find('i', iconBtn);
+        if (!iElem) return;
         iElem.className = iElem.className.slice(0, -5) + '-fill';
     }
 }
 function toggleIconFill(iconBtn){
     let iElem = find('i', iconBtn);
+    if (!iElem) return;
     iconBtn.addEventListener('pointerover', (e) => {
         if (!iconBtn.classList.contains('active_item')){
             iElem.className = iElem.className.slice(0, -5) + '-fill';
@@ -150,34 +167,8 @@ function toggleIconFill(iconBtn){
 finds('[data-icon-fill]').forEach((iconBtn) => { toggleIconFill(iconBtn) });
 fillInIcon( find('.sidebar_nav .active_item'));
 
-// COPYING TEXT AND UPDATING ICON AFTER COPYING
-function copyText(e){
-    let copied = e.currentTarget.dataset.copied;
-    let elemCopied = document.getElementById(copied);
-    let copiedTxt = elemCopied.textContent || elemCopied.value;
-    navigator.clipboard.writeText(copiedTxt.trim());
-}
-function changeIconForSeconds(e){
-    let iElem = find('i', e.currentTarget);
-    if (changeIconTimeout) {
-        clearTimeout(changeIconTimeout);
-    } else {
-        formerIconName = iElem.className;
-    }
-    
-    find('i', e.currentTarget).className = 'ri-check-line';
-    changeIconTimeout = setTimeout(() => {
-        if (formerIconName) iElem.className = formerIconName;
-    }, 3000);
-}
 
-function initCopyLogic(){
-    finds('[data-copied]').forEach((c_btn) => {
-        c_btn.addEventListener('click', copyText);
-        c_btn.addEventListener('click', changeIconForSeconds);
-    })
-}
-initCopyLogic()
+
 
 // CHANGING ICON AFTER TOGGLING DETAILS
 function changeDetailIcon(e){
@@ -195,6 +186,31 @@ finds('summary').forEach((sum) => {
     sum.addEventListener('click', changeDetailIcon );
 })
 
+
+
+// RENDERING VARIABLE IMAGES FROM DJANGO
+finds('[data-bg]').forEach((elem) => {
+    let imgPath = elem.dataset.bg;
+    elem.style.backgroundImage = `url("${imgPath}")`;
+})
+
+
+
+// FINDING LEFTOVER SPACE
+function findAvailablePageHeight(elem){
+    let cds = getCoords(elem);
+    let computedStyles = getComputedStyle(elem);
+    return `calc(100vh - ${cds.top}px - ${computedStyles.paddingBottom})`;
+}
+
+function resizeGdSections(){
+    let gdSections = find('.gd_sections');
+    if (gdSections){
+        gdSections.style.setProperty('--left-over-height', findAvailablePageHeight(gdSections));
+    }
+}
+
+resizeGdSections();
 
 
 
@@ -218,6 +234,7 @@ class ModalObj{
         finds('.md_close', this.modalContainer).forEach((closeBtn) => {
             closeBtn.addEventListener('click', this.closeModal.bind(this));
         })
+        this.modalContainer?.addEventListener('hx_close_modal', this.closeModal.bind(this));
     }
     
     boundFocusHandler = this.trapFocus.bind(this);
@@ -275,6 +292,8 @@ class ModalObj{
 function initModals(){
     finds('[data-modal]').forEach((btn) => {
         modalObj = new ModalObj(btn);
+        modalObjs.push(modalObj);
+        modalBtns.push(modalObj.btn);
     })
 }
 initModals()
@@ -336,12 +355,7 @@ class DropdownObj{
     }
 }
 
-finds('[data-dropdown]').forEach((btn) => {
-    dropdownObj = new DropdownObj(btn);
-    dropdownObjs.push(dropdownObj);
-})
 
-bdy.addEventListener('click', hideDropdown);
 function hideDropdown(e){
     if (!e.target.closest('[data-dropdown]') && !e.target.closest('.dropdown')) {
         finds('.dropdown').forEach((dd) => {
@@ -350,7 +364,10 @@ function hideDropdown(e){
     }
 }
 
+bdy.addEventListener('click', hideDropdown);
 window.addEventListener('resize', (e) => {
+    resizeGdSections();
+
     let dd = find('.dropdown.show');
     if (dd == null) return;
 
@@ -364,36 +381,6 @@ window.addEventListener('resize', (e) => {
 
 
 
-class TabObj{
-    constructor(btn) {
-        this.tabElem = document.getElementById(btn.dataset.tab);
-        this.btn = btn;
-        btn.addEventListener('click', this.showTab.bind(this))
-    }
-    showTab(e){
-        let tabContainer = this.tabElem.parentElement;
-        if (this.tabElem.classList.contains('active_tab')) return;
-        if (e.target.closest('.tab_dead_zone')) return;
-
-        list_(tabContainer.children).forEach((elem) => {
-            if (this.tabElem === elem) return;
-            let elemBtn = find(`[data-tab = "${elem.id}"]`);
-            elemBtn.setAttribute('tabindex', '-1');
-            elemBtn.ariaSelected = false
-            elem.classList.remove('active_tab');
-            elemBtn.classList.remove('active_tab_btn');
-        })
-        this.tabElem.classList.add('active_tab');
-        this.btn.classList.add('active_tab_btn');
-        this.btn.ariaSelected = true;
-        this.btn.setAttribute('tabindex', '0');
-    }
-}
-
-finds('[data-tab]').forEach((btn) => {
-    tabObj = new TabObj(btn);
-})
-
 
 
 class Tab2Obj{
@@ -402,9 +389,15 @@ class Tab2Obj{
         this.tabElem = document.getElementById(btn.dataset.tab2);
         this.tabsHolder = this.tabElem.parentElement;
         btn.addEventListener('click', this.showTab.bind(this));
+        this.tabName = this.tabElem.dataset.tabName || this.tabElem.id;
     }
     showTab(e){
         if (this.tabElem.classList.contains('active_tab2')) return;
+
+        if (!this.tabsHolder.closest('[role = tabpanel]')){
+            pageURL.searchParams.set('tab', this.tabName);
+            history.pushState({}, '', pageURL);
+        }
 
         list_(this.tabsHolder.children).forEach((tab) => {
             tab.classList.remove('active_tab2');
@@ -429,9 +422,32 @@ class Tab2Obj{
 function initTabs2(){
     finds('[data-tab2]').forEach((btn) => {
         tab2Obj = new Tab2Obj(btn);
+
+        if (!tab2Elems.includes(tab2Obj.tabElem)){
+            tab2Elems.push(tab2Obj.tabElem);
+            tab2Objs.push(tab2Obj);
+        } 
     })
 }
 initTabs2()
+
+function showPathTab(pathIds, defaultTab){
+    let params = new URLSearchParams(window.location.search);
+    let tabStr = params.get('tab') || defaultTab;
+    let pathId = pathIds[tabStr];
+    if (!pathId) return;
+
+    let pathTab = document.getElementById(pathId);
+    tab2Objs.forEach((obj_) => {
+        if (obj_.tabElem == pathTab){ 
+            obj_.showTab()
+            return;
+        }
+    })
+}
+
+
+
 
 
 class FloatObj{
@@ -476,21 +492,111 @@ initFloats()
 bdy.addEventListener('hx_message', initFloats)
 
 
+
 class CustomDetailsObj{
     constructor(elem){
         this.toggleBtn = document.getElementById( elem.dataset.detailToggle );
         this.detailsElem = elem;
         this.toggleBtn.addEventListener('click', this.toggleDetailsOpen.bind(this));
+        this.showDetailsEvt = new CustomEvent('showDetails', {bubbles: true, cancelable: true, detail: {details_elem: this.detailsElem, details_btn: this.toggleBtn}});
+        this.hideDetailsEvt = new CustomEvent('hideDetails', {bubbles: true, cancelable: true, detail: {details_elem: this.detailsElem, details_btn: this.toggleBtn}});
     }
     toggleDetailsOpen(e){
         if (!e.target.closest('.detail_dead_zone')){
             this.detailsElem.classList.toggle('open');
         }
+        if (this.detailsElem.classList.contains('open')){
+            this.toggleBtn.dispatchEvent(this.showDetailsEvt);
+        } else{
+            this.toggleBtn.dispatchEvent(this.hideDetailsEvt);
+        }
     }
 }
 function initCustomDetails(){
     finds('[data-detail-toggle]').forEach((elem) => {
-        customDetailsObj = new CustomDetailsObj(elem);
+        if (!customDetailsElems.includes(elem)){
+            customDetailsObj = new CustomDetailsObj(elem);
+            customDetailsElems.push(elem);
+        }
     })
 }
 initCustomDetails()
+
+
+
+
+class copyLogic{
+    constructor(btn){
+        let copied = btn.dataset.copied;
+        let changeIconTimeout, formerIconName, formerSvgElem;
+        this.elemCopied = document.getElementById(copied);
+        this.iElem = find('i', btn);
+        this.changeIconTimeout = changeIconTimeout;
+        this.formerIconName = formerIconName;
+        this.btn = btn;
+        this.formerSvgElem = formerSvgElem;
+        this.svgElem = btn.firstElementChild;
+        this.svgPath = find('path', this.svgElem);
+        this.svgRect = find('rect', this.svgElem);
+
+        btn.addEventListener('click', this.copyText.bind(this));
+        if (btn.firstElementChild instanceof SVGElement){
+            btn.addEventListener('click', this.changeSvgForSeconds.bind(this));
+        } else {
+            btn.addEventListener('click', this.changeIconForSeconds.bind(this));
+        }
+    }
+    copyText(e){
+        let copiedTxt = this.elemCopied.textContent || this.elemCopied.value;
+        navigator.clipboard.writeText(copiedTxt.trim());
+    }
+    changeIconForSeconds(e){
+        if (this.changeIconTimeout) {
+            clearTimeout(this.changeIconTimeout);
+        } else {
+            this.formerIconName = this.iElem.className;
+        }
+
+        this.iElem.className = 'ri-check-line';
+        this.changeIconTimeout = setTimeout(() => {
+            if (this.formerIconName) this.iElem.className = this.formerIconName;
+        }, 3000)
+    }
+    changeSvgForSeconds(e){
+        if (this.changeIconTimeout) {
+            clearTimeout(this.changeIconTimeout);
+        } else{
+            this.formerSvgPath = find('path', this.svgElem);
+        }
+        
+        this.svgElem.innerHTML = "<path d = 'M5 13l4 4L19 7'>";
+        this.changeIconTimeout = setTimeout(() => {
+            if (this.formerSvgPath) {
+                this.svgElem.innerHTML = '';
+                this.svgElem.append(this.svgRect, this.svgPath);
+            }
+        }, 3000)
+    }
+}
+
+function initCopyLogic(){
+    finds('[data-copied]').forEach((c_btn) => {
+        if (!copyBtns.includes(c_btn)) {
+            copyObj = new copyLogic(c_btn);
+            copyBtns.push(c_btn);
+        }
+    })
+}
+initCopyLogic()
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    finds('[data-dropdown]').forEach((btn) => {
+        dropdownObj = new DropdownObj(btn);
+        dropdownObjs.push(dropdownObj);
+    })
+})
+
+

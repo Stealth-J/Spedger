@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize %}
+
+{% block title %} {{ group.group_name }} (Group) {% endblock %}
+
+{% block styles %}
+    <style>
+        .loader span{
+            width: 7px;
+            height: 7px;
+            background: linear-gradient(135deg, var(--bgcol-focus), var(--bgcol-offmain));
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="group_details">
+        <header>
+            <div class="gd_header_details" >
+                <div class = "gd_header_summary">
+                    <p class="gd_name">
+                        {{ group.group_name }}
+                        {% if group.private_group %}
+                            <i class = "ri-lock-line private_grp_icon"></i>
+                        {% endif %}
+                    </p>
+
+                    <div class="gd_action_btns">
+                        {% if is_member %}
+                            {% if is_leader %}
+                                <span class="icon_btn" id = "editGroupFormToggleBtn">
+                                    <i class="ri-settings-4-line"></i>
+                                </span>
+                            {% elif group.group_leader == None %}
+                                <a class = "icon_btn" href = "{% url 'place_admin' group.group_id %}">
+                                    Assume Admin
+                                </a>
+                            {% endif %}
+
+                            <button class="gd_leave icon_btn" title="leave group" data-modal="exitGroupModal" data-button aria-expanded="false">
+                                <i class="ri-door-open-line"></i>
+                            </button>
+
+                            {% if is_leader %}
+                                <button class="gd_delete icon_btn" data-modal = "deleteGroupModal" data-button aria-expanded="false">
+                                    <i class="ri-delete-bin-2-line"></i> 
+                                </button>
+                            {% endif %}
+                        {% else %}
+
+                            <form action = "{% url 'group_join' group.group_id %}" method = 'POST'>
+                                {% csrf_token %}
+
+                                <input type="hidden" name="join_group" value = "yes">
+                                <button class="icon_btn gd_join" >
+                                    Join
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if is_leader %}
+                    <div class = "custom_details" data-detail-toggle = "editGroupFormToggleBtn">
+                        <form class="gd_settings" action = "{% url 'group_edit' group.group_id %}" method = 'POST'>
+                            {% csrf_token %}
+
+                            <input type="text" placeholder="Edit group name" id="editGroupInput" maxlength="45" name = "group_name" value = "{{ group.group_name }}">
+
+                            <p class="form_help_txt"><i class="ri-information-line"></i> 45 characters max</p>
+
+                            <label for="leaderTalkOnlyCb">
+                                <input type="checkbox" name="leader_only" id="leaderTalkOnlyCb" {% if group.leader_talk_only %} checked {% endif %} >
+
+                                <span>Only you can send codes</span>
+                            </label>
+
+                            <label for="privateGroupCb">
+                                <input type="checkbox" name="private_group" id="privateGroupCb" {% if group.private_group %} checked {% endif %}>
+
+                                <span>Make Private</span>
+                            </label>
+
+                            <button class="form_action_btn">Submit</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </header>
+
+        <ul class="mobile_gd_nav">
+            <li><button data-tab2="gdCodes" role="tab" tabindex="0" aria-controls="gdCodes" aria-selected="true">
+                Codes
+            </button></li>
+
+            <li> <button data-tab2="gdRankings" role="tab" tabindex="-1" aria-controls="gdRankings" aria-selected="false">
+                Rankings
+            </button></li>
+
+            <li> <button data-tab2="gdMembers" role="tab" tabindex="-1" aria-controls="gdMembers" aria-selected="false">
+                Members
+            </button></li>
+        </ul>
+
+        <section class="gd_sections">
+
+            <section class="gd_codes gd_section active_tab2" id="gdCodes" aria-labelledby="gdCodes" role="tabpanel" data-tab-name = "chats">
+                <aside class = "scroll_down_chats_area">
+                    <button class = "btn2_ share_btn" onclick = "autoScroll()">
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                </aside>
+                
+                <article class="gd_sent_codes" id = "gdCodesList">
+                    {% block group_chat_msgs_block %}
+                        {% if chat_msgs.has_next %}
+                            <span class = "see_older_codes_span">
+                                <button class = "icon_btn" id = "seeOlderCodesBtn" hx-post = "{% url 'load_more_chats' sk=group.group_id page_num=chat_msgs.next_page_number %}" hx-target = ".see_older_codes_span" hx-swap = "outerHTML" hx-indicator = "#customSpinner" >
+                                    See older codes
+                                </button>
+
+                                {% include 'partials/spinner.html' %}
+                            </span>
+                        {% endif %}
+
+                        {% for msg in chat_msgs reversed %}
+                            {% include 'partials/group_chat_message.html' %}
+                        {% endfor %}
+                    {% endblock %}
+                </article>
+
+                {% if is_member %}
+                    {% if not group.leader_talk_only or is_leader %}
+                        <form id="sendCodesForm" hx-post = "{% url 'send_chat' group.group_id %}" hx-target = "#gdCodesList" hx-swap = "beforeend" >
+                            <input type="text" placeholder="Enter code..." class="gd_send_code_input" name = "slip_code" autocomplete = "off" required hx-clear-input>
+
+                            <button type = "submit" class="icon_btn" hx-disable-submit >
+                                <i class="ri-arrow-up-line"></i>
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </section>
+
+            <section class="gd_rankings gd_section" id="gdRankings" aria-labelledby="gdRankings" role="tabpanel" data-tab-name = "rankings">
+                <header>Rankings</header>
+
+                <figure>
+                    <table class = "gd_rankings_table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>p.o</th>
+                                <th>p.p %</th>
+                                <th>wk %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in ranked_qs %}
+                                <tr class = "{% if member.user == request.user %} your_rank {% endif %}" >
+                                    <td>{{ member.rank }}</td>
+                                    <td>
+                                        <a href="{% url 'profile' member.public_id %}">
+                                            {% if request.user == member.user %}
+                                                you
+                                            {% else %}
+                                                {{ member.user.username }}
+                                            {% endif %}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ member.pure_odds_temp|return_0_if_none|floatformat|intcomma }}
+                                    </td>
+                                    <td>
+                                        {{ member.pure_percentage_temp|floatformat }}
+                                    </td>
+                                    <td>
+                                        97
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <figcaption>
+                        <p>p.o - pure odds</p>
+                        <p>p.p - pure %</p>
+                        <p>wk - weekly game win %</p>
+                    </figcaption>
+                </figure>
+
+            </section>
+
+            <section class="gd_members gd_section" id="gdMembers" aria-labelledby="gdMembers" role="tabpanel" data-tab-name = "members">
+                <header>
+                    <p>Members ({{ group.group_members.count }})</p>
+                </header>
+
+                <ul class="gd_members_list">
+
+                    {% for member in group.group_members.all %}
+                        <li class="gd_member" id = "groupMember{{ member.id }}">
+                            <figure>
+                                <img src="{% static member.avatar %}" alt="profile photo">
+                                <span class="txt_ellipse gd_member_username"> 
+                                    <a href="{% url 'profile' member.public_id %}">
+                                        {% if profile_obj == member %}
+                                            you
+                                        {% else %}
+                                            {{ member.user.username }}
+                                        {% endif %}
+                                    </a> 
+                                </span>
+                            </figure>
+
+                            {% if member.user != request.user %}
+                                <span class="gd_member_sub dropdown_container">
+                                    <button class="icon_btn"  data-dropdown="member{{ member.id }}ActionDropdown">
+                                        <i class="ri-more-2-fill"></i>
+                                    </button>
+
+                                    <div class="dropdown w_10" id="member{{ member.id }}ActionDropdown">
+                                        <ul class="dropdown_list">
+                                            {% if is_leader %}
+                                                <li class="buttoned">
+                                                    <a hx-post="{% url 'remove_from_group' user_id=member.public_id sk=group.group_id %}" hx-target = "#groupMember{{ member.id }}" hx-swap = "outerHTML">
+                                                        Remove User
+                                                    </a>
+                                                </li>
+
+                                                <li class="buttoned">
+                                                    <a hx-post="{% url 'remove_from_group' user_id=member.public_id sk=group.group_id %}" hx-target = "#groupMember{{ member.id }}" hx-vals = '{"ban_user":"True"}' hx-swap = 'outerHTML'>
+                                                        Ban User
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            
+                                            <li class="buttoned">
+                                                <a hx-post="{% url 'mute_user' member.user.id %}" hx-swap = 'none'>
+                                                    {% if member.user in profile_obj.muted_users.all %}
+                                                        Unmute <i class="ri-mic-line"></i>
+                                                    {% else %}
+                                                        Mute <i class="ri-mic-off-line"></i>
+                                                    {% endif %}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </span>
+
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+
+                </ul>
+
+            </section>
+        </section>
+
+    </div>
+
+{% endblock %}
+
+
+
+{% block modals %}
+
+    <div class="modalContainer del_modal" id="deleteGroupModal">
+        <div class="modal" role="dialog">
+
+            <form action = "{% url 'delete_group' %}" method = 'POST'>
+                {% csrf_token %}
+
+                <article>
+                    <p> Delete Group? </p>
+                    <p><i class="ri-error-warning-line"></i> Group's data would be deleted and cannot be recovered</p>
+
+                    <input type="hidden" value="yes" name = "redirect_page">
+                    <input type="hidden" value="{{ group.group_id }}" name = "group_id">
+                </article>
+
+                <span class="del_modal_footer">
+                    <button class="msg_btn del_btn">Delete</button>
+                    <button type="button" class="msg_btn md_close">Cancel</button>
+                </span>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="modalContainer del_modal" id="exitGroupModal">
+        <div class="modal" role="dialog">
+
+            <form action="{% url 'leave_group' group.group_id %}" method = 'POST'>
+                {% csrf_token %}
+
+                <article>
+                    <p> Exit Group </p>
+                    <p> Are you sure you want to exit this group ?</p>
+
+                    <input type="hidden" value="yes" name = "redirect_page">
+                </article>
+
+                <span class="del_modal_footer">
+                    <button class="msg_btn">Yes</button>
+                    <button type="button" class="msg_btn md_close">No</button>
+                </span>
+
+            </form>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        let pathIds = {
+            'chats': 'gdCodes',
+            'rankings': 'gdRankings',
+            'members': 'gdMembers',
+        }
+        showPathTab(pathIds, 'entries');
+        
+        let gdMembers = document.getElementById('gdMembers');
+        let gdCodesList = document.getElementById('gdCodesList');
+        let dropdownBtns;
+        const scrollDistanceAllowed = 75;
+        let scrollDownBtn = find('.scroll_down_chats_area button');
+        
+        function updateMembersCount(){
+            let headingP = find('header p', gdMembers);
+            let membersCount = finds('.gd_member').length;
+            headingP.textContent = `Members (${membersCount})`;
+        }
+        
+        function initChatsDropdowns(){
+            dropdownObjs = dropdownObjs.filter((dd) => bdy.contains(dd.btn));
+            dropdownBtns = dropdownObjs.map((dd) => dd.btn)
+            
+            finds('.gd_code [data-dropdown]').forEach((btn) => {
+                if (!dropdownBtns.includes(btn)) {
+                    dropdownObj = new DropdownObj(btn);
+                    dropdownObjs.push(dropdownObj);
+                }
+            })
+        }
+        
+        function autoScroll(){
+            gdCodesList.scrollTo({
+                top: gdCodesList.scrollHeight,
+                behavior: "smooth",
+            });
+        }
+
+
+        bdy.addEventListener('htmx:afterRequest', (e) => {
+            if (e.target.closest('.gd_members')){
+                updateMembersCount();
+            }
+        });
+        
+        bdy.addEventListener('hx_init_components', (e) => {
+            initChatsDropdowns();
+        })
+        
+        autoScroll();
+        bdy.addEventListener('hx_auto_scroll', autoScroll);
+
+        gdCodesList.addEventListener('scroll', (e) => {
+            let scrollDistanceBottom = Math.round(gdCodesList.scrollHeight - gdCodesList.scrollTop - gdCodesList.clientHeight)
+            if (scrollDistanceBottom > scrollDistanceAllowed ){
+                scrollDownBtn.classList.add('show');
+            }
+            else {
+                scrollDownBtn.classList.remove('show');
+            }
+        })
+
+    </script>
+{% endblock %}

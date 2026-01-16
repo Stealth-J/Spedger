@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %} Groups {% endblock %}
+
+
+{% block content %}
+    
+    <div class="groups_page">
+
+        <section class="search_grps">
+            <form action = "{% url 'group_join_url' %}" method = 'POST'>
+                {% csrf_token %}
+
+                <input type="text" placeholder="Enter invite link..." name = "group_url" autocomplete = "off">
+                <button class="icon_btn">
+                    <i class="ri-arrow-up-line"></i>
+                </button>
+            </form>
+        </section>
+        
+        <section class="groups">
+            <header>
+                <div class="create_group_details">
+                    <span class="btn2_ share_btn summary_toggle_btn" role="button" id = "createNewGroupToggleBtn">
+                        Create New <i class="ri-add-large-line"></i>
+                    </span>
+
+                    <div class="create_group_holder custom_details" data-detail-toggle = "createNewGroupToggleBtn">
+                        <form class="create_group_form" action = "{% url 'group_create' %}" method = 'POST'>
+                            {% csrf_token %}
+
+                            <input type="text" placeholder="Edit group name" id="createGroupInput" maxlength="45" required name = "group_name">
+
+                            <p class="form_help_txt"><i class="ri-information-line"></i> 45 characters max</p>
+
+                            <label for="leaderTalkOnlyCb">
+                                <input type="checkbox" name="leader_only" id="leaderTalkOnlyCb">
+                                <span>Only you can send codes</span>
+                            </label>
+
+                            <label for="privateGroupCb">
+                                <input type="checkbox" name="private_group" id="privateGroupCb">
+                                <span>Make Private</span>
+                            </label>
+
+                            <button class="form_action_btn">Create</button>
+                        </form>
+                    </div>
+                </div>
+            </header>
+
+            <ul class="groups_list">
+                
+                {% if user_groups.all|length > 0 %}
+
+                    {% for group in user_groups.all %}
+                        <li class="group" id = "group{{ group.id }}">
+                            <div class="group_anchor">
+                                <a href="{% url 'group_details' group.group_id %}">
+                                    <p class="group_name txt_ellipse"> {{ group.group_name }} </p>
+                                    <span class="group_members_count" title="group members">
+                                        <i class="ri-group-line"></i> {{ group.group_members.count }}
+                                    </span>
+                                </a>
+                            </div>
+
+                            <div class="dropdown_container group_actions">
+                                <button class="icon_btn" data-dropdown="group{{ group.id }}Dropdown">
+                                    <i class="ri-more-fill"></i>
+                                </button>
+
+                                <div class="dropdown w_10" id="group{{ group.id }}Dropdown">
+                                    <ul class="dropdown_list">
+                                        <li class="buttoned" data-modal="shareGroupModal" data-button aria-expanded="false" data-share-url = "{{ group.group_url }}">
+                                            <a>Share</a>
+                                        </li>
+
+                                        <li class="buttoned">
+                                            <a hx-post = "{% url 'leave_group' group.group_id %}" hx-target = "#group{{ group.id }}" hx-swap = "delete swap:0.3s">
+                                                Exit
+                                            </a>
+                                        </li>
+
+                                        {% if group.group_leader == request.user %}
+                                            <li class="buttoned" data-modal="deleteGroupModal" data-button aria-expanded="false" data-group-id = "{{ group.group_id }}">
+                                                <a >Delete</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </li>
+                    {% endfor %}
+
+                {% else %}
+                    <div class="center_info">
+                        <span class="center_icon">
+                            <i class = "ri-information-line"></i>
+                        </span>
+                        <p class="center_info_txt">
+                            You are not a member of any group.
+                        </p>
+                    </div>
+                {% endif %}
+
+            </ul>
+        </section>
+
+    </div>
+
+{% endblock %}
+
+
+{% block modals %}
+    <div class="modalContainer del_modal" id="deleteGroupModal">
+        <div class="modal" role="dialog">
+            <form hx-post = "{% url 'delete_group' %}" hx-swap = "delete swap:0.3s" hx-vals = "">
+                <article>
+                    <p> Delete Group? </p>
+                    <p><i class="ri-error-warning-line"></i> Group's data would be deleted and cannot be recovered</p>
+                </article>
+
+                <span class="del_modal_footer">
+                    <button class="msg_btn del_btn">Delete</button>
+                    <button type="button" class="msg_btn md_close">Cancel</button>
+                </span>
+            </form>
+
+        </div>
+    </div>
+    
+    <div class="modalContainer" id="shareGroupModal">
+        <div class="modal" role="dialog">
+            <div class="share_row">
+                <input type="text" value="file:///C:/Users/HP/Documents/spedger_frontend/profile.html" readonly id="shareGroupLink">
+
+                <button class="btn2_ share_btn" data-copied="shareGroupLink" title="copy">
+                    <i class ="ri-file-copy-line"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        let groupsList = find('.groups_list');
+        let shareGroupModal = document.getElementById('shareGroupModal');
+        let deleteGroupModal = document.getElementById('deleteGroupModal');
+        
+        groupsList.addEventListener('showModal', (e) => {
+            let modal_ = e.detail.modal_container;
+            let modal_btn = e.detail.modal_btn;
+            let groupElem = e.target.closest('.group');
+
+            if (modal_ == shareGroupModal){
+                find('#shareGroupLink', modal_).value = `${window.location.origin}/${modal_btn.dataset.shareUrl}`;
+            } 
+            else if (modal_ == deleteGroupModal){
+                let idObj = JSON.stringify({'group_id': modal_btn.dataset.groupId});
+                find('form', modal_).setAttribute('hx-vals', idObj);
+                find('form', modal_).setAttribute('hx-target', `#${groupElem.id}` );
+            }
+        })
+    </script>
+{% endblock %}

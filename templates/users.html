@@ -13,7 +13,7 @@
         .center_info {
             min-height: 20vh;
         }
-        #friendRequests .center_info{
+        #friendRequests .center_info, #duels .center_info{
             padding: 0 1.5rem 8rem;
         }
     </style>
@@ -24,84 +24,12 @@
 
     <div class="users_page">
         <div class="for_mobile">
-            <details class="menu_details">
-                <summary class="summary_toggle_btn mobile_menu_toggler" data-toggle-icon>
-                    <span>
-                        <i class="ri-user-line" ></i> 
-                        <i class="ri-arrow-down-s-line" data-toggle-icon></i>
-                    </span>
-
-                    <span class = "mobile_users_options">
-                        <button data-tab2="searchUser" role="tab" tabindex="0" aria-controls="searchUser" aria-selected="true" class = "icon_btn">
-                            <i class="ri-search-line"></i>
-                        </button>
-
-                        <button data-tab2="friendRequests" role="tab" tabindex="-1" aria-controls="friendRequests" aria-selected="false" class = "icon_btn {% if received_requests %} glow {% endif %}">
-                            {% if received_requests %}
-                                <i class="ri-mail-fill"></i>
-                            {% else %}
-                                <i class="ri-mail-line"></i>
-                            {% endif %}
-                        </button>
-
-                        <button data-tab2="duels" role="tab" tabindex="-1" aria-controls="duels" aria-selected="false" class = "icon_btn">
-                            <i class="ri-history-line"></i> 
-                        </button>
-                    </span>
-                </summary>
-
-                <section class="mobile_user_menu">
-                    <section class="friends">
-                        <header>
-                            <p> Friends ({{ profile_obj.friends.all|length }})</p>
-                        </header>
-
-                        <ul class="friends_list">
-                            {% for friend in profile_obj.friends.all %}
-                                <li class="friend" data-user = "{{ friend.id }}">
-                                    <span class="friend_main">
-                                        <a href="{% url 'profile' friend.user_profile.public_id %}">
-                                            <img src="{% static friend.user_profile.avatar %}" alt="{{ friend.username }} profile">
-                                        </a>
-                                        <p class="friend_username txt_ellipse">
-                                            {{ friend.username }}
-                                        </p>
-                                    </span>
-                                    <span class="friend_sub">  
-                                        <button class="icon_btn" data-modal="startDuelModal" data-button aria-expanded="false">
-                                            <i class="ri-sword-line"></i>
-                                        </button>
-                                    </span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </section>
-
-                    <section class="users_options">
-                        <div class="mobile_tab">
-                            <button data-tab2="searchUser" role="tab" tabindex="0" aria-controls="searchUser" aria-selected="true">
-                                <i class="ri-search-line"></i> Search
-                            </button>
-                        </div>
-                        <div class="mobile_tab">
-                            <button data-tab2="friendRequests" role="tab" tabindex="-1" aria-controls="friendRequests" aria-selected="false">
-                                <i class="ri-mail-line"></i> Requests
-                            </button>
-                        </div>
-                        <div class="mobile_tab">
-                            <button data-tab2="duels" role="tab" tabindex="-1" aria-controls="duels" aria-selected="false">
-                                <i class="ri-history-line"></i> Duels
-                            </button>
-                        </div>
-                    </section>
-                </section>
-
-            </details>
+            {% include 'partials/duel_mobile_menu.html' %}
         </div>
 
         <section class="user_display">
 
-            <section class="user_option " id="searchUser" aria-labelledby="searchUser" role="tabpanel">
+            <section class="user_option active_tab2" id="searchUser" aria-labelledby="searchUser" role="tabpanel" data-tab-name = "search-users">
                 <form hx-post = "{% url 'search_users' %}" hx-target = "#searchResults" hx-indicator = "#customSpinner" hx-trigger = "keyup delay:0.5s, click from:#searchSubmitBtn" >
                     {% csrf_token %}
                     
@@ -137,7 +65,7 @@
                                     </figcaption>
                                 </figure>
                                 <div class="user_sub">
-                                    <p class="txt_ellipse" title="pure odds">1.7k</p>
+                                    <p class="txt_ellipse" title="pure odds">{{ result.pure_odds|filter_chat_odds }}</p>
 
                                     {% if not result.user in profile_obj.friends.all %}
                                         <button class="icon_btn" title="send friend request" hx-post = "{% url 'send_friend_request' result.public_id %}" hx-swap = "none">
@@ -153,7 +81,6 @@
                         <div class="center_info">
                             <p class="center_info_txt">{{ center_info_msg }}</p>
                         </div>
-                        
                     {% endif %}
                     {% endblock %}
 
@@ -163,7 +90,7 @@
             </section>
 
 
-            <section class="user_option" id="friendRequests" aria-labelledby="friendRequests" role="tabpanel">
+            <section class="user_option" id="friendRequests" aria-labelledby="friendRequests" role="tabpanel" data-tab-name = "friend-requests">
                 <article class="user_title_tab">
                     <a class="active_title_tab" data-tab2="sentRequests" aria-selected="true" tabindex="0" aria-controls="sentRequests">
                         Sent
@@ -178,289 +105,85 @@
                     </a>
                 </article>
 
-                <section class="requests_holder">
-                    <article class="sent_requests requests active_tab2" id="sentRequests" role="tabpanel">
-                    {% if sent_requests %}
-                    
-                        <div class="user_requests_list">
-
-                            {% for f_request in sent_requests %}
-                                <div class="user_request" hx-post = "{% url 'delete_request' f_request.id %}" hx-trigger = "click from:.delete_sent_btn{{ f_request.id }}" hx-swap = "delete swap:1s" hx-target = "this">
-
-                                    <figure class="request_main">
-                                        <a href="{% url 'profile' f_request.recipient.user_profile.public_id %}"> 
-                                            <img src="{% static f_request.recipient.user_profile.avatar %}" alt="{{ f_request.recipient.username }} profile image"> 
-                                        </a>
-                                        
-                                        <figcaption>
-                                            <p class="request_username txt_ellipse ">
-                                                {{ f_request.recipient.username }}
-                                            </p>
-                                            <p class="request_date txt_ellipse">
-                                                {{ f_request.time_sent|timesince|format_timesince }} ago.
-                                            </p>
-                                        </figcaption>
-                                    </figure>
-
-                                    <div class="request_sub">
-                                        <span class = "request_status {{ f_request.status }}"></span>
-
-                                        <button class="icon_btn delete_sent_btn{{ f_request.id }}" > 
-                                            <i class="ri-delete-bin-line"></i> 
-                                        </button>
-                                    </div>
-
-                                </div>
-                            {% endfor %}
-
-                        </div>
-
-                        <div class="requests_options footer_btn" >
-                            <button class="btn2_ share_btn" hx-post = "{% url 'delete_request' 'all' %}" hx-swap = 'none'>
-                                Delete All
-                            </button>
-                        </div>
-                    
-                    {% else %}
-                        <div class="center_info">
-                            <p class="center_info_txt">No requests have been sent </p>
-                        </div>
-                    {% endif %}
-
-                    </article>
-                    
-
-                    <article class="received_requests requests" id="receivedRequests" role="tabpanel">
-                    {% if received_requests %}
-
-                        <div class="user_requests_list">
-                            {% for r_request in received_requests %}
-                                <div class="user_request" id = "r_request_{{ r_request.id }}">
-
-                                    <figure class="request_main">
-                                        <a href="{% url 'profile' r_request.sender.user_profile.public_id %}"> 
-                                            <img src="{% static r_request.sender.user_profile.avatar %}" alt="{{ r_request.sender.username }} profile image"> 
-                                        </a>
-
-                                        <figcaption>
-                                            <p class="request_username txt_ellipse">
-                                                {{ r_request.sender.username }}
-                                            </p>
-                                            <p class="request_date txt_ellipse">
-                                                {{ r_request.time_sent|timesince|format_timesince }} ago.
-                                            </p>
-                                        </figcaption>
-                                    </figure>
-
-                                    <div class="request_sub">
-                                        <button class="icon_btn" title="accept request" hx-post = '{% url "accept_request" r_request.id %}' hx-target = "#r_request_{{ r_request.id }}" hx-swap = "delete swap:1s"> 
-                                            <i class="ri-checkbox-circle-fill"></i> 
-                                        </button>
-
-                                        <button class="icon_btn" title="reject request" hx-post = '{% url "reject_request" r_request.id %}' hx-target = "#r_request_{{ r_request.id }}" hx-swap = "delete swap:1s">
-                                            <i class="ri-close-circle-fill"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="requests_options footer_btn" >
-                            <button class="btn2_ share_btn" hx-post = "{% url 'accept_request' 'all' %}" hx-swap = 'none'>
-                                Accept All
-                            </button>
-
-                            <button class="btn2_ share_btn" hx-post = "{% url 'reject_request' 'all' %}" hx-swap = 'none'>
-                                Reject All
-                            </button>
-                        </div>
-                    
-                    {% else %}
-                        <div class="center_info">
-                            <p class="center_info_txt">You have not received any requests</p>
-                        </div>
-                    {% endif %}
-                    </article>
-                </section>
-
+                {% include 'partials/requests.html' %}
             </section>
 
 
-            <section class="user_option active_tab2" id="duels" aria-labelledby="duels" role="tabpanel">
-                <form class="duels_filter">
-                    <div>
+            <section class="user_option" id="duels" aria-labelledby="duels" role="tabpanel" data-tab-name = "duels">
+                <form class="duels_filter" hx-post = "{% url 'filter_duels' %}" hx-target = "#duelsHistory" hx-indicator = "#customSpinner4">
+
+                    <div class = "duels_filter_categories">
+                        <label for="sentDuels" class="duels_filter_cb">
+                            <input type="radio" name="duel_filter2" id="sentDuels" value = "sent">
+
+                            <span class="custom_duel_cb">Sent <i class="ri-check-line checkmark"></i></span>
+                        </label>
+
+                        <label for="receivedDuels" class="duels_filter_cb">
+                            <input type="radio" name="duel_filter2" id="receivedDuels" value = "received">
+
+                            <span class="custom_duel_cb">Received <i class="ri-check-line checkmark"></i></span>
+                        </label>
+
                         <label for="activeDuels" class="duels_filter_cb">
-                            <input type="radio" name="duel_filter" id="activeDuels">
+                            <input type="radio" name="duel_filter" id="activeDuels" value = "active">
 
                             <span class="custom_duel_cb">Active <i class="ri-check-line checkmark"></i></span>
                         </label>
+
                         <label for="duelWinsInput" class="duels_filter_cb">
-                            <input type="radio" name="duel_filter" id="duelWinsInput">
+                            <input type="radio" name="duel_filter" id="duelWinsInput" value = "wins">
 
                             <span class="custom_duel_cb">Wins Only<i class="ri-check-line checkmark"></i></span>
                         </label>
+
+                        <label for="rejectedDuelsInput" class="duels_filter_cb">
+                            <input type="radio" name="duel_filter" id="rejectedDuelsInput" value = "rejected">
+
+                            <span class="custom_duel_cb">Rejected<i class="ri-check-line checkmark"></i></span>
+                        </label>
                     </div>
 
-                    <button type="submit" class="btn2_ share_btn">Filter</button>
+                    <button type="submit" class="btn2_ share_btn" >
+                        Filter
+                    </button>
                 </form>
 
-                <article class="duels_history">
-                    {% for duel in your_duels %}
+                <span class = "htmx-indicator" id = "customSpinner4"> 
+                    <div class="loader">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </span>                
 
-                    <article class="duel">
-                        <details class="duel_details">
-                            <summary>
-                                <article class="duel_main summary_toggle_btn">
-                                    <div class="you duelist">
-                                        <figure>
-                                            <a href="{% url 'profile' duel. %}"> <img src="{% static 'img/avatars/(´･ᴗ･ ` ) Avatar (1).jpeg' %}" alt="profile img"> </a>
-                                            <figcaption class="txt_ellipse">You</figcaption>
-                                        </figure>
-                                        <article class="duel_stats winner">
-                                            <p title="win %">100</p>
-                                            <span class="winner_indicator">
-                                                <i class="ri-award-fill"></i>
-                                            </span>
-                                        </article>
-                                    </div>
-                                    <div class="them duelist">
-                                        <figure>
-                                            <a href=""> <img src="{% static 'img/avatars/Erin Hunting.jpeg' %}" alt="profile img">  </a>
-                                            <figcaption class="txt_ellipse duel_username">Bobo</figcaption>
-                                        </figure>
-                                        <article class="duel_stats">
-                                            <p title="win %">98</p>
-                                            <span class="winner_indicator">
-                                                <i class="ri-award-fill"></i>
-                                            </span>
-                                        </article>
-                                    </div>
-                                </article>
-                            </summary>
+                <section id = "duelsHistory" >
+                    {% block duels_history_block %}
+                        {% if your_duels %}
 
-                            <article class="duel_extra">
-                                <figure>
-                                    <table>
-                                        <tbody>
-                                            <tr class="table_head">
-                                                <td></td>
-                                                <td>win %</td>
-                                                <td>odds</td>
-                                                <td>gl</td>
-                                                <td>code</td>
-                                            </tr>
-                                            <tr>
-                                                <td>you</td>
-                                                <td>100</td>
-                                                <td>39.9</td>
-                                                <td>12</td>
-                                                <td>98TY8A</td>
-                                            </tr>
-                                            <tr>
-                                                <td>bobo</td>
-                                                <td>15</td>
-                                                <td>17.3</td>
-                                                <td>9</td>
-                                                <td>~</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-                                    <figcaption>gl - games left</figcaption>
-                                </figure>
-                                
-
-                                <p class="duel_date">
-                                    Settled - 18 Oct 2025.
-                                </p>
+                            <article class="duels_history">
+                                {% for duel in your_duels %}
+                                    {% include 'partials/duel.html' %}
+                                {% endfor %}
                             </article>
-                        </details>
 
-                        <div class="duel_helpers">
-                            <button class="btn2_ share_btn" data-modal="updateDuelModal" data-button aria-expanded="false">
-                                Accept
-                            </button>
-                            <button class="btn2_ share_btn">Reject</button>
-                        </div>
-                    </article>
+                            <div class="footer_btn">
+                                <button class="btn2_ share_btn">Load More...</button>
+                            </div>
 
-                    <article class="duel">
-                        <details class="duel_details">
-                            <summary>
-                                <article class="duel_main summary_toggle_btn">
-                                    <div class="you duelist">
-                                        <figure>
-                                            <a href=""> <img src="{% static 'img/avatars/(´･ᴗ･ ` ) Avatar (1).jpeg' %}" alt="profile img"> </a>
-                                            <figcaption class="txt_ellipse">You</figcaption>
-                                        </figure>
-                                        <article class="duel_stats winner">
-                                            <p title="win %">100</p>
-                                            <span class="winner_indicator">
-                                                <i class="ri-award-fill"></i>
-                                            </span>
-                                        </article>
-                                    </div>
-                                    <div class="them duelist">
-                                        <figure>
-                                            <a href=""> <img src="{% static 'img/avatars/Erin Hunting.jpeg' %}" alt="profile img">  </a>
-                                            <figcaption class="txt_ellipse duel_username">konate_the_third</figcaption>
-                                        </figure>
-                                        <article class="duel_stats">
-                                            <p title="win %">98</p>
-                                            <span class="winner_indicator">
-                                                <i class="ri-award-fill"></i>
-                                            </span>
-                                        </article>
-                                    </div>
-                                </article>
-                            </summary>
-
-                            <article class="duel_extra">
-                                <figure>
-                                    <table>
-                                        <tbody>
-                                            <tr class="table_head">
-                                                <td></td>
-                                                <td>win %</td>
-                                                <td>odds</td>
-                                                <td>gl</td>
-                                                <td>code</td>
-                                            </tr>
-                                            <tr>
-                                                <td>you</td>
-                                                <td>100</td>
-                                                <td>39.9</td>
-                                                <td>12</td>
-                                                <td>98TY8A</td>
-                                            </tr>
-                                            <tr>
-                                                <td>bobo</td>
-                                                <td>15</td>
-                                                <td>17.3</td>
-                                                <td>9</td>
-                                                <td>~</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-                                    <figcaption>gl - games left</figcaption>
-                                </figure>
-                                
-
-                                <p class="duel_date">
-                                    Settled - 18 Oct 2025.
+                        {% else %}
+                            <div class="center_info">
+                                <span class="center_icon">
+                                    <i class = "ri-information-line"></i>
+                                </span>
+                                <p class="center_info_txt">
+                                    You'll see your previous duels here 
                                 </p>
-                            </article>
-                        </details>
-                    </article>
-
-                    {% endfor %}
-
-                </article>
-
-                <div class="footer_btn">
-                    <button class="btn2_ share_btn">Load More...</button>
-                </div>
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                </section>
             </section>
         </section>
 
@@ -484,7 +207,7 @@
                             </span>
                             <span class="friend_sub">  
                                 <button class="icon_btn" data-modal="startDuelModal" data-button aria-expanded="false">
-                                    <i class="ri-sword-line"></i>
+                                    <i class="ri-scales-line"></i>
                                 </button>
                             </span>
                         </li>
@@ -503,14 +226,19 @@
                         <i class="ri-mail-line"></i> Requests
                         {% if received_requests %}
                             <span class = "notif_span">
-                                {{ received_requests|length }}
+                                {{ received_requests|length|compact_num }}
                             </span>
                         {% endif %}
                     </button>
                 </div>
                 <div>
                     <button data-tab2="duels" role="tab" tabindex="-1" aria-controls="duels" aria-selected="false">
-                        <i class="ri-history-line"></i> Duels
+                        <i class="ri-scales-line"></i> Duels
+                        {% if open_duels %}
+                            <span class = "notif_span">
+                                {{ open_duels|length|compact_num }}
+                            </span>
+                        {% endif %}
                     </button>
                 </div>
             </section>
@@ -520,16 +248,12 @@
 {% endblock %}
 
 
-{% block scripts %} 
-    <script src = "{% static 'js/users.js' %}"></script> 
-{% endblock %}
-
 
 {% block modals %}
 
     <div class="modalContainer" id="startDuelModal">
         <div class="modal" role="contentinfo">
-            <form action="" class="duel_form" hx-post = "{% url 'send_duel_request' %}" hx-indicator = "#customSpinner2" hx-swap = "none">
+            <form action="" class="duel_form" hx-post = "{% url 'send_duel_request' %}" hx-indicator = "#customSpinner2" hx-swap = "outerHTML" hx-target = "#startDuelFormErrors">
 
                 <section class="your_code user_code">
                     <p class="txt_ellipse">You</p>
@@ -537,7 +261,7 @@
                 </section>
 
                 <section class="their_code user_code">
-                    <p class="txt_ellipse">buggy</p>
+                    <p class="txt_ellipse"></p>
                     <input type="text" readonly>
                     <input type="hidden" name = "recipient">
                 </section>
@@ -552,6 +276,12 @@
                     </div>
                 </section>
 
+                {% block form_error_block2 %}
+                    <span class="form_error_txt" id="startDuelFormErrors">
+                        {{ form_error }}
+                    </span>
+                {% endblock %}
+
                 <span class = "htmx-indicator" id = "customSpinner2"> 
                     <div class="loader">
                         <span></span>
@@ -561,91 +291,7 @@
                     </div>
                 </span>
 
-                <section class="help_section">
-                    <details>
-                        <summary class="rules_toggler">
-                            <span class="summary_toggle_btn">Help </span>
-                        </summary>
-
-                        <article class="rules">
-                            <article class="rules_block">
-                                <p class="rules_block_header">Starting a Duel</p>
-                                <ol class="rules_block_body">
-                                    <li><span>
-                                        You initiate a duel by challenging a friend and submitting your slip code.
-                                    </span></li>
-                                    <li><span>
-                                        Once submitted, your code is final and cannot be edited or replaced.
-                                    </span></li>
-                                    <li><span>
-                                        The challenged user must accept the duel and submit their own slip code to begin.
-                                    </span></li>
-                                    <li><span>
-                                        As the challenger, you may define a minimum total odds requirement for your opponent’s slip. This ensures both parties compete on meaningful predictions and prevents ultra-low-risk entries.
-                                    </span></li>
-                                </ol>
-                            </article>
-
-                            <article class="rules_block">
-                                <p class="rules_block_header">Participation Rules</p>
-                                <ol class="rules_block_body">
-                                    <li><span>
-                                        Duels can only be initiated between friends.
-                                    </span></li>
-                                    <li><span>
-                                        Any incoming duel requests can be viewed and managed from the Duels tab.
-                                    </span></li>
-                                    <li><span>
-                                        You can also monitor active duels progress from the Duels tab.
-                                    </span></li>
-                                </ol>
-                            </article>
-
-                            <article class="rules_block">
-                                <p class="rules_block_header">Determining the Winner</p>
-                                <ol class="rules_block_body">
-                                    <li><span>
-                                        The duel is primarily decided by win percentage, measuring overall prediction accuracy.
-                                    </span></li>
-                                    <li><span>
-                                        If both participants have the same win percentage, total odds are used as the tie-breaker.
-                                    </span></li>
-                                    <li><span>
-                                        If total odds are also equal, the duel is declared a draw.
-                                    </span></li>
-                                </ol>
-                            </article>
-
-                            <article class="rules_block">
-                                <p class="rules_block_header">Visibility & Fair Play</p>
-                                <ol class="rules_block_body">
-
-                                    <li><span>
-                                        A participant’s slip code remains hidden from the opponent until the duel is fully concluded.
-                                    </span></li>
-                                    <li><span>
-                                        This ensures fair competition and prevents strategy copying during active duels.
-                                    </span></li>
-                                </ol>
-                            </article>
-
-                            <article class="rules_block">
-                                <p class="rules_block_header">Duel Completion</p>
-                                <ol class="rules_block_body">
-
-                                    <li><span>
-                                        A duel concludes only after every game on both participants’ slips has been played.
-                                    </span></li>
-                                    <li><span>
-                                        Once concluded, results are finalized and both codes become visible.
-                                    </span></li>
-                                </ol>
-                            </article>
-
-                        </article>
-
-                    </details>
-                </section>
+                {% include 'partials/duel_help_section.html' %}
 
                 <button class="form_action_btn">Submit</button>
             </form>
@@ -655,12 +301,29 @@
 
     <div class="modalContainer" id="updateDuelModal">
         <div class="modal">
-            <form action="" class="duel_form">
+            <form action="" class="duel_form" hx-post = "{% url 'accept_duel' %}" hx-target = "#acceptDuelFormErrors" hx-swap = "outerHTML" hx-indicator = "#customSpinner3">
 
                 <section class="your_code user_code">
-                    <input type="text" placeholder="Your Code..." maxlength="15" required>
-                    <input type="hidden" class="username_input">
+                    <input type="text" placeholder="Your Code..." maxlength="15" name = "slip_code" hx-clear-input required>
+                    <input type="hidden" class="duel_id_input" name = "duel_id">
                 </section>
+
+                <span class = "duel_min_odds"></span>
+
+                {% block form_error_block %}
+                    <span class="form_error_txt" id = "acceptDuelFormErrors">
+                        {{ form_error }}
+                    </span>
+                {% endblock %}
+
+                <span class = "htmx-indicator" id = "customSpinner3"> 
+                    <div class="loader">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </span>
 
                 <button class="form_action_btn">Submit</button>
             </form>
@@ -668,4 +331,9 @@
         </div>
     </div>
 
+{% endblock %}
+
+
+{% block scripts %} 
+    <script src = "{% static 'js/users.js' %}"></script> 
 {% endblock %}

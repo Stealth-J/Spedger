@@ -32,7 +32,7 @@
             <header>
                 <figure class="profile dropdown_container">
                     <a href="{% url 'profile' user.user_profile.public_id %}" >
-                        <img src="https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=612x612&w=0&k=20&c=dhV2p1JwmloBTOaGAtaA3AW1KSnjsdMt7-U_3EZElZ0=" alt="Profile photo" class="logo" title="Profile">
+                        <img src="{% static profile_obj.avatar %}" alt="Profile photo" class="logo">
                     </a>
 
                     <span data-dropdown="logoutDropdown" >
@@ -57,15 +57,44 @@
                     </div>
                 </figure>
 
-                <a href="" class="icon_btn notifs" >
-                    <i class="ri-notification-2-line"></i>
-                </a>
+                <span class = "dropdown_container notifs">
+                    <button data-dropdown = "notificationDropdown" class="icon_btn notifs relt" data-dropdown-align ="left">
+                        {% if total_notifs > 0 %}
+                            <span class = "notif_dot"></span>
+                            <i class="ri-notification-2-line"></i>
+                        {% else %}
+                            <i class="ri-notification-2-line"></i>
+                        {% endif %}
+                    </button>
+
+                    <div class="dropdown w_12" id="notificationDropdown" >
+                        <ul class="dropdown_list">
+                            <li class="buttoned notif_list">
+                                <a href="/users?tab=duels">
+                                    <p class = "buttoned_subject">
+                                        Duels
+                                    </p>
+                                    <span class = "buttoned_val"">{{ tt_duels }}</span>
+                                </a>
+                            </li>
+                                
+                            <li class="buttoned notif_list">
+                                <a href="/users?tab=friend-requests">
+                                    <p class="buttoned_subject">Requests</p>    
+                                    <span class="buttoned_val">
+                                        {{ tt_requests }}
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </span>
                 
             </header>
 
             <nav class="sidebar_nav">
-                <a href="" class="sidebar_main">
-                    My Diary 
+                <a href="{% url 'my_diary' %}" class="sidebar_main {% if request.path == '/my-diary' %} active_item {% endif %}">
+                    My Diary
                 </a>
 
                 <ul class="mainlist">
@@ -77,7 +106,7 @@
                         <i class="ri-user-3-line"></i> Users
                     </a></li>
 
-                    <li><a href="" class="sidebar_item {% if request.path == '/groups' %} active_item {% endif %}"" data-icon-fill>
+                    <li><a href="{% url 'groups' %}" class="sidebar_item {% if 'group' in request.path %} active_item {% endif %}"" data-icon-fill>
                         <i class="ri-group-3-line"></i> Groups
                     </a></li>
 

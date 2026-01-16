@@ -1,11 +1,24 @@
-
-@import url('styles.css');
-
+/* {% load static %} */
 
 summary{
     list-style-type: none;
 }
 
+.save_changes_btn{
+    width: 100%;
+    background-color: transparent;
+    border-radius: 10px;
+    font-weight: 500;
+    color: var(--col-sub);
+    padding: 0.8em;
+}
+.save_changes_btn:hover{
+    background-color: var(--bgcol-card);
+    color: var(--col-main);
+}
+.save_changes_btn:active{
+    background-color: var(--bgcol-darker);
+}
 
 .my_diary{
     border: var(--border-main);
@@ -19,13 +32,15 @@ summary{
 }
 .heading_animation{
     margin-top: 1em;
-    height: 7em;
+    height: 10em;
     max-height: 10em;
     display: block;
     overflow: hidden;
     border: var(--border-main);
     margin-bottom: 1em;
+    background-position: var(--pos-x) var(--pos-y);
 }
+
 .my_diary header p{
     color: var(--col-muted);
     font-size: 0.85em;
@@ -45,10 +60,10 @@ summary{
     color: var(--col-muted);
     transition: transform 0.2s ease;
 }
-.tab_btns_holder > div:hover, .active_tab_btn{
+.tab_btns_holder > div:hover, [aria-selected = true]{
     box-shadow: var(--bxs-light);
 }
-.active_tab_btn{
+[aria-selected = true]{
     transform: scale(1.1);
 }
 .entries_tab{
@@ -64,22 +79,25 @@ summary{
 .entries_tab figure:hover{
     color: var(--col-sub);
 }
-.entries_tab.active_tab_btn figure{
+.entries_tab[aria-selected = true] figure{
     color: var(--col-main);
 }
 .entries_tab .helper_btns{
     display: flex;
 }
 .helper_btns button{
-    width: 50%;
+    width: calc(100% / 3);
     border: none;
     border-radius: 0 0 15px 15px;
     border-top: var(--border-main);
     color: var(--col-muted);
 }
-#deleteAllEntries{
+.helper_btns button:not(.helper_btns button:first-child){
     border-bottom-left-radius: 0;
     border-left: var(--border-main);
+}
+.helper_btns button:not(.helper_btns button:last-child){
+    border-bottom-right-radius: 0;
 }
 .helper_btns button:hover{
     border-color: var(--bgcol-focus);
@@ -94,7 +112,7 @@ summary{
 .create_entries_tab:hover{
     color: var(--col-sub);
 }
-.create_entries_tab.active_tab_btn{
+.create_entries_tab[aria-selected = true]{
     color: var(--col-main);
 }
 
@@ -125,7 +143,7 @@ span > .select_btn{
 }
 .entries header{
     position: sticky;
-    top: var(--height-sticky);
+    top: var(--height-nav);
     background-color: var(--bgcol-lighter);
     padding: 1em;
     z-index: 11;
@@ -138,9 +156,14 @@ span > .select_btn{
 .entry{
     display: flex;
     align-items: flex-start;
-    border-radius: 10px;
+    border-radius: 20px;
     font-family: var(--ff-slip);
     margin-bottom: 0.8rem;
+}
+.entry.htmx-swapping{
+    opacity: 0;
+    transform: translateX(-2em);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
 .entry > details{
     width: 100%;
@@ -152,30 +175,34 @@ span > .select_btn{
     min-width: 0;
     display: flex;
     justify-content: space-between;
-    border-radius: 10px;
+    border-radius: 20px;
 }
 .entry_main .slip_code{
-    font-size: 1.2rem;
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.5rem;
+}
+.entry_main strong{
+    font-family: var(--ff-style);
+    font-weight: 300;
 }
 .entry_main span{
     display: flex;
     align-items: center;
-    font-size: 0.85rem;
     color: var(--col-sub);
+    font-family: var(--ff-style);
 }
 span.award_icon{
     color: var(--bgcol-award);
     padding-left: 0.5em;
 }
-.entry_main .total_games{
+.entry_main .total_odds{
     padding-right: 0.5em;
     border-right: var(--border-last);
 }
 .slip_date{
     color: var(--col-muted);
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     margin-left: 1.5em;
+    margin-top: auto;
 }
 .entry_main .percent{
     padding-left: 0.5em;
@@ -183,13 +210,14 @@ span.award_icon{
 .entry_btns{
     display: flex;
     align-items: end;
+    padding: 0.5rem;
 }
 .entry_btn{
     border: none;
     background-color: transparent;
     color: var(--col-sub);
     cursor: pointer;
-    margin-right: 0.4em;
+    margin-right: 0.7em;
     font-size: 1.2rem;
     transition: transform 0.1s ease-out;
 }
@@ -202,11 +230,11 @@ span.award_icon{
     margin: 1em;
     font-size: 0.75rem;
     display: grid;
-    grid-template-columns: 30% 30% 30%;
+    grid-template-columns: 23% 23% 23% 23%;
     gap: 1em;
     justify-content: center;
 }
-.game{
+.entry .game{
     border: var(--border-main);
     border-radius: 0 20px 5px 5px;
     padding: 1em 0.7em 0.2em;
@@ -218,7 +246,7 @@ span.award_icon{
     background-color: var(--bgcol-card);
     position: relative;
 }
-.game::before{
+/* .entry .game::before{
     content: "";
     top: 0;
     left: 0;
@@ -229,21 +257,25 @@ span.award_icon{
     border-right: 1.2em solid transparent;
     transition: transform 0.25s ease, filter 0.25s ease;
     transform-origin: top left;
-}
-.game:hover{
+} */
+.entry .game:hover{
     box-shadow: var(--bxs-darker);
     color: var(--col-main);
 }
-.game:hover::before {
+/* .entry .game:hover::before {
     transform: rotate(-6deg) translate(-2px, -2px);
     filter: drop-shadow(2px 3px 4px rgba(149,157,165,.2));
-}
+} */
 .top_row{
     display: flex;
     justify-content: space-between;
     border-bottom: var(--border-main);
     margin-bottom: 0.7em;
     padding-bottom: 0.2em;
+}
+.top_row .dropdown_container{
+    width: 20%;
+    text-align: end;
 }
 .top_row button{
     border: none;
@@ -257,46 +289,52 @@ span.award_icon{
 .game_body{
     font-weight: lighter;
 }
-.game_body .odds{
-    font-size: 0.8rem;
+.entry .pick{
+    font-weight: normal;
+    font-size: 0.9rem;
+}
+.entry .game_body .odds{
+    font-size: 0.9rem;
+    font-family: var(--ff-style);
     font-weight: normal;
     margin: 0.5rem 0;
     text-align: right;
 }
-.game_footer{
+.entry .game_footer{
     text-align: right;
     margin-top: auto;
     display: flex;
     justify-content: space-between;
 }
-.sport_icon{
+.entry .sport_icon{
     width: 1em;
 }
-.success_icon i {
+.entry .success_icon i {
     font-size: 1.5em;
 }
-i[class *= ri-checkbox-circle-fill]{
+.entry i[class *= ri-checkbox-circle-fill]{
     color: var(--col-success);
 }
-i[class *= ri-close-circle-fill]{
+.entry i[class *= ri-close-circle-fill]{
     color: var(--col-error);
 }
-i[class *= "ri-indeterminate-circle-fill"]{
+.entry i[class *= "ri-indeterminate-circle-fill"]{
     color: var(--bgcol-focus);
 }
 
-.game .dropdown{
+.entry .game .dropdown{
     font-size: 0.7rem;
     color: var(--col-muted);
     width: 9rem;
     padding: 0.7em;
     z-index: 10;
+    text-align: left;
 }
-.game_extra:not(.game_extra:last-of-type){
+.entry .game_extra:not(.game_extra:last-of-type){
     display: block;
     margin-bottom: 0.2em;
 }
-.game_extra i{
+.entry .game_extra i{
     margin-right: 0.5em;
 }
 
@@ -322,11 +360,14 @@ input[name = deleted_item]{
     border-radius: 5px;
     display: block;
     border: 1px solid var(--col-sub);
-    width: 1em;
+    width: 1px;
     height: 2em;
     cursor: pointer;
     border-width: 1px;
     transition: border .1s ease;
+}
+.checkbox_container.show .custom{
+    width: 1em;
 }
 input[name = deleted_item]:checked + .custom{
     border-color: var(--col-sub);
@@ -343,11 +384,12 @@ input[name = deleted_item]:checked + .custom{
 
 section.create_entry{
     display: flex;
-    gap: 2%;
+    gap: 0.5rem;
+    justify-content: space-between;
     align-items: flex-start;
 }
 #createEntryForm{
-    width: 44%;
+    width: 48%;
     border: var(--border-main);
     padding: 1em;
     border-radius: 10px;
@@ -363,7 +405,9 @@ section.create_entry{
     width: 80%;
     border: var(--border-main);
     padding: 0.5em;
+    padding-left: 1.5rem;
     background-color: transparent;
+    font-size: 1.2rem;
 }
 #createEntryForm input:focus{
     outline: none;
@@ -384,6 +428,7 @@ section.create_entry{
 }
 #createEntryForm .dropdown_container{
     margin-left: auto;
+    margin-top: 0.9em;
 }
 button[data-dropdown = "formHelpDropdown"] {
     color: var(--col-muted); 
@@ -401,93 +446,19 @@ button[data-dropdown = "formHelpDropdown"] {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
 }
-.form_action_btn{
-    padding: 0.5em ;
-}
 
 
-.slip_preview{
-    font-family: var(--ff-slip);
-    width: 54%;
-    border: var(--border-main);
+.wkly_games_list .game_rhs{
+    margin-right: 0.5rem;
 }
-.slip_preview header{
-    font-size: 1.2rem;
-    color: var(--col-muted);
-    padding: 0.3em 0 0.2em;
-    margin-bottom: 0.5em;
-    background-color: var(--bgcol-card);
-    border-bottom: var(--border-main);
-}
-.p_game > details{
-    padding: 0.5em 1em;
-}
-.p_game{
-    border-bottom: var(--border-main);
-}
-.p_game:last-of-type{
-    border-bottom: none;
-}
-.p_summary{
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    color: var(--col-sub);
-}
-.rhs, .lhs{
-    display: flex;
-    flex-direction: column;
-}
-.lhs .sport_icon{
-    margin-top: auto;
-}
-span.rhs .p_odds{
-    margin-top: auto;
-    font-size: 1.1rem;
-}
-.p_extra{
-    margin-top: 0.3rem;
-    padding: 0.3rem 0.7rem;
-    color: var(--col-muted);
-    font-size: 0.75rem;
-    display: flex;
-    gap: 4%;
-    border: var(--border-main);
-    border-radius: 10px;
-    background: var(--bgcol-card);
-    margin: 0.4em 0.7em;
-    margin-right: 0;
-}
-.p_extra:hover{
-    box-shadow: var(--bxs-darker);
-}
-.p_extra .left_row{
-    width: 50%;
-    border-right: var(--border-main);
-}
-.p_pick{
-    font-size: 0.9rem ;
-    margin-top: 0.3em;
-}
-.p_extra .right_row{
-    text-align: right;
-    width: 46%;
-    color: var(--col-muted);
-}
-#removeSelectionBtn{
-    border-radius: none;
-    color: var(--col-sub);
-    transition: transform 0.1s ease-in-out;
-}
-#removeSelectionBtn:hover{
-    color: var(--col-main);
-    transform: scale(1.05);
+.wkly_games_list .odds{
+    font-size: 1rem !important;
 }
 
 
 
 .del_modal .modal{
-    border-radius: 5px;
+    border-radius: 10px;
     height: auto;
     display: flex;
     flex-direction: column;
@@ -497,8 +468,9 @@ span.rhs .p_odds{
     color: var(--col-sub);
 }
 .del_modal article{
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     padding: 0.7em 0;
+    padding-top: 1.2em;
 }
 .del_modal p:first-of-type{
     font-size: 1.2rem;
@@ -527,14 +499,14 @@ span.rhs .p_odds{
     color: var(--col-main);
 }
 .modal_footer button:first-child{
-    border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 10px;
 }
 .modal_footer button:last-child{
-    border-bottom-right-radius: 5px;
+    border-bottom-right-radius: 10px;
     border-left: var(--border-main);
 }
 #filterEntriesModal .modal{
-    border-radius: 5px;
+    border-radius: 10px;
     height: auto;
     padding: 0;
     width: 28rem;
@@ -542,7 +514,7 @@ span.rhs .p_odds{
 #filterEntriesModal .heading_text{
     font-size: 1.2rem;
     text-align: center;
-    margin: 0.5em 0 1em;
+    margin: 1em 0 1em;
 }
 #filterEntriesModal form{
     padding-bottom: 2em;
@@ -583,12 +555,19 @@ td.label{
     outline: none;
     border: var(--border-last);
 }
+.filter_input[name = slip_code]{
+    font-family: var(--ff-slip);
+}
+.filter_input[type = number]{
+    font-family: var(--ff-style);
+}
 .last_tr td{
     text-align: right;
 }
 .last_tr button{
     font-size: 0.85rem ;
     margin: 0;
+    padding: 0.4rem 1rem;
 }
 td input[type = checkbox]{
     height: 1.3em;
@@ -597,9 +576,31 @@ td input[type = checkbox]{
 }
 #filterEntriesModal .modal_footer button{
     width: 100%;
+    border-left: none;
 }
 .conjunction{
     margin: 0 0.3em;
+}
+
+
+.entries .center_info{
+    min-height: 30vh;
+    font-family: var(--ff-main);
+}
+.form_action_btn{
+    margin-bottom: 0 !important;
+}
+.save_changes_btn{
+    margin-top: 0.5em !important;
+}
+#customSpinner2{
+    margin-top: 5rem;
+}
+.entry p.slip_code + span{
+    font-family: var(--ff-style);
+}
+.entry p.home{
+    margin-bottom: 0.2rem;
 }
 
 
@@ -625,19 +626,27 @@ td input[type = checkbox]{
 
 @media screen and (max-width: 64rem) {
     .games_list{
-        grid-template-columns: 45% 45%;
+        grid-template-columns: 30% 30% 30%;
         gap: 1em;
     }
 }
 
 
 @media screen and (max-width: 50rem) {
+    body{
+        --height-nav: 4.9rem;
+    }
+
+    .my_diary{
+        margin: 0;
+    }
+
     .tab_btns_holder > div{
         height: 8em;
         width: 43%;
         font-size: 85%;
     }
-    .active_tab_btn{
+    [aria-selected = true]{
         transform: scale(1.05);
     }
     .entries_tab{
@@ -653,17 +662,17 @@ td input[type = checkbox]{
         padding-left: 0.9em;
     }
     .entry_main .slip_code{
-        font-size: 1rem;
+        font-size: 0.9rem;
         margin-bottom: 0.5rem;
     }
     .entry_main span{
-        font-size: 0.75rem;
+        font-size: 0.9rem;
     }
     .slip_date{
-        font-size: 0.55rem;
+        font-size: 0.7rem;
     }
     .entry_btn{
-        margin-right: 0.2em;
+        margin-right: 0.5em;
         font-size: 1rem;
     }
     .entry_btn:hover{
@@ -671,11 +680,11 @@ td input[type = checkbox]{
     }
 
     .games_list{
-        grid-template-columns: 95%;
+        grid-template-columns: 50% 50%;
         gap: 0.8em;
         font-size: 0.7rem;
     }
-    .game{
+    .entry .game{
         min-height: 8em;
         margin-bottom: 0.35em;
     }
@@ -687,7 +696,8 @@ td input[type = checkbox]{
     }
     #createEntryForm{
         width: 100%;
-    }    
+        position: static !important;
+    }
     .slip_preview{
         width: 100%;
     }

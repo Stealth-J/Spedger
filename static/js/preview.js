@@ -64,3 +64,14 @@ bdy.addEventListener('preview_success', () => {
     initRemoveSelection();
     saveChangesBtn.disabled = true;
 });
+
+
+function previewCodeFromURL(){
+    let params = new URLSearchParams(window.location.search);
+    let code = params.get('slip_code')
+    if (!code) return;
+    find('#previewSlipForm input').value = code;
+    find('.form_action_btn').click();
+}
+
+document.addEventListener('DOMContentLoaded', previewCodeFromURL);

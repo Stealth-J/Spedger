@@ -56,8 +56,14 @@ function updateDuelForm(e){
     } 
     else if (e.currentTarget.closest('#duels')) {
         let duel = e.target.closest('.duel');
-        other_username = find('.duel_username', duel).textContent;
-        find('.username_input', modal_container).value = other_username;
+        let duel_username = find('.duelist:not(.you) .duel_username', duel);
+        let duel_id = duel_username.dataset.duel;
+        let duel_min_odds = duel_username.dataset.minOdds
+        find('.duel_id_input', modal_container).value = duel_id;
+
+        if (duel_min_odds !== 'None') {
+            find('.duel_min_odds', modal_container).textContent = `Minimum - ${duel_min_odds}`;
+        }
     }
 }
 function restoreDuelForm(e){
@@ -68,8 +74,10 @@ function restoreDuelForm(e){
         find('#minimumOddsCb', modal_container).checked = false;
     } 
     else if (e.currentTarget.closest('#duels')) {
-        find('.username_input', modal_container).value = '';
+        find('.duel_id_input', modal_container).value = '';
+        find('.duel_min_odds', modal_container).textContent = '';
     }
+    find('.form_error_txt', modal_container).textContent = '';
 }
 
 finds('.friends').forEach((elem) => {
@@ -78,3 +86,20 @@ finds('.friends').forEach((elem) => {
 })
 find('#duels').addEventListener('showModal', updateDuelForm)
 find('#duels').addEventListener('hideModal', restoreDuelForm);
+
+
+finds('.duels_filter_cb').forEach((label) => {
+    let rad = find('input[type = radio]', label)
+    label.addEventListener('click', (e) => {
+        e.preventDefault();
+        rad.checked = !rad.checked
+    })
+})
+
+let pathIds = {
+    'search-users': 'searchUser',
+    'friend-requests': 'friendRequests',
+    'duels': 'duels',
+}
+
+showPathTab(pathIds);

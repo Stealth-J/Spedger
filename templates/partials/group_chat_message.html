@@ -1,0 +1,82 @@
+{% load custom_filters %}
+
+{% if profile_obj in group.group_members.all or msg.slip.settled %}
+
+    <article class="gd_code {% if msg.user == request.user %} yours {% endif %}" id = "groupChatCode{{ msg.id }}">
+        <header>
+            <div class="code_sender">
+                <a href="{% url 'profile' msg.user.user_profile.public_id %}" class="sender_name txt_ellipse">
+                    {% if request.user == msg.user %}
+                        you
+                    {% else %}
+                        {{ msg.user.username }}
+                    {% endif %}
+                </a>
+                <span title="user pure percentage">
+                    {{ profile_obj.pure_odds }}%
+                </span>
+            </div>
+            {% if profile_obj in group.group_members.all %}
+                <span class="dropdown_container">
+                    <button class="icon_btn" data-dropdown="msg{{ msg.id }}Dropdown" {% if msg.user == request.user %} data-dropdown-align = 'left' {% endif %} >
+                        <i class="ri-more-2-fill"></i>
+                    </button>
+
+                    <div class="dropdown w_10" id="msg{{ msg.id }}Dropdown">
+                        <ul class="dropdown_list">
+                            <li class="buttoned">
+                                <a href="/preview?slip_code={{ msg.slip.slip_code }}">
+                                    Preview Code
+                                </a>
+                            </li>
+
+                            {% if msg.user != request.user %}
+                                <li class="buttoned">
+                                    <a hx-post="{% url 'mute_user' msg.user.id %}" hx-swap = 'none'>
+                                        Mute User
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% if request.user == group.group_leader or msg.user == request.user %}
+                                <li class="buttoned">
+                                    <a hx-post="{% url 'delete_chat' sk=group.group_id msg_id=msg.id %}" hx-target = "#groupChatCode{{ msg.id }}" hx-swap = "delete swap:0.3s">
+                                        Delete Code
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </span>
+            {% endif %}
+        </header>
+
+        <article class="gd_code_info">
+            <p class="gd_slip_code">
+                <span id="sentCode{{ msg.id }}">
+                    {{ msg.slip.slip_code }}
+                </span>
+                <button class="icon_btn" data-copied="sentCode{{ msg.id }}">
+                    {% include 'partials/copy_svg.html' %}
+                </button>
+            </p>
+            <span class="gd_code_extra">
+                <p class="gd_code_odds" title="odds">
+                    {{ msg.slip.total_odds|filter_chat_odds }} ({{ msg.slip.total_events }})
+                </p>
+                {% if msg.slip.settled and msg.slip.slip_won %}
+                    <span class="gd_code_symbol"><i class="ri-close-circle-fill"></i></span>
+                {% elif msg.slip.settled and not msg.slip.slip_won %}
+                    <span class="gd_code_symbol"><i class="ri-checkbox-circle-fill"></i></span>
+                {% endif %}
+            </span>
+        </article>
+        
+        <footer>
+            <small class="code_sent_date">
+                {{ msg.created_at|timesince|format_chat_date }}.
+            </small>
+        </footer>
+    </article>
+
+{% endif %}

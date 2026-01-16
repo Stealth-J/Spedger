@@ -11,7 +11,6 @@ def preview(code, platform = 'sportybet'):
 
         outcomes = data.get("data").get("outcomes")
         games_data = []
-        games_ids_list = set()
 
         for sn, outcome in enumerate(outcomes):
             sport_id = outcome.get('sport').get('id')
@@ -37,7 +36,6 @@ def preview(code, platform = 'sportybet'):
             tourney_id = outcome.get("sport").get("category").get("tournament").get("id")
             game_id = outcome.get('eventId')
             specifier = market_data.get('specifier')
-            
             supported = True
 
             game_data = SimpleNamespace(
@@ -64,11 +62,13 @@ def preview(code, platform = 'sportybet'):
                 specifier = specifier,
             )
 
-            games_ids_list.add(game_id)
             games_data.append(game_data)
 
         print('Finished Successfully')
-        valid_games_data = remove_unsupported_selections(games_data, games_ids_list)
+        valid_games_data = remove_unsupported_selections(games_data)
+        if len(valid_games_data) < 1:
+            raise Exception('No valid selection found')
+
         return (True, valid_games_data)
 
     except Exception as e:

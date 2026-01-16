@@ -79,6 +79,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'spedger_main.global_context.show_notifs',
             ],
         },
     },
@@ -151,6 +152,7 @@ STATICFILES_DIRS = [ BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+PAGE_SIZE = 25
 
 ACCOUNT_SIGNUP_FIELDS = {
     "username*",

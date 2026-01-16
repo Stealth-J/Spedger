@@ -8,15 +8,17 @@ from django.contrib.auth import login, authenticate, logout
 from render_block import render_block_to_string
 from django.urls import reverse
 from django.db import IntegrityError
+from django.db.models import ExpressionWrapper, F, Count, Case, FloatField
 from django.http import HttpResponse
 from django.conf import settings
 from django.db.models import Q
 from .countries import COUNTRY_CODES
-from .preview_slip import preview, get_slip_details, save_preview_changes, create_slip_obj
+from .preview_slip import preview, get_slip_details, save_preview_changes, create_slip_obj, Timeout, ConnectionError, urlparse
 from .booking import book
 import random
 import time
 import re
+import json
 from datetime import datetime
 
 
@@ -35,20 +37,27 @@ def home(request):
 
 @verified_email_required
 def profile(request, sk):
-    profile_obj = Profile.objects.filter(public_id = sk).first()
+    this_profile = Profile.objects.filter(public_id = sk).first()
+    all_slips = this_profile.user.slips.order_by('-entry_date')
+    slips = paginate(request, all_slips)
+    is_viewer = request.user in this_profile.viewers.all()
 
-    if not profile_obj:
+    if not this_profile:
         messages.warning(request, 'Profile does not exist')
         return redirect('home')
 
-    if profile_obj.private_acct:
-        if request.user != profile_obj.user:
+    if this_profile.private_acct:
+        if request.user != this_profile.user:
             messages.warning(request, "You cannot view a private account's profile")
             return redirect('home')
 
     context = {
-        'profile_obj': profile_obj,
-        'country_code': COUNTRY_CODES.get(profile_obj.nationality.lower()),
+        'this_profile': this_profile,
+        'country_code': COUNTRY_CODES.get(this_profile.nationality.lower()),
+        'this_slips': slips,
+        'from_profile_view': 'yes',
+        'is_viewer': request.user in this_profile.viewers.all(),
+        'show_slips_codes': (is_viewer and this_profile.reveal_slips) or this_profile.user == request.user
     }
 
     if request.htmx:
@@ -56,10 +65,86 @@ def profile(request, sk):
             context['show_history'] = True
 
             html = render_block_to_string('user_profile.html', 'logging_history_block', context, request)
-            return HttpResponse(html)
+            response = HttpResponse(html)
+            response['HX-Trigger-After-Swap'] = 'hx_auto_scroll'
+            return response
 
     context['show_history'] = False
     return render(request, 'user_profile.html', context)
+
+
+@verified_email_required
+def load_more_slips_history(request, sk, page_num):
+    try:
+        this_profile = Profile.objects.filter(public_id = sk).first()
+        is_viewer = request.user in this_profile.viewers.all()
+        all_slips = this_profile.user.slips.order_by('-entry_date')
+        slips = paginate(request, all_slips, page_num)
+        context = { 
+            'this_profile': this_profile, 
+            'this_slips': slips, 
+            'from_profile_view': 'no', 
+            'is_viewer': is_viewer,
+            'show_slips_codes': (is_viewer and this_profile.reveal_slips) or this_profile.user == request.user
+        }
+        html = render_block_to_string('user_profile.html', 'slips_history_block', context, request)
+        response = HttpResponse(html)
+        response['HX-Trigger-After-Swap'] = 'hx_auto_scroll'
+        return response
+
+    except Exception as e:
+        print(f'Error - {e}')
+        messages.error(request, 'An Error Occurred')
+        response = HttpResponse('')
+        response['HX-Trigger'] = 'hx_message_init'
+        response['HX-Reswap'] = 'none'
+        return response
+
+
+@verified_email_required
+def join_code_viewers(request, sk):
+    response = HttpResponse('')
+    try:
+        this_profile = Profile.objects.filter(public_id = sk).first()
+        if this_profile.user == request.user:
+            raise Exception('You cannot view your codes by default')
+        if this_profile.reveal_slips == False:
+            raise Exception("You cannot view this user's slips")
+        
+        if request.user in this_profile.viewers.all():
+            this_profile.viewers.remove(request.user)
+            viewing = 'No'
+        else:
+            this_profile.viewers.add(request.user)
+            viewing = 'Yes'
+        response = HttpResponse(viewing)
+
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'An Error Occurred')
+        response['HX-Trigger'] = 'hx_message_init'
+        response['HX-Reswap'] = 'none'
+    
+    return response
+
+
+@verified_email_required
+def unfriend_user(request, sk):
+    response = HttpResponse('')
+
+    try:
+        user_profile_obj = Profile.objects.filter(public_id = sk).first()
+
+        user_profile_obj.friends.remove(request.user)
+        request.user.user_profile.friends.remove(user_profile_obj.user)
+        messages.info(request, f'{user_profile_obj.user.username} is no longer a friend.')
+
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, str(e))
+
+    response['HX-Trigger'] = 'hx_message_init'
+    return response
 
 
 @verified_email_required
@@ -148,12 +233,16 @@ def account_settings(request):
 
 @verified_email_required
 def users(request):
+    duels = Duel.objects.prefetch_related('duellists').filter(duellists__user = request.user).order_by('-created_at')
     profile_obj = request.user.user_profile
     center_info_msg = 'Search Results appear here'
+
     total_requests = FriendRequest.objects.select_related('sender', 'recipient')
     sent_requests = total_requests.filter(sender = request.user)
     received_requests = total_requests.filter(recipient = request.user, status = 'open')
-    your_duels = Duel.objects.prefetch_related('duellists').filter(duellists__slip__user = request.user)
+
+    your_duels = duels.exclude(duel_status = 'rejected')
+    open_duels = Duel.objects.prefetch_related('duellists').filter(duellists__user = request.user, duel_status = 'open', duellists__recipient = True)
 
     context = {
         'center_info_msg': center_info_msg,
@@ -161,8 +250,55 @@ def users(request):
         'sent_requests': sent_requests,
         'received_requests': received_requests,
         'your_duels': your_duels,
+        'open_duels': open_duels,
     }
     return render(request, 'users.html', context)
+
+
+@verified_email_required
+def filter_duels(request):
+    duel_filter = request.POST.get('duel_filter')
+    duel_filter2 = request.POST.get('duel_filter2')
+    filtered_duels = Duel.objects.prefetch_related('duellists').filter(duellists__user = request.user).order_by('-created_at')
+    context = {}
+    filters = {
+        'duellists__user': request.user,
+    }
+    exclude_filters = {}
+
+    try:
+        if duel_filter == 'rejected':
+            filters['duellists__recipient'] = False
+            filters['duel_status'] = 'rejected'
+
+        elif duel_filter == 'wins':
+            filters['winning_user'] = request.user
+
+        elif duel_filter == 'active':
+            filters['settled'] = False
+            filters['duel_status'] = 'accepted'
+        else:
+            exclude_filters['duel_status'] = 'rejected'
+
+        if duel_filter2 == 'sent':
+            filters['duellists__recipient'] = False
+        elif duel_filter2 == 'received':
+            filters['duellists__recipient'] = True
+
+        filtered_duels = Duel.objects.prefetch_related('duellists').filter(**filters).exclude(**exclude_filters).order_by('-created_at')
+        context['your_duels'] = filtered_duels
+
+    except Exception as e:
+        print(f'Error - {e}')
+        messages.error(request, 'An error occurred. Try again')
+        response = HttpResponse('')
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+        return response
+
+    html = render_block_to_string('users.html', 'duels_history_block', context, request)
+    response = HttpResponse(html)
+    return response
 
 
 @verified_email_required
@@ -229,6 +365,8 @@ def accept_request(request, pk):
 
             if all_requests.exists():
                 for each in all_requests:
+                    request.user.user_profile.friends.add(each.sender)
+                    each.sender.user_profile.friends.add(request.user)
                     each.status = 'accepted'
                     all_requests_list.append(each)
                 
@@ -325,6 +463,517 @@ def delete_request(request, pk):
 
 
 @verified_email_required
+def my_diary(request):
+    center_info_msg = 'Slip preview would appear here'
+
+    if request.htmx:
+        if request.POST.get('clear_preview'):
+            context = { 'center_info_msg': center_info_msg }
+            html = render_block_to_string('my_diary.html', 'preview_display_block', context, request)
+            return HttpResponse(html)
+
+    entries = DiaryEntry.objects.filter(user = request.user).order_by('-created_at')
+    profile_obj = request.user.user_profile
+
+    context = {
+        'entries': entries,
+        'last_entry': entries.first(),
+        'profile_obj': profile_obj,
+        'center_info_msg': center_info_msg,
+    }
+    return render(request, 'my_diary.html', context)
+
+
+@verified_email_required
+def reload_entries(request, kind):
+    entries = DiaryEntry.objects.prefetch_related('user').filter(user = request.user).order_by('-created_at')
+    context = {'entries': entries}
+    
+    if kind == 'replace':
+        html = render_block_to_string('my_diary.html', 'entries_block', context, request)
+        response = HttpResponse(html)
+        response['HX-Trigger-After-Swap'] = json.dumps({'hx_init_components': '', 'hx_close_modal': ''})
+        return response
+
+
+@verified_email_required
+def create_entry(request):
+    try:
+        code = request.POST.get('slip_code').strip()
+        success, valid_games = preview(code)
+        if not success:
+            raise valid_games
+        
+        slip_info = get_slip_details(valid_games)
+        entry_obj = create_slip_obj(request, valid_games, slip_info, code, log_in_diary = True)
+        preview_result = True
+
+        context = {
+            'slip_info': slip_info,
+            'slip_code': code,
+            'valid_games': valid_games,
+            'center_info_msg': ''
+        }
+
+    except Exception as e:
+        print(f'Error - {e}')
+        preview_result = False
+        context = { 'error_msg': str(e)}
+
+    html = render_block_to_string('my_diary.html', 'preview_display_block', context, request)
+    response = HttpResponse(html)
+
+    if preview_result:
+        messages.success(request, 'Entry saved successfully')
+        response['HX-Trigger'] = json.dumps({'hx_message_init': '', 'update_entries': entry_obj.id})
+        
+    return response
+    
+
+@verified_email_required
+def delete_entries(request, pk):
+    entries = DiaryEntry.objects.prefetch_related('user').filter(user = request.user).order_by('-created_at')
+    context = {}
+
+    try:
+        if pk == 'all':
+            entries.delete()
+            messages.success(request, 'Entries were deleted successfully.')
+            entries_left = DiaryEntry.objects.filter(user = request.user).order_by('-created_at')
+
+            context['entries'] = entries_left
+            html = render_block_to_string('my_diary.html', 'entries_block', context, request)
+            response = HttpResponse(html)
+
+        elif pk == 'some':
+            entry_ids_list = request.POST.get('entry_id')
+            entry_ids = entry_ids_list.split(',')
+            entry_ids = [ int(entry_id) for entry_id in entry_ids ]
+            entries = DiaryEntry.objects.prefetch_related('user').filter(id__in = entry_ids, user = request.user)
+            entries.delete()
+
+            entries_left = DiaryEntry.objects.filter(user = request.user).order_by('-created_at')
+            if len(entry_ids) == 1 and entries_left.count() > 0:
+                messages.success(request, 'Entry deleted successfully')
+                response = HttpResponse('')
+                response['HX-Retarget'] = f'#entry{entry_ids[0]}'
+                response['HX-Reswap'] = 'delete swap:0.4s'
+                response['HX-Trigger'] = 'hx_message_init'
+                response['HX-Trigger-After-Swap'] = 'hx_close_modal'
+                return response
+            else:
+                messages.success(request, 'Entries deleted successfully.')
+
+            context['entries'] = entries_left
+            html = render_block_to_string('my_diary.html', 'entries_block', context, request)
+            response = HttpResponse(html)
+
+    except Exception as e:
+        print(f'Error - {e}')
+        messages.error(request, 'An Error occurred during the process')
+        response = HttpResponse('')
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+        response['HX-Trigger-After-Swap'] = 'hx_close_modal'
+        return response
+
+    response['HX-Trigger'] = 'hx_message_init'
+    response['HX-Trigger-After-Swap'] = json.dumps( {'hx_close_modal': '', 'hx_init_components': ''} )
+    return response
+
+
+@verified_email_required
+def filter_entries(request):
+    context = {}
+
+    slip_code = request.POST.get('slip_code')
+    filter_odds = request.POST.get('filter_odds')
+    filter_odds_dir = request.POST.get('filter_odds_dir')
+    filter_winpercent = request.POST.get('filter_winpercent')
+    filter_winpercent_dir = request.POST.get('filter_winpercent_dir')
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
+    wins_cb = request.POST.get('wins_cb')
+
+    filters = {'user': request.user}
+    annotate_filters = {}
+
+    try:
+        if slip_code:
+            filters['slip__slip_code__icontains'] = slip_code
+        if filter_odds:
+            filters[f'slip__total_odds__{filter_odds_dir}'] = filter_odds
+        if filter_winpercent:
+            annotate_filters['total_events'] = Count('slip__slip_events')
+            annotate_filters['events_won'] = Count('slip__slip_events', filter = Q(slip__slip_events__event_won = True))
+            annotate_filters['win_percentage'] = Case(
+                default = F('events_won') * 100.0 / F('total_events'), 
+                output_field = FloatField()
+            )
+            filters[f'win_percentage__{filter_winpercent_dir}'] = filter_winpercent
+        if start_date:
+            filters['created_at__gte'] = start_date
+        if end_date:
+            filters['created_at__lte'] = end_date
+        if wins_cb == 'wins':
+            filters['slip__slip_won'] = True
+
+        entries = DiaryEntry.objects.annotate(**annotate_filters).filter(**filters).order_by('-created_at')
+        context['entries'] = entries
+        html = render_block_to_string('my_diary.html', 'entries_block', context, request)
+        response = HttpResponse(html)
+        response['HX-Trigger-After-Swap'] = json.dumps( {'hx_close_modal': '', 'hx_init_components': ''} )
+
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'Oops. An Error Occurred')
+        response = HttpResponse('')
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+        response['HX-Trigger-After-Swap'] = 'hx_close_modal'
+        
+    return response
+
+
+
+@verified_email_required
+def groups(request):
+    return render(request, 'groups.html')
+
+
+@verified_email_required
+def group_details(request, sk):
+    profile_obj = request.user.user_profile
+    muted_ids = profile_obj.muted_users.values_list('id', flat = True)
+
+    try:
+        group_obj = GroupChat.objects.filter(group_id = sk).first()
+        chat_msgs = group_obj.group_chat_msgs.exclude(user__id__in = muted_ids).order_by('-created_at')
+        chat_msgs = paginate(request, chat_msgs)
+
+        ranked_qs = rank_group_members(group_obj.group_members.all())
+        is_member = True
+        is_leader = group_obj.group_leader == request.user
+
+        if profile_obj.user in group_obj.banned_users.all():
+            messages.error(request, f'You have been banned from {group_obj.group_name}')
+            return redirect('groups')
+        if not profile_obj in group_obj.group_members.all():
+            is_member = False
+            if group_obj.private_group:
+                messages.warning(request, 'You cannot access a private group without being a member')
+                return redirect('groups')
+        
+        for each in ranked_qs:
+            print( each.pure_odds_temp )
+        context = {
+            'group': group_obj,
+            'is_member': is_member,
+            'is_leader': is_leader,
+            'chat_msgs': chat_msgs,
+            'ranked_qs': ranked_qs,
+        }
+
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'Something unexpected happened. Try again')
+        return redirect('groups')
+    
+    return render(request, 'group_details.html', context)
+
+
+@verified_email_required
+def load_more_chats(request, sk, page_num):
+    time.sleep(4)
+    profile_obj = request.user.user_profile
+    muted_ids = profile_obj.muted_users.values_list('id', flat = True)
+
+    try:
+        group_obj = GroupChat.objects.filter(group_id = sk).first()
+        if request.user in group_obj.banned_users.all():
+            response = HttpResponse('')
+            response['HX-Redirect'] = reverse('groups')
+            messages.error(request, f'You have been banned from {group_obj.group_name}')
+            return response
+
+        all_chat_msgs = group_obj.group_chat_msgs.exclude(user__id__in = muted_ids ).order_by('-created_at')
+        chat_msgs = paginate(request, all_chat_msgs, page_num)
+        context = { 'chat_msgs': chat_msgs, 'group': group_obj }
+        html = render_block_to_string('group_details.html', 'group_chat_msgs_block', context, request)
+        response = HttpResponse(html)
+        response['HX-Trigger-After-Swap'] = 'hx_init_components'
+
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'An Error Occurred')
+        response = HttpResponse('')
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+
+    return response
+
+
+@verified_email_required
+def mute_user(request, pk):
+    try:
+        profile_obj = request.user.user_profile
+        user_obj = User.objects.filter(id = pk).first()
+        if user_obj == request.user:
+            raise Exception('You cannot mute yourself')
+
+        if user_obj in profile_obj.muted_users.all():
+            profile_obj.muted_users.remove(user_obj)
+        else:
+            profile_obj.muted_users.add(user_obj)    
+        messages.success(request, 'Reload page to save changes')
+
+    except Exception as e:
+        print(f'Error - {e}')
+        messages.error(request, str(e))
+
+    response = HttpResponse('')
+    response['HX-Trigger'] = 'hx_message_init'
+    return response
+
+
+
+def group_join(request, sk):
+    profile_obj = request.user.user_profile or ''
+    try:
+        group_obj = GroupChat.objects.filter(group_id = sk).first()
+        if not group_obj:
+            raise Exception('URL is invalid')
+        if profile_obj.user in group_obj.banned_users.all():
+            raise Exception(f'You have been banned from {group_obj.group_name}')
+        if profile_obj in group_obj.group_members.all():
+            return redirect('group_details', sk = sk)
+        
+        profile_obj.groups.add(group_obj)
+        messages.success(request, f'You are now a member of {group_obj.group_name}')
+
+    except Exception as e:
+        if not 'banned' in str(e):
+            messages.error(request, str(e))
+
+    return redirect('group_details', sk = sk)
+
+
+def group_join_url(request):
+    url_path = request.POST.get('group_url')
+
+    try:
+        parsed = urlparse(url_path).path
+        sk = parsed.removeprefix('/group-')
+        try:
+            uuid.UUID(sk)
+        except Exception as e:
+            raise Exception('URL is invalid')
+        
+        return redirect('group_join', sk = sk)
+    
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, str(e))
+        return redirect('groups')
+
+
+@verified_email_required
+def group_create(request):
+    try:
+        group_name = request.POST.get('group_name')
+        private = bool(request.POST.get('private_group'))
+        leader_talk_only = bool(request.POST.get('leader_only'))
+        group_obj = GroupChat.objects.create(group_name = group_name, group_leader = request.user, private_group = private, leader_talk_only = leader_talk_only)
+        request.user.user_profile.groups.add(group_obj)
+
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'An Error Occurred.')
+
+    return redirect('groups')
+
+
+@verified_email_required
+def place_admin(request, sk):
+    group_obj = GroupChat.objects.filter(group_id = sk).first()
+    group_obj.group_leader = request.user
+    group_obj.save()
+    return redirect('group_details', sk = sk)
+
+
+@verified_email_required
+def group_edit(request, sk):
+    profile_obj = request.user.user_profile
+
+    try:
+        group_obj = GroupChat.objects.filter(group_id = sk).first()
+        
+        if not profile_obj in group_obj.group_members.all():
+            raise Exception('You are not a member of this group')
+        if request.user != group_obj.group_leader:
+            raise Exception('Only the group leader can make changes to the group')
+
+        group_name = request.POST.get('group_name')
+        private = bool(request.POST.get('private_group'))
+        leader_talk_only = bool(request.POST.get('leader_only'))
+
+        group_obj.group_name = group_name
+        group_obj.private_group = private
+        group_obj.leader_talk_only = leader_talk_only
+        group_obj.save()
+        
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'An Error Occurred')
+
+    return redirect('group_details', sk = sk)
+
+
+@verified_email_required
+def leave_group(request, sk):
+    profile_obj = request.user.user_profile
+    group_obj = GroupChat.objects.filter(group_id = sk).first()
+    response = HttpResponse('')
+
+    try:
+        if not profile_obj in group_obj.group_members.all():
+            raise Exception('You are not a member of this group')
+        
+        if request.user == group_obj.group_leader:
+            group_obj.group_leader = None
+            group_obj.private_group = False
+            group_obj.leader_talk_only = False
+            group_obj.save()
+        profile_obj.groups.remove(group_obj)
+
+        if request.POST.get('redirect_page') == 'yes':
+            return redirect('groups')
+        
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, str(e))
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+    
+    return response
+
+
+@verified_email_required
+def remove_from_group(request, user_id, sk):
+    profile_obj = request.user.user_profile
+    response = HttpResponse('')
+    ban = request.POST.get('ban_user')
+
+    try:
+        group_obj = GroupChat.objects.filter(group_id = sk).first()
+        user_obj = Profile.objects.filter(public_id = user_id).first()
+
+        if not profile_obj in group_obj.group_members.all():
+            raise Exception('User is not a member of this group')
+        if request.user != group_obj.group_leader:
+            raise Exception('Only the group leader can perform this action')
+        
+        user_obj.groups.remove(group_obj)
+        if ban == 'True':
+            group_obj.banned_users.add(user_obj.user)
+        
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, str(e))
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+    
+    return response
+
+
+@verified_email_required
+def delete_group(request):
+    profile_obj = request.user.user_profile
+    group_id = request.POST.get('group_id')
+    group_obj = GroupChat.objects.filter(group_id = group_id).first()
+    response = HttpResponse('')
+
+    try:
+        if not profile_obj in group_obj.group_members.all():
+            raise Exception('You are not a member of this group')
+        if request.user != group_obj.group_leader:
+            raise Exception('Only the group leader can delete this group')
+        
+        group_obj.delete()
+        response['HX-Trigger'] = 'hx_close_modal'
+        if request.POST.get('redirect_page') == 'yes':
+            return redirect('groups')
+        
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, str(e))
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+    
+    return response
+
+
+@verified_email_required
+def send_chat(request, sk):
+    try:
+        group_obj = GroupChat.objects.filter(group_id = sk).first()
+        if group_obj.leader_talk_only == True and group_obj.group_leader != request.user:
+            raise Exception('Only the leader can send codes')
+        if not request.user.user_profile in group_obj.group_members.all():
+            raise Exception('Only members can send codes')
+
+        slip_code = request.POST.get('slip_code').strip()
+        success, valid_games = preview(slip_code)
+        if not success:
+            raise valid_games
+        
+        slip_info = get_slip_details(valid_games)
+        slip_obj = create_slip_obj(request, valid_games, slip_info, slip_code)
+        chat_msg_obj = GroupChatMsgs.objects.create(user = request.user, slip = slip_obj, group_chat = group_obj)
+
+        context = { 'msg': chat_msg_obj, 'group': group_obj }
+        response = render(request, 'partials/group_chat_message.html', context)
+        response['HX-Trigger-After-Swap'] = json.dumps({'hx_init_components': '', 'hx_auto_scroll': ''})
+        
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, str(e))
+        response = HttpResponse('')
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+
+    return response
+
+
+@verified_email_required
+def delete_chat(request, sk, msg_id):
+    response = HttpResponse('')
+
+    try:
+        group_obj = GroupChat.objects.filter(group_id = sk).first()
+        msg_obj = GroupChatMsgs.objects.filter(group_chat = group_obj, id = msg_id).first()
+
+        if not request.user.user_profile in group_obj.group_members.all():
+            raise Exception('Only members of the group can delete codes')
+        
+        if request.user == msg_obj.user or request.user == group_obj.group_leader:
+            msg_obj.delete()
+            messages.success(request, 'Code deleted successfully')
+            response['HX-Trigger-After-Swap'] = 'hx_init_components'
+
+        else:
+            raise Exception('You are not qualified to delete the code')
+
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'An Error Cccurred. Try again later')
+        response['HX-Reswap'] = 'none'
+
+    response['HX-Trigger'] = 'hx_message_init'
+    return response
+
+
+@verified_email_required
 def support(request):
     profile_obj = request.user.user_profile
 
@@ -366,8 +1015,6 @@ def preview_slip(request):
             success, valid_games = preview(code)
             if not success:
                 raise valid_games
-            if len(valid_games) < 1:
-                raise Exception('No valid selection found')
             
             preview_result = True
             slip_info = get_slip_details(valid_games)
@@ -384,7 +1031,6 @@ def preview_slip(request):
         except Exception as e:
             print(f'Error - {e}')
             preview_result = False
-            # raise e
             context = { 'error_msg': str(e)}
 
         html = render_block_to_string('preview.html', 'preview_display_block', context, request)
@@ -405,7 +1051,7 @@ def make_preview_changes(request):
     try:
         removed_ids = request.POST.get('removed_ids')
         valid_games = request.session.get('valid_games')
-        slip_code = request.session.get('slip_code')
+        slip_code = request.session.get('slip_code') or request.POST.get('slip_code')
 
         if not valid_games:
             raise Exception('An Error occurred. Input the code and try again')
@@ -457,14 +1103,18 @@ def send_duel_request(request):
         minimum_odds = float(minimum_odds)
     recipient_obj = User.objects.filter(id = recipient_id).first()
 
+    context = {}
+
     try:
         success, valid_games = preview(code)
         if not success:
             raise valid_games
-        elif len(valid_games) < 1:
-            raise Exception('No valid selection found')
         elif not recipient_obj:
             raise Exception('No user found')
+        elif minimum_odds:
+            total_odds = get_slip_details(valid_games).total_odds
+            if float(total_odds) < minimum_odds:
+                raise Exception(f"Total odds ({total_odds}) is below {minimum_odds}")    
         
         if not request.user in recipient_obj.user_profile.friends.all():
             raise Exception('You can only duel friends')
@@ -472,25 +1122,98 @@ def send_duel_request(request):
             slip_obj = create_slip_obj( request, valid_games, get_slip_details(valid_games), code)
 
             duel_obj = Duel.objects.create(minimum_odds = minimum_odds)
-            challenger_obj = DuellistInfo.objects.create(slip = slip_obj, duel_obj = duel_obj)
-            recipient_obj = DuellistInfo.objects.create(duel_obj = duel_obj, recipient = True)
+            challenger_obj = DuellistInfo.objects.create(slip = slip_obj, duel_obj = duel_obj, user = request.user)
+            recipient_obj = DuellistInfo.objects.create(duel_obj = duel_obj, recipient = True, user = recipient_obj)
+
+            context['duel'] = duel_obj
+            response = render(request, 'partials/duel.html', context)
             messages.success(request, 'Duel request was sent successfully')
+            response['HX-Retarget'] = '.duel'
+            response['HX-Reswap'] = 'beforebegin'
+            response['HX-Trigger-After-Swap'] = 'hx_close_modal'
+            response['HX-Trigger'] = 'hx_message_init'
         
     except Exception as e:
         print(f'Error - {e}')
-        messages.error(request, str(e))
+        context['form_error'] = str(e)
+        html = render_block_to_string('users.html', 'form_error_block2', context, request)
+        response = HttpResponse(html)
 
-    response = HttpResponse("")
-    response['HX-Trigger'] = 'hx_message_init'
     return response
 
 
 def accept_duel(request):
-    pass
+    code = request.POST.get('slip_code')
+    duel_id = request.POST.get('duel_id')
+    duel_obj = Duel.objects.filter(id = duel_id).first()
+    duellist_obj = duel_obj.duellists.filter(recipient = True, user = request.user).first()
+    challenger_obj = duel_obj.duellists.filter(recipient = False).first()
+    context = {}
+
+    try:
+        success, valid_games = preview(code)
+
+        if not success:
+            raise valid_games
+        elif duellist_obj.slip:
+            raise Exception('You cannot update your slip')
+        elif len(valid_games) < 1:
+            raise Exception('No valid selection found')
+        elif not duel_obj or not duellist_obj:
+            raise Exception('Duel doesnt exist')
+        elif duel_obj.minimum_odds:
+            total_odds = get_slip_details(valid_games).total_odds
+            if float(total_odds) < duel_obj.minimum_odds:
+                raise Exception(f"Total odds ({total_odds}) is below the minimum ({duel_obj.minimum_odds})")    
+        
+        if not request.user in challenger_obj.user.user_profile.friends.all():
+            raise Exception('You can only duel friends')
+        else:
+            slip_obj = create_slip_obj( request, valid_games, get_slip_details(valid_games), code)
+
+            duel_obj.duel_status = 'accepted'
+            duellist_obj.slip = slip_obj
+            duel_obj.save()
+            duellist_obj.save()
+
+            context['duel'] = duel_obj
+            response = render(request, 'partials/duel.html', context)
+            response['HX-Retarget'] = f'#duel{ duel_id }'
+            response['HX-Trigger-After-Swap'] = 'hx_close_modal'
+        
+    except Exception as e:
+        print(f'Error - {e}')
+        context['form_error'] = str(e)
+        html = render_block_to_string('users.html', 'form_error_block', context, request)
+        response = HttpResponse(html)
+
+    return response
 
 
 def reject_duel(request):
-    pass
+    duel_id = request.POST.get('duel')
+    duel_obj = Duel.objects.filter(id = duel_id).first()
+    challenger_obj = duel_obj.duellists.filter(recipient = False).first()
+    context = {}
+
+    try:
+        if not duel_obj:
+            raise Exception('Duel doesnt exist')
+        elif not request.user in challenger_obj.user.user_profile.friends.all():
+            raise Exception('You can only duel friends')
+
+        duel_obj.duel_status = 'rejected'
+        duel_obj.save()
+        context['duel'] = duel_obj
+        response = render(request, 'partials/duel.html', context)
+        
+    except Exception as e:
+        print(f'Error - {e}')
+        messages.error(request, 'An error occurred')
+        response = HttpResponse('')
+        response['HX-Trigger'] = 'hx_message_init'
+
+    return response
 
 
 
@@ -523,7 +1246,8 @@ def signup(request):
                     nationality = nationality,
                     reason = reason,
                     reveal_slips = not privacy,
-                    # profile_src = random.randint(1, 100)
+                    profile_img = avatar_img_func(),
+                    background_img = background_img_func()
                 )
             
                 user = authenticate(request, username = username, password = pwd)

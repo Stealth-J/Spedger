@@ -1,0 +1,113 @@
+{% load static %}
+{% load custom_filters %}
+
+<div class="entry" id = "entry{{ entry.id }}">
+    <details class="entry_details">
+        <summary>
+            <div class="entry_slip">
+                <div class="entry_main">
+                    <p class="slip_code">{{ entry.slip.slip_code }} 
+                        <strong> ({{ entry.slip.total_events }}) </strong>
+                    </p>
+
+                    <span>
+                        <p class="total_odds" title="total odds">
+                            {{ entry.slip.total_odds|floatformat }}
+                        </p>
+                        <p class="percent" title="Win percentage">
+                            {{ entry.slip.win_percentage|floatformat }}%
+                        </p>
+                        
+                        {% if entry.slip.slip_won %}
+                            <span class="award_icon">
+                                <i class="ri-award-fill"></i>
+                            </span>
+                        {% endif %}
+                        
+                        <p class="slip_date" title="Date logged">
+                            {{ entry.created_at|timesince|format_timesince }}
+                        </p>
+                    </span>
+                </div>
+
+                <span class="entry_btns">
+                    <span class="entry_btn" >
+                        <i class="ri-arrow-down-s-line" data-toggle-icon = 'yes' ></i>
+                    </span>   
+
+                    <button class="entry_btn entry_delete_btn" type="button" data-modal="deleteEntriesModal" data-button aria-expanded="false" data-entry-id = "{{ entry.id }}">
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
+                </span>
+                
+            </div>
+        </summary>
+
+        <article class="games_list">
+            {% for game in entry.slip.slip_events.all %}
+
+                <div class="game">
+                    <span class="top_row">
+                        <span class="teams">
+                            <p class="home">
+                                {{ game.home_team }}
+                            </p>
+                            <p class="away">
+                                {{ game.away_team }}
+                            </p>
+                        </span>
+
+                        <span class="dropdown_container">
+                            <button type="button">
+                                <i class="ri-more-fill" data-dropdown="game{{ game.id }}Dropdown"></i>
+                            </button>
+
+                            <div class="dropdown not_list w_15" id="game{{ game.id }}Dropdown">
+                                <span class="game_extra">
+                                    <p title="Competition"><i class="ri-trophy-line"></i> {{ game.competition }} </p>
+                                </span>
+                                <span class="game_extra">
+                                    <p><i class="ri-calendar-2-line"></i> {{ game.event_date|format_date }}</p>
+                                </span>
+                            </div>
+                        </span>
+                    </span>
+                    
+                    <span class="game_body">
+                        <p class="pick" title="pick">
+                            {{ game.pick }}
+                        </p>
+                        <p class="market"><i class="ri-flag-line"></i> {{ game.market }}</p>
+                        <p class="odds">{{ game.event_odd|floatformat:1 }}</p>
+                    </span>
+
+                    <span class="game_footer" >
+                        <img class="sport_icon" src = "{% static game.sport_icon %}" alt = '{{ game.sport }} icon'>
+                        
+                        {% if game.event_settled and game.event_won %}
+                            <span class="success_icon">
+                                <i class="ri-checkbox-circle-fill"></i>
+                            </span>
+                        {% elif game.event_settled and not game.event_won %}
+                            <span class="success_icon">
+                                <i class="ri-close-circle-fill"></i>
+                            </span>
+                        {% else %}
+                            <span class="success_icon">
+                                <i class="ri-indeterminate-circle-fill"></i>
+                            </span>
+                        {% endif %}
+                    </span>
+                </div>
+
+            {% endfor %}
+        </article>
+
+    </details>
+
+    <label class="checkbox_container">
+        <input type="checkbox" name="deleted_item" value="{{ entry.id }}" data-entry-id = "{{ entry.id }}">
+        <span class="custom"></span>
+    </label>
+
+</div>

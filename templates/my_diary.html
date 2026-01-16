@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize %}
+
+{% block title %} My Diary {% endblock %}
+
+{% block styles %} 
+    <link rel="stylesheet" href="{% static 'css/diary.css' %}"> 
+    <link rel="stylesheet" href="{% static 'css/preview.css' %}"> 
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="my_diary">
+        <header>
+            <span class="heading_animation" data-bg = "{% static profile_obj.background %}">
+                
+            </span>
+            
+            {% if entries %}
+                <p>{{ entries|length }} entries</p>
+                <p>Last Entry: {{ last_entry.created_at|format_date }} </p>
+            {% else %}
+                <div class="intro_txt">
+                    <p class="intro_header">You've not written any entry yet</p>
+                    <p class="intro_header">Write an Entry Today</p>
+                </div>
+            {% endif %}
+        </header>
+
+
+        <section class="tab_btns_holder">
+            <div class="entries_tab" data-tab2="entriesTab" role="tab" tabindex="-1" aria-controls="entriesTab" aria-selected="false" >
+                <figure>
+                    <figcaption>
+                        Entries
+                    </figcaption>
+                </figure>
+
+                <div class="helper_btns tab_dead_zone">
+                    <button class="btn2_" title="filter" data-modal="filterEntriesModal" data-button aria-expanded="false">
+                        <i class="ri-equalizer-3-fill"></i>
+                    </button>
+
+                    <button class="btn2_" title="Delete all entries" id="deleteAllEntries" data-modal = "deleteAllEntriesModal" data-button aria-expanded="false"> 
+                        <i class="ri-delete-bin-2-line"></i> 
+                    </button>
+
+                    <button class = "btn2_" title = "Load Entries" hx-post = "{% url 'reload_entries' 'replace' %}" hx-target = "#entriesTab" hx-swap = "" hx-indicator = "#customSpinner2">
+                        <i class = "ri-restart-line"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="create_entries_tab" data-tab2="createEntryTab" role="tab" tabindex = "-1" aria-controls="createEntryTab" aria-selected="false" >
+
+                <span><i class="ri-add-large-line"></i></span>
+                <p>Write An Entry</p>
+            </div>
+        </section>
+
+        <div class="htmx-indicator" id="customSpinner2">
+            <div class="loader">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <section class="tab_container" role="tablist">
+
+            <!-- ENTRIES TAB -->
+            <section class="entries" id="entriesTab" aria-labelledby="entriesTab" role="tabpanel" data-tab-name = "entries">
+                {% block entries_block %}
+                
+                    {% if entries|length > 0 %}
+                        <header>
+                            <button class="select_btn btn2_ share_btn" id="selectBtn">
+                                Select <i class="ri-checkbox-line"></i>
+                            </button>
+
+                            <button class="select_btn btn_" id="deleteSelectedBtn" disabled data-button aria-expanded="false" data-modal="deleteEntriesModal">
+                                <i class="ri-delete-bin-line"></i> <span></span>
+                            </button>
+                        </header>
+
+                        <article class="entries_list">
+                            <form action="" id = "entriesDeleteForm">
+                                {% for entry in entries %}
+                                    {% include 'partials/diary_entry.html' %}
+                                {% endfor %}
+                                    
+                            </form>
+                        </article>
+                    {% else %}
+                        <div class="center_info">
+                            <span class="center_icon">
+                                <i class="ri-information-line"></i>
+                            </span>
+                            <p class="center_info_txt"> No previous Entries </p>
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+            </section>
+        
+            <!-- CREATE ENTRY TAB -->
+            <section class="create_entry " id="createEntryTab" aria-labelledby="createEntryTab" role="tabpanel" data-tab-name = "create_entries" >
+                <form action="" id="createEntryForm" hx-post = "{% url 'create_entry' %}" hx-target = "#previewDisplay" hx-indicator = "#customSpinner">
+                    <p class="form_header"> New Entry</p>
+                    
+                    <div class="form_flex">
+                        <input type="text" placeholder="Slip code..." name = "slip_code" maxlength = "10" hx-clear-input required>
+                    </div>
+                    
+                    <span class="dropdown_container">
+                        <button type="button" class="icon_btn" data-dropdown="formHelpDropdown">Need help?</button>
+                        
+                        <div class="dropdown not_list w_20 p_07" id="formHelpDropdown">
+                            <p>- Review slip before submitting as changes cannot be made after entry is saved</p>
+                            <p>- Ensure the slip is from sportybet. </p>
+                            <p>- Games that have been played or markets and sports not supported will be removed automatically from the preview. </p>
+                        </div>
+                    </span>
+
+                    <button class="form_action_btn" > 
+                        <i class="ri-quill-pen-line"></i> Save
+                    </button>
+
+                    <button class="form_action_btn save_changes_btn" hx-post = "{% url 'my_diary' %}" hx-target = "#previewDisplay" hx-indicator = "#customSpinner" hx-vals = '{"clear_preview": "yes"}'> 
+                        Clear
+                    </button>
+                </form>
+
+                <article class="slip_preview" id = "previewDisplay">
+                    {% block preview_display_block %}
+                    {% if valid_games %}
+
+                        <div class="center_info indicator_grp">
+                            <div class="htmx-indicator" id="customSpinner">
+                                <div class="loader">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview_main">
+                            <header id = "previewHeader">
+                                <span class="preview_code_group">
+                                    <p class="heading_txt" id="previewCode">
+                                        {{ slip_code }}
+                                    </p>
+                                    <button  data-copied="previewCode">
+                                        <i class="ri-file-copy-line"></i>
+                                    </button>
+                                </span>
+
+                                <p class = "preview_extra_info">
+                                    {{ slip_info.selections_no }} ({{ slip_info.total_odds|intcomma }})
+                                </p>
+                            </header>
+
+                            <div class="wkly_games_list">
+                                {% for game in valid_games %}
+                            
+                                    <article class="game" id = "game{{ game.id_ }}">
+                                        <article class="game_main">
+                                            <div class="game_lhs">
+                                                <p class="home txt_ellipse">{{ game.home_team }} </p>
+                                                <p class="away txt_ellipse">{{ game.away_team }}</p>
+
+                                                {% if game.sport_icon %}
+                                                    <img class="sport_icon" src = "{% static game.sport_icon %}" alt = '{{ game.sport }} icon'>
+                                                {% endif %}
+                                            </div>
+
+                                            <span class="game_rhs">
+                                                <p class="odds">{{ game.odds }}</p>
+                                            </span>
+                                        </article>
+
+                                        <article class="game_sub custom_details" data-detail-toggle = "game{{ game.id_ }}">
+                                            <div class="market_info">
+                                                <p class="pick"> {{ game.pick }}</p>
+                                                <p class="market">{{ game.market_type }}</p>
+                                            </div>
+
+                                            <div class="comp_info">
+                                                <p class="comp_name">{{ game.league }} </p>
+                                                <p class="time">{{ game.start_time }}</p>
+                                            </div>
+                                        </article>
+                                    </article>
+
+                                {% endfor %}
+                            </div>
+                        </div>
+                    
+                    {% else %}
+                        <div class="center_info">
+                            <span class = "htmx-indicator" id = "customSpinner"> 
+                                <div class="loader">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </span>
+                            
+                            {% if not error_msg %}
+                                <div class = "center_info_holder">
+                                    <span class="center_icon">
+                                        <i class="ri-information-line"></i>
+                                    </span>
+                                    <p class="center_info_txt">{{ center_info_msg }}</p>
+                                </div>
+                            {% else %}
+                                <div class = "center_info_holder">
+                                    <span class="center_icon error">
+                                        <i class="ri-error-warning-line"></i>
+                                    </span>
+                                    <p class="center_info_txt error">{{ error_msg }}</p>
+                                </div>
+                            {% endif %}
+                        </div> 
+
+                    {% endif %}
+                    {% endblock %}
+                </article>
+
+            </section>
+
+
+        </section>
+
+    </div>
+  
+{% endblock %}
+
+
+
+{% block modals %}
+
+    <div class="modalContainer del_modal" id="deleteAllEntriesModal">
+        <div class="modal" role="dialog">
+
+            <form action="" hx-post = "{% url 'delete_entries' 'all' %}" hx-target = "#entriesTab" >
+                <article>
+                    <p> Delete all Entries? </p>
+                    <p><i class="ri-error-warning-line"></i> This action cannot be reverted</p>
+
+                    <input type="hidden" value="">
+                </article>
+
+                <span class="modal_footer">
+                    <button class="msg_btn del_btn2" hx-disable-submit >Delete</button>
+                    <button type="button" class="msg_btn md_close">Cancel</button>
+                </span>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div class="modalContainer del_modal" id="deleteEntriesModal">
+        <div class="modal" role="dialog">
+
+            <form action="" hx-post = "{% url 'delete_entries' 'some' %}" hx-target = "#entriesTab" >
+                <article>
+                    <p class="heading_text"></p>
+                    <p><i class="ri-error-warning-line"></i> This action cannot be reverted</p>
+
+                    <input type="hidden" name = "entry_id">
+                </article>
+
+                <span class="modal_footer">
+                    <button class="msg_btn del_btn2" hx-disable-submit >
+                        Delete
+                    </button>
+                    <button type="button" class="msg_btn md_close">Cancel</button>
+                </span>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div class="modalContainer" id="filterEntriesModal">
+        <div class="modal" role="dialog">
+
+            <article>
+                <p class="heading_text">Filter Entries</p>
+            </article>
+
+            <form hx-post = "{% url 'filter_entries' %}" hx-target = "#entriesTab" >
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="label"> By Slip Code </td>
+                            <td>
+                                <input type="text" class="filter_input" id="filterSlipCodeInput" name = "slip_code">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label"> By Odds </td>
+                            <td>
+                                <span class="filter_input_grp">
+                                    <input type="number" class="filter_input" name="filter_odds">
+                                    <input type="hidden" name="filter_odds_dir" value="gte">
+                                    
+                                    <button type="button" class="btn2_ share_btn"> <i class="ri-arrow-up-long-line"></i> </button>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label"> By Winning % </td>
+                            <td>
+                                <span class="filter_input_grp">
+                                    <input type="number" class="filter_input" name="filter_winpercent">
+                                    <input type="hidden" name="filter_winpercent_dir" value="gte">
+
+                                    <button type="button" class="btn2_ share_btn"> <i class="ri-arrow-up-long-line"></i> </button>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">By Date</td>
+                            <td>
+                                <input class="filter_input" type="date" name = "start_date"> 
+                                <span class="conjunction">to</span>
+                                <input class="filter_input" type="date" name = "end_date">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label"><label for="winCbInput">Wins only</label></td>
+                            <td>
+                                <input type="checkbox" id="winCbInput" name = "wins_cb" value = "wins">
+                            </td>
+                        </tr>
+                        <tr class="last_tr">
+                            <td colspan="2">
+                                <button class="btn2_ share_btn" hx-disable-submit>
+                                    Filter
+                                </button>
+                                
+                                <button class="btn2_ share_btn" hx-disable-submit hx-post = "{% url 'reload_entries' 'replace' %}" hx-target = "#entriesTab" id = "filterFormResetBtn">
+                                    Reset
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+            </form>
+            
+            <span class="modal_footer">
+                <button class="msg_btn md_close">Cancel</button>
+            </span>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block scripts %} 
+    <script src = "{% static 'js/diary.js' %}"></script> 
+{% endblock %}

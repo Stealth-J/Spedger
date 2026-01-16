@@ -1,4 +1,4 @@
-@import url('https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css');
+@import url('https://cdn.jsdelivr.net/npm/remixicon@4.8.0/fonts/remixicon.css');
 /* @import url('imgs/RemixIcon-master/RemixIcon-master/fonts/remixicon.css'); */
 
 *{
@@ -65,19 +65,42 @@ button[disabled]{
     pointer-events: none;
 }
 
+.relt{
+    position: relative !important;
+}
+.notif_dot{
+    position: absolute;
+    top: -0.2em;
+    right: -0.3em;
+    border-radius: 999px;
+    height: 0.3em;
+    padding: 0.3em;
+    background-color: var(--col-success);
+    animation: notif-pulse 1.6s ease-in-out infinite;
+    transform-origin: center;
+}
+@keyframes notif-pulse {
+    0%, 100% {
+        transform: scale(0.85);
+    }
+    50% {
+        transform: scale(1);
+    }
+}
+
 .loader {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-  padding: 0.7em;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7em;
 }
 .loader span {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--col-base-lighter), var(--col-base));
-  animation: bounce 1.2s infinite ease-in-out;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--col-base-lighter), var(--col-base));
+    animation: bounce 1.2s infinite ease-in-out;
 }
 
 .loader span:nth-child(1) { animation-delay: 0s; }
@@ -85,14 +108,14 @@ button[disabled]{
 .loader span:nth-child(3) { animation-delay: 0.3s; }
 .loader span:nth-child(4) { animation-delay: 0.45s; }
 @keyframes bounce {
-  0%, 80%, 100% {
-    transform: translateY(0);
-    opacity: 0.6;
-  }
-  40% {
-    transform: translateY(-8px);
-    opacity: 1;
-  }
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.6;
+    }
+    40% {
+        transform: translateY(-8px);
+        opacity: 1;
+    }
 }
 
 [id ^= customSpinner]{
@@ -124,6 +147,14 @@ button[disabled]{
   100% { opacity: .3; }
 }
 
+.del_btn2{
+    color: var(--col-error) !important;
+    transition: all 0.1s ease;
+}
+.del_btn2:hover, .del_btn2:active{
+    background-color: var(--col-error) !important;
+    color: #fff !important;
+}
 .txt_ellipse{
     white-space: nowrap;
     overflow: hidden;
@@ -179,6 +210,7 @@ button[disabled]{
 input[type = 'checkbox'], input[type = 'radio']{
     accent-color: var(--col-main);
 }
+
 .btn_{
     padding: 0.375rem 0.75rem;
     font-size: 1rem;
@@ -528,10 +560,16 @@ figure.profile{
     width: 90%;
     border-radius: 4px;
     align-items: center;
+    padding-top: 0.5rem;
 }
 .logo{
     height: 3em;
     border-radius: inherit;
+}
+.sidebar .logo{
+    border-radius: 15px;
+    max-width: 4rem;
+    background-size: contain;
 }
 figure.profile > span{
     display: flex;
@@ -555,7 +593,16 @@ figure.profile > span{
     align-items: center;
 }
 .notifs i{
-    font-size: 1.5em;
+    font-size: 1.5rem;
+}
+.notifs.icon_btn{
+    padding: 0 0.5rem;
+}
+.sidebar .notif_dot{
+    top: -0.1em;
+    right: -0.1em;
+    height: 0.4em;
+    padding: 0.4em;
 }
 .sidebar_nav{
     color: var(--col-sub);
@@ -576,6 +623,12 @@ figure.profile > span{
     color: var(--col-sub);
     padding: 0.5em;
     margin-bottom: 0.45rem;
+    font-weight: 400;
+    transition: all 0.1s ease-in-out;
+}
+.sidebar_main:hover{
+    color: var(--col-main);
+    font-weight: 500;
 }
 .mainlist > li{
     margin: 0.2em;
@@ -762,19 +815,17 @@ i.md_close{
 }
 .dropdown.not_list{
     border: var(--border-main);
+    /* box-shadow: var(--bxs-board); */
 }
 .dropdown.show{
     display: block;
 }
 .dropdown_list{
     border-radius: inherit;
+    /* box-shadow: var(--bxs-board); */
     border: var(--border-main);
 }
-.dropdown_list li{
-    border-bottom: var(--border-main);
-}
 .dropdown_list li:last-child{
-    border-bottom: none;
     border-bottom-left-radius: inherit;
     border-bottom-right-radius: inherit;
 }
@@ -787,6 +838,10 @@ i.md_close{
     display: block;
     color: inherit;
     padding: 0.5em 0.8em;
+    border-bottom: var(--border-main) !important;
+}
+.dropdown_list li:last-child a{
+    border-bottom: none !important;
 }
 li.buttoned{
     cursor: pointer;
@@ -796,6 +851,15 @@ li.buttoned{
 li.buttoned:hover{
     border-right: 0.35rem solid var(--col-main);
     color: var(--col-main);
+    outline: none;
+}
+.notif_list > a{
+    display: flex;
+    justify-content: space-between;
+    margin-right: 0.1rem;
+}
+.buttoned_val{
+    font-weight: 700;
 }
 
 #phoneDropdown{
@@ -810,19 +874,8 @@ li.buttoned:hover{
 
 
 
-/* TABS */
-.tab_container{
-    display: grid;
-}
-.tab_{
-    grid-area: 1 / 1;
-    opacity: 0;
-    transition: opacity .5s ease;
-    pointer-events: none;
-}
-.active_tab{
-    opacity: 1;
-    pointer-events: auto;
+[role = tabpanel]:not(.active_tab2){
+    display: none;
 }
 
 
@@ -881,6 +934,9 @@ li.buttoned:hover{
     border-radius: 10px;
     padding-bottom: 1.5em;
 }
+.profile_page .dropdown{
+    text-align: left;
+}
 section.user_info{
     width: 40%;
     order: 2;
@@ -901,8 +957,23 @@ section.user_info figure{
     text-align: center;
 }
 .profile_img{
-    width: 14rem;
+    width: 100%;
+    max-width: 14rem;
     border-radius: 2rem;
+    max-height: 9.5rem;
+}
+.profile_page_username{
+    font-family: var(--ff-style);
+    color: var(--col-sub);
+    overflow-wrap: anywhere;
+}
+.profile_page_username i{
+    color: var(--col-sub);
+}
+.view_code_btn{
+    font-size: 0.9em;
+    color: var(--col-muted);
+    padding: 0.5em;
 }
 .share_btn{
     margin-left: 0.3rem;
@@ -924,7 +995,7 @@ section.user_info figure{
 }
 .current_info1{
     margin-right: 0.5em;
-    padding: 1em;
+    padding: 1rem;
     font-size: 85%;
 }
 .attribute_line{
@@ -933,14 +1004,21 @@ section.user_info figure{
     padding: 0.4em;
     color: var(--col-sub);
     display: flex;
+    gap: 1rem;
+    justify-content: space-between;
 } 
 .attribute_line label{
     font-weight: lighter;
+    text-align: left;
 }
 .attribute_line > span{
     max-width: 60%;
     font-weight: normal;
     margin-left: auto;
+    text-align: right;
+}
+.attribute_line a{
+    color: #2424bc;
 }
 .form_help_txt{
     font-size: 0.85em;
@@ -976,7 +1054,7 @@ article.current_info2{
     text-align: center;
 }
 .current_info2 header{
-    margin-bottom: 1em;
+    margin-bottom: 1.5em;
 }
 h1.section_header{
     font-weight: 400;
@@ -992,15 +1070,21 @@ h1.section_header{
 .logging_history{
     text-align: right;
 }
+.logging_history p{
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    color: var(--col-muted);
+}
+.logging_history p i{
+    color: inherit;
+}
 .logging_history table{
     width: 100%;
     text-align: center;
     border-collapse: collapse;
-    border-top: 2px solid var(--col-main);
+    border-top: 1px solid var(--col-main);
     font-size: 75%;
-    font-family: var(--ff-slip);
     color: var(--col-sub);
-    font-weight: lighter;
 }
 .logging_history tr:nth-child(even){
     background-color: var(--bgcol-table);
@@ -1012,8 +1096,20 @@ h1.section_header{
     font-weight: normal;
     color: var(--col-main);
 }
+.logging_history td:first-child{
+    font-family: var(--ff-slip);
+}
+.logging_history td{
+    padding: 0.2rem;
+}
 .btn_td{
     width: 1em;
+}
+.btn_td button{
+    padding: 0.4em 0.7em;
+}
+.btn_td button i{
+    font-size: 16px;
 }
 #loadMoreBtn{
     margin-top: 1.5em;
@@ -1117,7 +1213,7 @@ h1.section_header{
     pointer-events: none;
     font-weight: 500;
     font-family: var(--ff-duel);
-    font-size: 1.2rem;
+    font-size: 1rem;
     box-shadow: var(--bxs-light);
 }
 [data-float].warning{
@@ -1804,7 +1900,7 @@ ul.indented > li{
     justify-content: center;
 }
 .search_grps form{
-    background-color: var(--bgcol-card);
+    background-color: var(--bgcol-lighter);
     padding: 0.5em;
     width: 60%;
     display: flex;
@@ -1826,9 +1922,7 @@ ul.indented > li{
     color: var(--col-muted);
     font-size: 1.2rem;
     padding: 0;
-}
-.search_grps form:has(input:focus) {
-    border: var(--border-last);
+    text-align: right;
 }
 .search_grps input:focus + button{
     color: var(--col-main);
@@ -1839,23 +1933,19 @@ ul.indented > li{
     padding: 1em;
     border: var(--border-main);
 }
+.groups_list .center_info{
+    min-height: 15rem;
+}
 .groups header{
     margin-bottom: 1.5rem;
     font-size: 0.9rem;
 }
-.create_group_details summary{
-    list-style-type: none;
+.create_group_details .custom_details.open, .gd_header_details .custom_details.open{
+    max-height: 25em;
 }
-/* .create_group_holder{
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: opacity 0.5s ease, max-height 0.5s ease;
+.create_group_details .create_group_form{
+    margin-top: 2rem;
 }
-.create_group_details[open] .create_group_holder{
-    opacity: 1;
-    max-height: 100vh;
-} */
 .group{
     border: var(--border-main);
     border-radius: 10px;
@@ -1868,6 +1958,11 @@ ul.indented > li{
 }
 .group:last-of-type{
     margin-bottom: 2rem;
+}
+.group.htmx-swapping{
+    opacity: 0;
+    transform: translateX(-2em);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
 .group_anchor{
     width: 90%;
@@ -1894,9 +1989,7 @@ ul.indented > li{
 
 .group_details{
     background-color: var(--bgcol-card);
-    border: var(--border-main);
-    margin: 1rem;
-    padding: 1rem;
+    padding: 1.5rem;
     border-radius: 10px;
 }
 .group_details > header{
@@ -1905,10 +1998,11 @@ ul.indented > li{
 .group_details i{
     color: inherit;
 }
-.group_details summary{
-    list-style-type: none;
+.private_grp_icon{
+    color: var(--col-muted) !important;
+    font-size: 0.95em;
 }
-.gd_header_details summary{
+.gd_header_summary{
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -1927,6 +2021,7 @@ ul.indented > li{
     padding: 0.375rem 0.75rem;
     color: var(--col-sub);
     border: var(--border-main);
+    background-color: var(--bgcol-lighter);
 }
 .gd_action_btns .icon_btn:hover{
     color: var(--col-main);
@@ -1934,7 +2029,7 @@ ul.indented > li{
 }
 .gd_settings, .create_group_form{
     margin: 1em 1em 0.5em;
-    padding: 1em;
+    padding: 1.5em;
     border: var(--border-main);
     border-radius: 10px;
     width: 60%;
@@ -1958,11 +2053,17 @@ ul.indented > li{
     margin: 0.3em 0;
     font-size: 0.9rem;
 }
-#leaderTalkOnlyCb{
+.create_group_form label{
+    font-size: 0.9rem;
+}
+#leaderTalkOnlyCb, #privateGroupCb{
     vertical-align: -0.1em;
+    margin-right: 0.1em;
+    accent-color: var(--bgcol-lighter);
 }
 .gd_settings .form_help_txt, .create_group_form .form_help_txt{
     color: var(--col-muted);
+    margin-top: 0.5em;
     margin-bottom: 0.5em;
     font-size: 0.75rem;
     text-align: right;
@@ -1989,8 +2090,15 @@ ul.indented > li{
     display: grid;
     gap: 1em;
     grid-template-columns: 60% 40%;
-    grid-template-rows: 30vh 1fr;
+    grid-template-rows: 50% 50%;
     padding-bottom: 1em;
+    height: var(--left-over-height);
+}
+.gd_sections .dropdown{
+    font-family: var(--ff-main);
+}
+.gd_section[role = tabpanel]{
+    display: flex;
 }
 .gd_codes{
     grid-column: 1 / 1;
@@ -2001,12 +2109,50 @@ ul.indented > li{
     background-color: var(--bgcol-lighter);
     display: flex;
     flex-direction: column;
-    height: 70vh;
+    height: 100%;
+    position: relative;
+}
+.scroll_down_chats_area{
+    position: absolute;
+    bottom: 5rem;
+    right: 1em;
+    z-index: 210;
+}
+.scroll_down_chats_area button{
+    color: var(--col-muted);
+    padding: 0.25rem 0.5rem;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    border: var(--border-main);
+    opacity: 0;
+    pointer-events: none;
+    transition: border 0.2s ease-in, color 0.2s ease-in, opacity 0.3s ease-in;
+}
+.scroll_down_chats_area button:hover{
+    color: var(--col-sub);
+    border: 1px solid var(--col-sub);
+}
+.scroll_down_chats_area button.show{
+    opacity: 1;
+    pointer-events: auto;
 }
 .gd_sent_codes{
     flex: 1;
     overflow: auto;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+}
+.see_older_codes_span{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+#seeOlderCodesBtn{
+    color: var(--col-muted);
+}
+#seeOlderCodesBtn:hover{
+    color: var(--col-sub);
 }
 .gd_code{
     border: var(--border-main);
@@ -2016,10 +2162,25 @@ ul.indented > li{
     width: 60%;
     display: flex;
     flex-direction: column;
+    max-width: 17rem;
+}
+.gd_code:first-of-type{
+    margin-top: 2rem;
+}
+.gd_code:last-of-type{
+    margin-bottom: 5rem;
 }
 .gd_code.yours{
     margin-left: auto;
     border-radius: 20px 20px 0;
+}
+.gd_code.htmx-swapping{
+    transform: translateX(-2em);
+    opacity: 0;
+    transition: opacity 0.3s ease-out, transition 0.3s ease-out;
+}
+.gd_code.yours.htmx-swapping{
+    transform: translateX(2em);
 }
 .gd_code > header{
     display: flex;
@@ -2042,6 +2203,7 @@ ul.indented > li{
 .sender_name{
     color: #2424bc;
     font-size: 0.9rem;
+    font-family: var(--ff-style);
 }
 .gd_code_info{
     padding: 0.2em 0.7em;
@@ -2049,16 +2211,22 @@ ul.indented > li{
 }
 .gd_slip_code{
     font-size: 1.2rem;
+    font-weight: 300;
 }
 .gd_slip_code .icon_btn{
     margin-left: 0.2em;
     padding: 0.4em;
     vertical-align: middle;
 }
+.gd_slip_code .icon_btn i{
+    font-size: 16px;
+}
 .gd_code_extra{
     display: flex;
     font-size: 0.75rem;
     justify-content: space-between;
+    font-family: var(--ff-style);
+    font-weight: 300;
 }
 .gd_code_symbol{
     font-size: 0.9rem;
@@ -2087,7 +2255,9 @@ ul.indented > li{
     background-color: transparent;
     border: none;
     padding: 1em;
+    padding-left: 1.5rem;
     flex: 1;
+    font-family: var(--ff-slip);
 }
 #sendCodesForm input:focus{
     outline: none;
@@ -2096,9 +2266,6 @@ ul.indented > li{
 #sendCodesForm input + .icon_btn{
     color: var(--col-muted);
     transition: color 0.2s ease;
-}
-#sendCodesForm:has( .gd_send_code_input:focus ){
-    border: var(--border-sub);
 }
 #sendCodesForm input:focus + .icon_btn{
     color: var(--col-main);
@@ -2109,7 +2276,7 @@ ul.indented > li{
     grid-row: 1 / 2;
     border: var(--border-main);
     border-radius: 15px;
-    height: 30vh;
+    height: 100%;
     margin-right: 1em;
     display: flex;
     background-color: var(--bgcol-lighter);
@@ -2123,27 +2290,33 @@ ul.indented > li{
     padding: 0.3em 0;
 }
 .gd_rankings figure{
-    padding: 0.5em;
+    padding: 0.5em 0.3em;
     flex: 1;
     overflow: auto;
     scrollbar-width: none;
 }
 .gd_rankings table{
     border-collapse: collapse;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     width: 100%;
     text-align: center;
     table-layout: fixed;
     font-family: var(--ff-style);
+    font-weight: 300;
+    margin-bottom: 2rem;
 }
 .gd_rankings table a{
     color: #2424bc;
+    font-weight: normal;
 }
 .gd_rankings th{
     font-weight: normal;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--col-muted);
     padding-bottom: 0.4em;
+}
+.gd_rankings td{
+    padding: 0.3em 0;
 }
 .gd_rankings th, .gd_rankings td{
     text-overflow: ellipsis;
@@ -2169,7 +2342,7 @@ ul.indented > li{
     grid-row: 2 / 3;
     border: var(--border-main);
     border-radius: 15px;
-    height: 36vh;
+    height: 100%;
     margin-right: 1em;
     display: flex;
     background-color: var(--bgcol-lighter);
@@ -2238,7 +2411,7 @@ ul.indented > li{
     display: none;
 }
 .del_modal .modal{
-    border-radius: 5px;
+    border-radius: 10px;
     height: auto;
     display: flex;
     flex-direction: column;
@@ -2249,7 +2422,7 @@ ul.indented > li{
 }
 .del_modal article{
     margin-bottom: 1rem;
-    padding: 0.7em 0.9em;
+    padding: 1.2em 0.9em;
 }
 .del_modal p:first-of-type{
     font-size: 1.3rem;
@@ -2283,10 +2456,10 @@ ul.indented > li{
     color: #fff !important;
 }
 .del_modal_footer button:first-child{
-    border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 10px;
 }
 .del_modal_footer button:last-child{
-    border-bottom-right-radius: 5px;
+    border-bottom-right-radius: 10px;
     border-left: var(--border-main);
 }
 #shareGroupModal .modal{
@@ -2396,7 +2569,7 @@ ul.indented > li{
         max-width: 90vw;
         margin: 0.5em 1em 0;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         padding-left: 1em;
     }
 
@@ -2418,6 +2591,15 @@ ul.indented > li{
     }
     section.history_info{
         padding-top: 2em;
+    }
+    .logging_history td{
+        padding: 0.3rem 0.2rem;
+    }
+    .current_info1{
+        font-size: 1rem;
+    }
+    article.current_info2, .current_info1{
+        padding: 1rem 0;
     }
 
     #shareModal .modal{
@@ -2484,9 +2666,6 @@ ul.indented > li{
         height: auto;
         margin-bottom: 2em;
     }
-    #previewSlipForm{
-        position: static !important;
-    }
     #wklyPreview{
         height: 30vh;
         max-height: 50vh;
@@ -2536,6 +2715,12 @@ ul.indented > li{
         right: 2em;
     }
 
+    .search_grps form{
+        width: 80%;
+    }
+    .groups_page{
+        padding: 0;
+    }
     .group_name{
         width: 12em;
     }
@@ -2547,17 +2732,21 @@ ul.indented > li{
         width: 100%;
     }
 
+    .group_details{
+        margin: 0 0 0.5em;
+        padding: 0.5rem;
+    }
     .gd_sections{
         display: block;
     }
-    .gd_section{
+    .gd_section[role = tabpanel]{
         display: none;
     }
     .gd_section.active_tab2{
         display: flex;
     }
     .gd_rankings, .gd_members{
-        height: auto;
+        margin-right: 0;
     }
 
     .gd_member_sub .icon_btn{
@@ -2565,9 +2754,10 @@ ul.indented > li{
         transform: none;
     }
     .mobile_gd_nav{
+        margin-bottom: 1rem;
         display: flex;
     }
-    .gd_header_details summary{
+    .gd_header_summary{
         gap: 1em;
         align-items: start;
     }
@@ -2584,8 +2774,11 @@ ul.indented > li{
         margin: 1em 0 0.5em;
         width: 100%;
     }
-    .gd_rankings, .gd_members{
-        margin-right: 0;
+    .gd_slip_code{
+        font-size: 1rem;
+    }
+    .gd_code_extra{
+        font-size: 0.7rem;
     }
     .gd_rankings > header, .gd_members > header{
         padding: 0.5em 0;
@@ -2593,7 +2786,6 @@ ul.indented > li{
     .gd_rankings figure{
         display: flex;
         flex-direction: column;
-        margin-top: 0.7em;
     }
     .gd_rankings td{
         padding: 0.5em 0;
@@ -2610,8 +2802,8 @@ ul.indented > li{
     .gd_member_username{
         width: 10rem;
     }
-    .gd_members_list{
-        margin-top: 0.7em;
+    .gd_member:first-of-type{
+        margin-top: 0.5em;
     }
 
     .del_modal .modal{

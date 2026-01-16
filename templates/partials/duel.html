@@ -1,0 +1,154 @@
+{% load static %}
+{% load custom_filters %}
+
+<article class="duel" id = "duel{{ duel.id }}">
+    <details class="duel_details">
+        <summary>
+            <article class="duel_main summary_toggle_btn">
+                <div class="duelist {% if duel.challenger.user == request.user %} you {% endif %}">
+                    <figure>
+                        <a href="{% url 'profile' duel.challenger.user.user_profile.public_id %}"> 
+                            <img src="{% static duel.challenger.user.user_profile.avatar %}" alt="profile img"> 
+                        </a>
+
+                        <figcaption class="txt_ellipse duel_username" data-duel = "{{ duel.id }}" data-min-odds = "{{ duel.minimum_odds }}">
+                            {% if duel.challenger.user == request.user %}
+                                you
+                            {% else %}
+                                {{ duel.challenger.user.username }}
+                            {% endif %}
+                        </figcaption>
+                    </figure>
+
+                    <article class="duel_stats {% if duel.winning_user == duel.challenger %} winner {% endif %}">
+                        <p title="win %">
+                            {{ duel.challenger.slip.win_percentage|floatformat }}
+                        </p>
+
+                        <span class="winner_indicator">
+                            <i class="ri-award-fill"></i>
+                        </span>
+                    </article>
+                </div>
+
+                <div class="duelist {% if duel.recipient.user == request.user %} you {% endif %}">
+                    <figure>
+                        <a href="{% url 'profile' duel.recipient.user.user_profile.public_id %}"> 
+                            <img src="{% static duel.recipient.user.user_profile.avatar %}" alt="profile img"> 
+                        </a>
+
+                        <figcaption class="txt_ellipse duel_username" data-duel = "{{ duel.id }}" data-min-odds = "{{ duel.minimum_odds }}">
+                            {% if duel.recipient.user == request.user %}
+                                you
+                            {% else %}
+                                {{ duel.recipient.user.username }}
+                            {% endif %}
+                        </figcaption>
+                    </figure>
+
+                    <article class="duel_stats {% if duel.winning_user == duel.recipient %} winner {% endif %}">
+                        <p title="win %">
+                            {{ duel.recipient.slip.win_percentage|floatformat }}
+                        </p>
+
+                        <span class="winner_indicator">
+                            <i class="ri-award-fill"></i>
+                        </span>
+                    </article>
+                </div>
+
+                <div class = "duel_main_date">
+                    <small class = "text_muted">{{ duel.created_at|timesince|format_timesince }} ago.</small>
+                </div>
+            </article>
+        </summary>
+
+        <article class="duel_extra">
+            <figure>
+                <table>
+                    <tbody>
+                        <tr class="table_head">
+                            <td></td>
+                            <td>win %</td>
+                            <td>odds</td>
+                            <td>gl</td>
+                            <td>code</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {% if duel.challenger.user == request.user %}
+                                    you
+                                {% else %}
+                                    {{ duel.challenger.user.username }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ duel.challenger.slip.win_percentage|floatformat }}
+                            </td>
+                            <td>
+                                {{ duel.challenger.slip.total_odds|floatformat:1 }}
+                            </td>
+                            <td>
+                                {{ duel.challenger.slip.games_left }}
+                            </td>
+                            <td class = "ff_slip">
+                                {% if duel.challenger.user == request.user or duel.settled == True %}
+                                    {{ duel.challenger.slip.slip_code|upper }}
+                                {% else %}
+                                    ~
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                {% if duel.recipient.user == request.user %}
+                                    you
+                                {% else %}
+                                    {{ duel.recipient.user.username }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ duel.recipient.slip.win_percentage|floatformat }}
+                            </td>
+                            <td>
+                                {{ duel.recipient.slip.total_odds|floatformat:1 }}
+                            </td>
+                            <td>
+                                {{ duel.recipient.slip.games_left }}
+                            </td>
+                            <td class = "ff_slip">
+                                {% if duel.recipient.user == request.user or duel.settled == True %}
+                                    {{ duel.recipient.slip.slip_code|upper }}
+                                {% else %}
+                                    ~
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <figcaption>gl - games left</figcaption>
+            </figure>
+            
+
+            {% if duel.settled %}
+                <p class="duel_date">
+                    Settled - {{ duel.settled_date|format_date }}.
+                </p>
+            {% endif %}
+        </article>
+    </details>
+
+    {% if duel.challenger.user != request.user and duel.active %}
+        <div class="duel_helpers">
+            <button class="btn2_ share_btn" data-modal="updateDuelModal" data-button aria-expanded="false">
+                Accept
+            </button>
+            
+            <button class="btn2_ share_btn" hx-post = "{% url 'reject_duel' %}" hx-swap = "outerHTML" hx-target = "#duel{{ duel.id }}" hx-vals = '{"duel": "{{ duel.id }}" }'>
+                Reject
+            </button>
+        </div>
+    {% endif %}
+</article>

@@ -1,4 +1,121 @@
 
+/* PREVIEW */
+.preview{
+    border: var(--border-main);
+    margin: 1em 0 2em;
+}
+.preview header{
+    background-color: var(--bgcol-table);
+    padding: 0.4em 1em;
+    display: flex;
+    justify-content: space-between;
+}
+.preview_code_group{
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+.preview_code_group button{
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+    padding: 0;
+}
+.preview .heading_txt{
+    font-family: var(--ff-slip);
+    font-weight: 500;
+}
+.wkly_games_list .game{
+    display: flex;
+    flex-direction: column;
+    font-family: var(--ff-slip);
+    border-bottom: var(--border-main);
+    padding: 0.5em 0.3em 0.5em 1em;
+    min-width: 0;
+    transition: all 0.2s ease-out;
+}
+.wkly_games_list .game:last-of-type{
+    border-bottom: none;
+}
+.game_main, .game_sub{
+    display: flex;
+    justify-content: space-between;
+}
+.sport_icon_span{
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+    margin-top: 0.2rem;
+}
+.game_main .pick{
+    vertical-align: bottom;
+    font-weight: normal;
+    font-size: 0.8rem;
+    font-family: var(--ff-main);
+}
+.game_sub{
+    font-size: 0.9em;
+    gap: 0.5em;
+    color: var(--col-sub);
+    font-family: var(--ff-main);
+}
+.game_sub.open{
+    max-height: 6rem;
+}
+.game_sub p{
+    margin-bottom: 0.2em;
+}
+.game_sub > div{
+    padding: 1rem 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+}
+.game_sub .market_info{
+    width: 60%;
+    padding-right: 0.5em;
+}
+.game_sub .comp_info{
+    width: 40%;
+    text-align: right;
+    padding-left: 0.5em;
+}
+
+.game_lhs{
+    font-weight: lighter;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    font-size: 0.9rem;
+}
+.wkly_games_list .game .home, .wkly_games_list .game .away{
+    width: 14rem;
+}
+.game_rhs{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    min-width: 0;
+}
+.game_rhs .icon_btn{
+    margin-left: auto;
+    transition: all 0.2s ease;
+    color: var(--col-sub);
+}
+.game_rhs .icon_btn:hover{
+    transform: scale(1.05);
+    color: var(--col-main);
+}
+.wkly_games_list .game .sport_icon{
+    width: 0.9em;
+}
+.wkly_games_list .game .odds{
+    font-size: 0.9rem;
+    font-family: var(--ff-style);
+}
+/* PREVIEW */
+
+
 .form_holder{
     margin-top: 2em;
     margin-bottom: 4em;
@@ -18,17 +135,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #fff !important;
     padding: 1.3em 0 !important;
-    border-bottom: none !important;
-    background-color: var(--col-base) !important;
-    position: sticky;
-    top: var(--height-nav);
+    color: var(--col-main) !important;
 }
 .preview_code_group{
     font-family: var(--ff-slip);
     padding-left: 1rem;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 .preview_code_group + p{
     padding-right: 0.7em;
@@ -36,10 +149,10 @@
 .preview_code_group button{
     font-size: 1.2rem !important;
 }
-.game{
+.wkly_games_list .game{
     padding-top: 0.9em;
 }
-.game:last-of-type{
+.wkly_games_list .game:last-of-type{
     padding-bottom: 1em;
 }
 .preview_form_span{
@@ -92,4 +205,17 @@
 .remove_game{
     transform: translateX(-2em);
     opacity: 0;
+}
+
+
+
+
+@media screen and (max-width: 50rem) {
+    .slip_preview{
+        margin-bottom: 2em !important;
+    }
+    #previewSlipForm{
+        position: static !important;
+        margin-bottom: 2em;
+    }
 }

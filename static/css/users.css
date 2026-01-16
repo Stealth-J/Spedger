@@ -15,114 +15,10 @@ summary{
 .for_mobile{
     display: none;
 }
-
-
-/* PREVIEW */
-.preview{
-    border: var(--border-main);
-    margin: 1em 0 2em;
-}
-.preview header{
-    background-color: var(--bgcol-table);
-    padding: 0.4em 1em;
-    display: flex;
-    justify-content: space-between;
-}
-.preview_code_group{
-    display: flex;
-    gap: 0.5em;
-    align-items: center;
-}
-.preview_code_group button{
-    border: none;
-    cursor: pointer;
-    background-color: transparent;
-    padding: 0;
-}
-.preview .heading_txt{
+.ff_slip{
     font-family: var(--ff-slip);
-    font-weight: 500;
-}
-.game{
-    display: flex;
-    flex-direction: column;
-    font-family: var(--ff-slip);
-    border-bottom: var(--border-main);
-    padding: 0.5em 0.3em 0.5em 1em;
-    min-width: 0;
-    transition: all 0.2s ease-out;
-}
-.game:last-of-type{
-    border-bottom: none;
-}
-.game_main, .game_sub{
-    display: flex;
-    justify-content: space-between;
-}
-.game_sub{
-    font-size: 0.9em;
-    gap: 0.5em;
-    color: var(--col-sub);
-    font-family: var(--ff-main);
-}
-.game_sub.open{
-    max-height: 6rem;
-}
-.game_sub p{
-    margin-bottom: 0.2em;
-}
-.game_sub > div{
-    padding: 1rem 0.5rem 0 0;
-    display: flex;
-    flex-direction: column;
-}
-.game_sub .market_info{
-    width: 60%;
-    padding-right: 0.5em;
-}
-.game_sub .comp_info{
-    width: 40%;
-    text-align: right;
-    padding-left: 0.5em;
-}
-.game_sub .pick{
-    font-size: 0.8rem;
 }
 
-.game_lhs{
-    font-weight: lighter;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    font-size: 0.9rem;
-}
-.game .home, .game .away{
-    width: 14rem;
-}
-.game_rhs{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-    min-width: 0;
-}
-.game_rhs .icon_btn{
-    margin-left: auto;
-    transition: all 0.2s ease;
-    color: var(--col-sub);
-}
-.game_rhs .icon_btn:hover{
-    transform: scale(1.05);
-    color: var(--col-main);
-}
-.game .sport_icon{
-    width: 0.9em;
-    margin-top: 0.3rem;
-}
-.game .odds{
-    font-size: 0.9rem;
-}
-/* PREVIEW */
 
 
 
@@ -424,37 +320,6 @@ summary{
 #slipPreview{
     margin: 2.5rem 0.5rem 0.5rem;
 }
-.preview_form{
-    background-color: var(--bgcol-lighter);
-    border-radius: 10px;
-    padding: 1em;
-    padding-top: 2em;
-    border: var(--border-main);
-}
-.preview_form input{
-    width: 50%;
-    border-radius: 7px;
-    padding: 0.7em 1em;
-    color: var(--col-sub);
-    border: var(--border-main);
-    font-family: var(--ff-slip);
-    background-color: transparent;
-    margin-bottom: 0.2rem;
-    font-size: 1.1rem;
-}
-.preview_form input:focus{
-    outline: none;
-    border: var(--border-sub);
-}
-.preview_form details{
-    margin-bottom: 1rem;
-}
-.preview_form summary{
-    display: inline;
-    text-align: right;
-    color: var(--col-muted);
-    margin: 0.3rem 0 1rem;
-}
 .summary_toggle_btn{
     cursor: pointer;
 }
@@ -481,10 +346,6 @@ summary{
     height: 2px;
     width: 2px;
     background-color: var(--col-muted);
-}
-.preview_form .errors{
-    font-size: 0.9rem;
-    color: var(--col-error);
 }
 #slipPreview .games_list{
     background-color: var(--bgcol-lighter);
@@ -522,15 +383,17 @@ summary{
 .duels_filter{
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     border-bottom: var(--border-main);
     padding: 0.3em 1em;
 }
 .duels_filter_cb{
+    display: inline-block;
     border: var(--border-main);
     padding: 0.375em 0.75em;
-    border-radius: 0.25em;
+    border-radius: 0.45em;
     margin-right: 0.5em;
+    margin-bottom: 0.5em;
     font-size: 0.85rem;
 }
 .duels_filter_cb input{
@@ -541,10 +404,18 @@ summary{
 .custom_duel_cb i{
     margin-left: 0.1em;
     opacity: 0;
-    transition: opacity 0.2s ease; 
+    transition: opacity 0.1s ease; 
+}
+.duels_filter_cb input:checked + .custom_duel_cb {
+    color: var(--col-main);
 }
 .duels_filter_cb input:checked + .custom_duel_cb i{
     opacity: 1;
+}
+#duelsHistory{
+    min-height: var(--height-content);
+    display: flex;
+    flex-direction: column;
 }
 .duels_history{
     margin: 1.5em 0;
@@ -555,7 +426,6 @@ summary{
     border-radius: 10px;
     margin-bottom: 1em;
     border: var(--border-main);
-    box-shadow: var(--bxs-light);
 }
 .duel_main{
     padding: 0.7em;
@@ -578,11 +448,16 @@ summary{
 }
 .duelist figcaption{
     width: 12rem;
+    font-weight: 300;
+    color: var(--col-sub);
 }
 .duelist img{
     width: 2rem;
     height: 2rem;
     border-radius: var(--radius-profile);
+}
+.you figcaption{
+    font-weight: 400;
 }
 .duel_stats{
     display: flex;
@@ -766,7 +641,7 @@ tr:not(.table_head) td {
 
 
 #startDuelModal .modal{
-    height: 290px;
+    height: 350px;
     max-height: 50vh;
     width: 25em;
 }
@@ -862,7 +737,20 @@ label:has(#minimumOddsCb:checked) + .input_holder{
 #updateDuelModal .user_code input{
     width: 90%;
 }
-
+.duel_min_odds{
+    margin: 0.5em 0;
+    font-size: 0.9rem;
+    color: var(--col-muted);
+}
+.form_error_txt{
+    margin: 0.4em 0;
+}
+#customSpinner4{
+    margin-top: 1rem;
+}
+.duel_main_date{
+    font-size: 0.8rem;
+}
 
 
 
@@ -969,16 +857,9 @@ label:has(#minimumOddsCb:checked) + .input_holder{
     .mobile_users_options button{
         color: var(--col-muted);
     }
-    .mobile_users_options button.glow{
-        color: var(--col-success);
-    }
     .mobile_users_options button[aria-selected = true]{
         border: var(--border-last);
         color: var(--col-main);
-    }
-    button[aria-selected = true].glow{
-        border: 1px solid var(--col-success);
-        color: var(--col-success);
     }
 
     .friend_sub{
@@ -986,7 +867,7 @@ label:has(#minimumOddsCb:checked) + .input_holder{
         transform: translateX(0);
     }
     .requests{
-        margin: 0 1em 1em;
+        margin-bottom: 1em;
     }
     .request_main .txt_ellipse{
         width: 8em;
@@ -1000,6 +881,15 @@ label:has(#minimumOddsCb:checked) + .input_holder{
     }
     #slipPreview{
         margin: 0.5rem;
+    }
+
+    #duels, .requests{
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .duels_filter_cb{
+        font-size: 0.75rem;
     }
 
     #startDuelModal .modal{

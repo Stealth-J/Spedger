@@ -78,9 +78,12 @@
                                         <p class="home txt_ellipse">{{ game.home_team }} </p>
                                         <p class="away txt_ellipse">{{ game.away_team }}</p>
 
-                                        {% if game.sport_icon %}
-                                            <img class="sport_icon" src = "{% static game.sport_icon %}" alt = '{{ game.sport }} icon'>
-                                        {% endif %}
+                                        <span class = "sport_icon_span">
+                                            {% if game.sport_icon %}
+                                                <img class="sport_icon" src = "{% static game.sport_icon %}" alt = '{{ game.sport }} icon'>
+                                            {% endif %}
+                                            <p class="pick"> {{ game.pick }}</p>
+                                        </span>
                                     </div>
 
                                     <span class="game_rhs">
@@ -94,7 +97,6 @@
 
                                 <article class="game_sub custom_details" data-detail-toggle = "game{{ game.id_ }}">
                                     <div class="market_info">
-                                        <p class="pick"> {{ game.pick }}</p>
                                         <p class="market">{{ game.market_type }}</p>
                                     </div>
 

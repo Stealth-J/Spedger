@@ -1,0 +1,86 @@
+{% load static %}
+{% load custom_filters %}
+
+<details class="menu_details">
+    <summary class="summary_toggle_btn mobile_menu_toggler" data-toggle-icon>
+        <span>
+            <i class="ri-user-line" ></i> 
+            <i class="ri-arrow-down-s-line" data-toggle-icon></i>
+        </span>
+
+        <span class = "mobile_users_options">
+            <button data-tab2="searchUser" role="tab" tabindex="0" aria-controls="searchUser" aria-selected="true" class = "icon_btn">
+                <i class="ri-search-line"></i>
+            </button>
+
+            <button data-tab2="friendRequests" role="tab" tabindex="-1" aria-controls="friendRequests" aria-selected="false" class = "icon_btn ">
+                {% if received_requests %}
+                    <span class = "relt">
+                        <i class="ri-mail-line"></i> 
+                        <span class = "notif_dot"></span>
+                    </span>
+                {% else %}
+                    <span> <i class="ri-mail-line"></i> </span>
+                {% endif %}
+            </button>
+
+            <button data-tab2="duels" role="tab" tabindex="-1" aria-controls="duels" aria-selected="false" class = "icon_btn">
+                {% if open_duels %}
+                    <span class = "relt">
+                        <i class="ri-scales-line"></i> 
+                        <span class = "notif_dot"></span>
+                    </span>
+                {% else %}
+                    <span> <i class="ri-scales-line"></i> </span>
+                {% endif %}
+            </button>
+        </span>
+    </summary>
+
+    <section class="mobile_user_menu">
+        <section class="friends">
+            <header>
+                <p> Friends ({{ profile_obj.friends.all|length }})</p>
+            </header>
+
+            <ul class="friends_list">
+                {% for friend in profile_obj.friends.all %}
+                    <li class="friend" data-user = "{{ friend.id }}">
+                        <span class="friend_main">
+                            <a href="{% url 'profile' friend.user_profile.public_id %}">
+                                <img src="{% static friend.user_profile.avatar %}" alt="{{ friend.username }} profile">
+                            </a>
+                            <p class="friend_username txt_ellipse">
+                                {{ friend.username }}
+                            </p>
+                        </span>
+                        <span class="friend_sub">  
+                            <button class="icon_btn" data-modal="startDuelModal" data-button aria-expanded="false">
+                                <i class="ri-scales-line"></i>
+                            </button>
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="users_options">
+            <div class="mobile_tab">
+                <button data-tab2="searchUser" role="tab" tabindex="0" aria-controls="searchUser" aria-selected="true">
+                    <i class="ri-search-line"></i> Search
+                </button>
+            </div>
+            <div class="mobile_tab">
+                <button data-tab2="friendRequests" role="tab" tabindex="-1" aria-controls="friendRequests" aria-selected="false">
+                    <i class="ri-mail-line"></i> Requests
+                </button>
+            </div>
+            <div class="mobile_tab">
+                <button data-tab2="duels" role="tab" tabindex="-1" aria-controls="duels" aria-selected="false">
+                    <i class="ri-scales-line"></i> Duels
+                </button>
+            </div>
+        </section>
+    </section>
+
+</details>

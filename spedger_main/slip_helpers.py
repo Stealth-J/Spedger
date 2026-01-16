@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from django.utils import timezone as django_timezone
 import requests
+from requests.exceptions import Timeout, ConnectionError
 from urllib.parse import urlparse
 from types import SimpleNamespace
 from .models import Slip, SlipEvent, DiaryEntry
@@ -32,7 +33,7 @@ SLIP_DOMAINS = {
 }
 PREVIEW_HEADERS = {
     'sportybet': {
-        'Content-Type': 'application/json', 
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 
         'User-Agent': 'Mozilla/5.0', 
         'Origin': 'https://www.sportybet.com'
     },   
@@ -117,15 +118,21 @@ def scrape_site(url, platform):
             return (False, scrape_msg)
         return (True, data)
 
+    except Timeout:
+        return (False, 'Request timed out')
+    except ConnectionError as e:
+        print(e)
+        return (False, 'There was a connection error')
     except Exception as e:
         return (False, f'Failed to fetch slip data: {str(e)}')
 
 
-def remove_unsupported_selections(games_data, games_ids_list):
+def remove_unsupported_selections(games_data):
     valid_games_data = []
+    valid_ids_list = []
 
     for game in games_data:
-        if game.game_id in games_ids_list:
+        if game.game_id not in valid_ids_list:
             if game.sport in SUPPORTED_SPORTS:
                 if game.status.lower() != 'not start':
                     continue
@@ -134,14 +141,14 @@ def remove_unsupported_selections(games_data, games_ids_list):
                 if not game.home_team or not game.away_team:
                     continue
 
+                valid_ids_list.append(game.game_id)
                 valid_games_data.append(game)
     return valid_games_data
 
 
-def create_slip_obj(request, valid_games, slip_info, code, wkly = False):
+def create_slip_obj(request, valid_games, slip_info, code, wkly = False, log_in_diary = False):
     try:
         slip_events = []
-        print(request.user)
         profile_obj = request.user.user_profile
 
         slip_obj = Slip.objects.create(
@@ -150,8 +157,8 @@ def create_slip_obj(request, valid_games, slip_info, code, wkly = False):
             total_odds = slip_info.total_odds,
             weekly = wkly
         )
-        if profile_obj.log_all_slips:
-            DiaryEntry.objects.create(slip = slip_obj)
+        if profile_obj.log_all_slips or log_in_diary == True:
+            entry_obj = DiaryEntry.objects.create(slip = slip_obj, user = request.user)
 
         for game in valid_games:
             teams = [game.home_team, game.away_team]
@@ -174,4 +181,6 @@ def create_slip_obj(request, valid_games, slip_info, code, wkly = False):
     except Exception as e:
         raise Exception('Error while creating slip object')
     
+    if log_in_diary == True:
+        return entry_obj
     return slip_obj
