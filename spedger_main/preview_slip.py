@@ -13,6 +13,7 @@ def preview(code, platform = 'sportybet'):
         games_data = []
 
         for sn, outcome in enumerate(outcomes):
+            event_id = outcome.get('eventId')
             sport_id = outcome.get('sport').get('id')
             sport_name = outcome.get('sport').get('name')
             sport_icon = f'img/sports_icons/{sport_name.lower()}.svg' or None
@@ -40,6 +41,7 @@ def preview(code, platform = 'sportybet'):
 
             game_data = SimpleNamespace(
                 id_ = str(sn),
+                event_id = event_id,
                 home_team = home,
                 away_team = away,
                 teams = teams,

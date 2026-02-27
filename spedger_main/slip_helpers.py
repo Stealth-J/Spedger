@@ -5,6 +5,7 @@ from requests.exceptions import Timeout, ConnectionError
 from urllib.parse import urlparse
 from types import SimpleNamespace
 from .models import Slip, SlipEvent, DiaryEntry
+import math
 
 
 TIME_STRING_FORMAT = "%d %b %y, %H:%M"
@@ -167,6 +168,7 @@ def create_slip_obj(request, valid_games, slip_info, code, wkly = False, log_in_
             slip_event_obj = SlipEvent(
                 slip = slip_obj,
                 participants = teams,
+                event_id = game.event_id,
                 pick = game.pick,
                 market = game.market_type,
                 sport = game.sport,
@@ -184,3 +186,47 @@ def create_slip_obj(request, valid_games, slip_info, code, wkly = False, log_in_
     if log_in_diary == True:
         return entry_obj
     return slip_obj
+
+
+def filter_wkly_slips(valid_games, current_wkly_game):
+    filtered_games = []
+    odds_list = []
+
+    for game in valid_games:
+        game_start_date = datetime.strptime(game.start_time, TIME_STRING_FORMAT)
+        game_start_date = django_timezone.make_aware(game_start_date)
+
+        if current_wkly_game.end_date >= game_start_date >= current_wkly_game.start_date:
+            filtered_games.append(game)
+            odds_list.append(float(game.odds))
+    
+    total_odds = round(math.prod(odds_list), 2)
+    if len(filtered_games) < 5:
+        raise Exception('There must be at least 5 valid selections')
+    elif total_odds < 10:
+        raise Exception('Total odds must be at least 10')
+    
+    return filtered_games
+
+
+def reverse_slip_obj(slip_obj):
+    valid_games = []
+    for sn, game in enumerate( slip_obj.slip_events.all()):
+        event_date = datetime.strftime(game.event_date, TIME_STRING_FORMAT)
+        game_data = SimpleNamespace(
+            id_ = str(sn),
+            home_team = game.home_team,
+            away_team = game.away_team,
+            teams = game.participants,
+            sport = game.sport,
+            sport_icon = game.sport_icon,
+            pick = game.pick,
+            market_type = game.market,
+            odds = game.event_odd,
+            start_time = event_date,
+            league = game.competition,
+        )
+
+        valid_games.append(game_data)
+
+    return valid_games

@@ -65,6 +65,7 @@ class Slip(models.Model):
 
 class SlipEvent(models.Model):
     slip = models.ForeignKey(Slip, related_name = 'slip_events', on_delete = models.CASCADE)
+    event_id = models.CharField(max_length = 40, null = True, blank = True)
     participants = models.JSONField(default = list, blank = True)
     pick = models.CharField(max_length = 200)
     market = models.CharField(max_length = 200)
@@ -74,6 +75,8 @@ class SlipEvent(models.Model):
     event_won = models.BooleanField(default = False)
     event_settled = models.BooleanField(default = False)
     event_date = models.DateTimeField()
+    event_cancelled = models.BooleanField(default = False)
+    event_postponed = models.BooleanField(default = False)
 
     def __str__(self):
         return f'{self.slip.slip_code.upper()} - {self.participants}'
@@ -151,6 +154,17 @@ class GroupChatMsgs(models.Model):
     created_at = models.DateTimeField(auto_now_add = True)
 
 
+class WeeklyGame(models.Model):
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    current_game = models.BooleanField(default = True)
+
+class WeeklyGameParticipant(models.Model):
+    user = models.ForeignKey(User, related_name = 'wkly_game_performances', on_delete = models.CASCADE)
+    wkly_game = models.ForeignKey(WeeklyGame, related_name = 'game_participants', on_delete = models.CASCADE)
+    slip = models.ForeignKey(Slip, related_name = 'wkly_game_slip', on_delete = models.CASCADE)
+
+
 class DeleteReason(models.Model):
     reason = models.TextField()
     date = models.DateTimeField(auto_now_add = True)
@@ -167,7 +181,6 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.message}'
-
 
 
 class Profile(models.Model):
@@ -217,8 +230,8 @@ class Profile(models.Model):
     @property
     def pure_percentage(self):
         if self.user.slips.count() < 1:
-            return 0
-        return round(self.winning_slips_count / self.user.slips.count(), 1)
+            return 'None'
+        return round(self.winning_slips_count / self.user.slips.count(), 2)
     
     @property
     def highest_winning_odds(self):
@@ -260,5 +273,7 @@ class Profile(models.Model):
     @property
     def pure_odds_write_up(self):
         if self.user.slips.count() < 1:
+            print(self.user.slips.count())
             return 'None'
         string = f'{self.winning_slips_count}/{self.user.slips.count()} ({self.pure_percentage}%)'
+        return string

@@ -38,13 +38,22 @@ def return_dots_if_none(data):
 def format_timesince(date):
     dates = date.split(', ')
     num, unit = dates[0].split()
-    new_date = f'{num}{unit[0]}'
+    if unit.startswith('month'):
+        new_date = f'{num}{unit[:2]}'
+    else:
+        new_date = f'{num}{unit[0]}'
     return new_date
 
 
 @register.filter
 def format_date(date):
     return date.strftime(TIME_STRING_FORMAT)
+
+
+@register.filter
+def format_date_with_days(date):
+    date_format = "%a %b %d (%H:%M)"
+    return date.strftime(date_format)
 
 
 @register.filter
@@ -75,6 +84,21 @@ def filter_chat_odds(odds):
         if odds == 0:
             return 0
         return round(odds, 1)
+    
+
+@register.filter
+def format_rank(odds):
+    odds = int(odds)
+    if odds >= 1000000:
+        return '1M+'
+    elif odds > 100000:
+        return f'100k+'
+    elif odds > 10000:
+        return f'10k+'
+    elif odds > 1000:
+        return round('1k+')
+    else:
+        return odds
 
 
 @register.filter

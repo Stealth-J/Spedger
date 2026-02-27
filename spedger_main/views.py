@@ -3,6 +3,7 @@ from .models import *
 from .decorators import verified_email_required
 from .helpers import *
 from django.contrib.auth.decorators import login_required, user_passes_test
+from .tasks import *
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from render_block import render_block_to_string
@@ -13,7 +14,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.db.models import Q
 from .countries import COUNTRY_CODES
-from .preview_slip import preview, get_slip_details, save_preview_changes, create_slip_obj, Timeout, ConnectionError, urlparse
+from .preview_slip import preview, get_slip_details, save_preview_changes, create_slip_obj, urlparse, filter_wkly_slips, reverse_slip_obj
 from .booking import book
 import random
 import time
@@ -39,6 +40,9 @@ def home(request):
 def profile(request, sk):
     this_profile = Profile.objects.filter(public_id = sk).first()
     all_slips = this_profile.user.slips.order_by('-entry_date')
+    if request.user != this_profile.user:
+        all_slips = all_slips.exclude(weekly = True)
+
     slips = paginate(request, all_slips)
     is_viewer = request.user in this_profile.viewers.all()
 
@@ -78,8 +82,12 @@ def load_more_slips_history(request, sk, page_num):
     try:
         this_profile = Profile.objects.filter(public_id = sk).first()
         is_viewer = request.user in this_profile.viewers.all()
+
         all_slips = this_profile.user.slips.order_by('-entry_date')
+        if request.user != this_profile.user:
+            all_slips = all_slips.exclude(weekly = True)
         slips = paginate(request, all_slips, page_num)
+
         context = { 
             'this_profile': this_profile, 
             'this_slips': slips, 
@@ -308,8 +316,7 @@ def search_users(request):
     keyword = request.POST.get('search_word')
     results = Profile.objects.filter(
         Q(full_name__icontains = keyword) | Q(user__username__icontains = keyword)
-    ).exclude(user = request.user)
-
+    ).exclude(user = request.user).exclude(private_acct = True)
     context = { 
         'user_results': results, 
         'center_info_msg': center_info_msg,
@@ -505,6 +512,10 @@ def create_entry(request):
             raise valid_games
         
         slip_info = get_slip_details(valid_games)
+        success, code = book(valid_games)
+        if not success:
+            raise Exception(code)
+
         entry_obj = create_slip_obj(request, valid_games, slip_info, code, log_in_diary = True)
         preview_result = True
 
@@ -635,6 +646,139 @@ def filter_entries(request):
     return response
 
 
+@verified_email_required
+def leaderboards_view(request):
+    center_info_msg = 'Slip preview would appear here'
+    current_wkly_game = WeeklyGame.objects.prefetch_related('game_participants', 'game_participants__slip').filter(current_game = True).first()
+    player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
+    is_current_player = bool(player_obj)
+    valid_games = []
+    slip_info = {}
+
+    try:
+        wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
+        global_board = rank_users_leaderboards(wkly = False)
+
+        if is_current_player:
+            valid_games = reverse_slip_obj(player_obj.slip)
+            slip_info = get_slip_details(valid_games)
+            player_obj = wkly_board.filter(user = request.user).first()
+        
+        context = {
+            'center_info_msg': center_info_msg,
+            'current_wkly_game': current_wkly_game,
+            'is_current_player': is_current_player,
+            'valid_games': valid_games,
+            'slip_info': slip_info,
+            'player_obj': player_obj,
+            'wkly_users': wkly_board[:30],
+            'global_users': global_board[:30],
+        }
+    
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'Something unexpected happened')
+        context = {
+            'center_info_msg': center_info_msg,
+            'current_wkly_game': [],
+            'is_current_player': False,
+            'valid_games': [],
+            'slip_info': None,
+            'player_obj': None,
+            'wkly_users': [],
+            'global_users': [],
+        }
+
+    return render(request, 'leaderboards.html', context) 
+
+
+@verified_email_required
+def register_wkly_game(request):
+    context = {}
+    preview_result = False
+    try:
+        current_wkly_game = WeeklyGame.objects.filter(current_game = True).first()
+        if current_wkly_game.game_participants.filter(user = request.user).exists():
+            raise Exception("You have already registered for this game week")
+
+        code = request.POST.get('slip_code').strip()
+        success, valid_games = preview(code)
+        if not success:
+            raise valid_games
+        
+        valid_games = filter_wkly_slips(valid_games, current_wkly_game)
+        slip_info = get_slip_details(valid_games)
+        success, code = book(valid_games)
+        if not success:
+            raise Exception(code)
+
+        slip_obj = create_slip_obj(request, valid_games, slip_info, code, wkly = True)
+        participant_obj = WeeklyGameParticipant.objects.create(user = request.user, wkly_game = current_wkly_game, slip = slip_obj)
+        preview_result = True
+
+        context = {
+            'slip_info': slip_info,
+            'slip_code': code,
+            'valid_games': valid_games,
+            'center_info_msg': ''
+        }
+
+    except Exception as e:
+        print(f'Error - {e}')
+        context = { 'error_msg': str(e) }
+
+    html = render_block_to_string('leaderboards.html', 'preview_display_block', context, request)
+    response = HttpResponse(html)
+
+    if preview_result:
+        messages.success(request, "You have registered successfully for this week's game")
+        response['HX-Trigger'] = 'hx_message_init'
+
+    return response
+
+
+@verified_email_required
+def reload_leaderboards(request, board):
+    current_wkly_game = WeeklyGame.objects.prefetch_related('game_participants', 'game_participants__slip').filter(current_game = True).first()
+
+    try:
+        if board == 'wk':
+            player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
+            is_current_player = bool(player_obj)
+            wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
+
+            if is_current_player:
+                valid_games = reverse_slip_obj(player_obj.slip)
+                player_obj = wkly_board.filter(user = request.user).first()
+        
+            context = {
+                'current_wkly_game': current_wkly_game,
+                'is_current_player': is_current_player,
+                'player_obj': player_obj,
+                'wkly_users': wkly_board[:30],
+            }
+
+            html = render_block_to_string('leaderboards.html', 'wkly_boards_block', context, request)
+            response = HttpResponse(html)
+            response['HX-Trigger-After-Swap'] = 'hx_init_components'
+            return response
+        
+        else:
+            global_board = rank_users_leaderboards(wkly = False)
+            context = {'global_users': global_board[:30]}
+
+            html = render_block_to_string('leaderboards.html', 'global_boards_block', context, request)
+            response = HttpResponse(html)
+            return response
+
+    except Exception as e:
+        print(f'Error - {str(e)}')
+        messages.error(request, 'An Error Occurred')
+        response = HttpResponse('')
+        response['HX-Reswap'] = 'none'
+        response['HX-Trigger'] = 'hx_message_init'
+        return response
+
 
 @verified_email_required
 def groups(request):
@@ -684,7 +828,6 @@ def group_details(request, sk):
 
 @verified_email_required
 def load_more_chats(request, sk, page_num):
-    time.sleep(4)
     profile_obj = request.user.user_profile
     muted_ids = profile_obj.muted_users.values_list('id', flat = True)
 

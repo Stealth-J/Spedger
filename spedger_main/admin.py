@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import GroupChatMsgs, Profile, Duel, DuellistInfo, DiaryEntry, FriendRequest, Slip, SlipEvent, DeleteReason, Feedback, GroupChat
+from .models import GroupChatMsgs, Profile, Duel, DuellistInfo, DiaryEntry, FriendRequest, Slip, SlipEvent, DeleteReason, Feedback, GroupChat, WeeklyGame, WeeklyGameParticipant
 
 # Register your models here.
 admin.site.register(Profile)
@@ -13,3 +13,5 @@ admin.site.register(DeleteReason)
 admin.site.register(Feedback)
 admin.site.register(GroupChat)
 admin.site.register(GroupChatMsgs)
+admin.site.register(WeeklyGame)
+admin.site.register(WeeklyGameParticipant)

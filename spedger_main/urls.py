@@ -25,6 +25,10 @@ urlpatterns = [
     path('delete_entries/<str:pk>', delete_entries, name = "delete_entries"),
     path('filter_entries', filter_entries, name = "filter_entries"),
 
+    path('leaderboards', leaderboards_view, name = "leaderboards"),
+    path('register_wkly_game', register_wkly_game, name = "register_wkly_game"),
+    path('reload_leaderboards/<str:board>', reload_leaderboards, name = "reload_leaderboards"),
+
 #   sk - group_id
     path('groups', groups, name = "groups"),
     path('group-<str:sk>', group_details, name = "group_details"),

@@ -50,9 +50,6 @@
                             <li class="buttoned">
                                 <a href="{% url 'account_logout' %}">Log out</a>
                             </li>
-                            <li class="buttoned">
-                                <a href="">Switch Accounts?</a>
-                            </li>
                         </ul>
                     </div>
                 </figure>
@@ -110,7 +107,7 @@
                         <i class="ri-group-3-line"></i> Groups
                     </a></li>
 
-                    <li><a href="" class="sidebar_item item_hidden {% if request.path == '/leaderboards' %} active_item {% endif %}"" data-icon-fill>
+                    <li><a href="{% url 'leaderboards' %}" class="sidebar_item item_hidden {% if request.path == '/leaderboards' %} active_item {% endif %}"" data-icon-fill>
                         <i class="ri-bar-chart-line"></i> Leaderboards
                     </a></li>
 
@@ -149,7 +146,7 @@
                                 </a>
                             
                                 <div class="dropdown not_list" id="phoneDropdown">
-                                    <p><i class="ri-mail-line"></i> nosayamejeffrey@gmail.com</p>
+                                    <p><i class="ri-mail-line"></i> spedger.app@gmail.com </p>
                                     <p>+2348025193751</p>
                                 </div>
                             </span>
@@ -158,7 +155,7 @@
                 </article>
                 
                 <article class="copyright">
-                    <small>&copy; 2025 Spedger. All rights reserved.</small>
+                    <small>&copy; 2026 Spedger. All rights reserved.</small>
                 </article>
             </footer>
         </aside>
@@ -175,7 +172,7 @@
                     <i class="ri-menu-line"></i>
                 </button>
 
-                <a class="icon_btn boards_btn" >
+                <a href = "{% url 'leaderboards' %}" class="icon_btn boards_btn {% if request.path == '/leaderboards' %} active_item {% endif %}" >
                     <i class="ri-bar-chart-line"></i> Leaderboards
                 </a>
             </nav>

@@ -1448,48 +1448,34 @@ p.version_number{
 .leaderboards_page i{
     color: inherit;
 }
-.lb_jumbotron{
-    background: url('imgs/others/lb_jumbo_bg.avif');
-    padding: 1em;
-    background-position: center center;
-    background-size: cover;
-    margin-bottom: 1.5em;
-    font-family: var(--ff-duel);
-    height: 16rem;
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: var(--col-main);
-    border-bottom: var(--border-main);
-}
-.lb_jumbotron p:first-child{
-    margin-bottom: 1rem;
-}
-.lb_jumbotron .btn_{
-    vertical-align: middle;
-    color: var(--col-main);
-}
-.lb_jumbotron .btn_:hover{
-    color: var(--bgcol-main);
-}
 .wkly_form_holder, .form_holder{
     display: flex;
     gap: 0.5em;
     margin: 1em;
     align-items: flex-start;
 }
+.wkly_form_holder{
+    gap: 1rem;
+}
 #wklyGameForm, #previewSlipForm{
     padding: 1em;
     border: var(--border-main);
     width: 50%;
-    height: 50vh;
+    height: auto;
     overflow: auto;
     scrollbar-width: thin;
     background-color: var(--bgcol-lighter);
-    border-radius: 10px;
-}
-#previewSlipForm{
-    height: auto;
     border-radius: 15px;
+}
+#wklyGameForm{
+    height: 50vh;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+}
+#wklyGameForm details{
+    padding-top: 1rem;
+    margin-top: auto;
 }
 #previewSlipForm .custom_details{
     margin: 0.4em 0;
@@ -1497,8 +1483,10 @@ p.version_number{
 #previewSlipForm .custom_details.open{
     max-height: 15rem;
 }
-#wklyGameForm .form_header, #previewSlipForm .form_header{
-    font-size: 1.2rem;
+#wklyGameForm .form_header{
+    font-weight: 400;
+    padding: 0 0.4em;
+    font-size: 1.3rem;
 }
 #wklyGameForm .form_flex, #previewSlipForm .form_flex{
     margin-top: 1.5rem;
@@ -1508,6 +1496,9 @@ p.version_number{
     justify-content: space-between;
     align-items: center;
 }
+#wklyGameForm .form_flex{
+    margin-top: 1.7rem;
+}
 #wklyGameForm input, #previewSlipForm input{
     width: 80%;
     padding: 0.5em;
@@ -1516,10 +1507,10 @@ p.version_number{
     border: var(--border-main);
     font-family: var(--ff-slip);
     background-color: transparent;
-}
-#previewSlipForm input{
-    letter-spacing: 0;
     font-size: 1.2rem;
+}
+#wklyGameForm summary{
+    margin-bottom: 1em;
 }
 #wklyGameForm input:focus, #previewSlipForm input:focus{
     outline: none;
@@ -1532,13 +1523,13 @@ p.version_number{
     font-size: 0.85em;
     color: var(--col-error);
 }
-#wklyPreview, #previewDisplay{
+#previewDisplay{
     border: var(--border-main);
     width: 50%;
     height: 50vh;
     background-color: var(--bgcol-lighter);
 }
-#wklyPreview header, #previewDisplay header{
+#previewDisplay header{
     text-align: center;
     color: var(--col-muted);
     padding: 0.3em 0 0.2em;
@@ -1552,32 +1543,129 @@ p.version_number{
     overflow: auto;
     scrollbar-width: none;
 }
-.wkly_game{
-    border-bottom: var(--border-main);
+.wkly_form_holder .wkly_games_list{
+    max-height: calc(50vh - 3em);
 }
-.wkly_game:last-of-type{
+
+/* PREVIEW */
+.wkly_games_list .game{
+    display: flex;
+    flex-direction: column;
+    font-family: var(--ff-slip);
+    border-bottom: var(--border-main);
+    padding: 0.5em 0.3em 0.5em 1em;
+    min-width: 0;
+    transition: all 0.2s ease-out;
+}
+.wkly_games_list .game:last-of-type{
     border-bottom: none;
 }
-.wkly_game > article{
+.game_main, .game_sub{
     display: flex;
     justify-content: space-between;
-    padding: 0.5em 0.7em 0.3em;
 }
-#wklyRemoveSelectionBtn{
-    padding: 0.5em 0.5em;
+.sport_icon_span{
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+    margin-top: 0.2rem;
+}
+.game_main .pick{
+    vertical-align: bottom;
+    font-weight: normal;
+    font-size: 0.8rem;
+    font-family: var(--ff-main);
+}
+.game_sub{
+    font-size: 0.9em;
+    gap: 0.5em;
     color: var(--col-sub);
-    transition: transform 0.2s ease;
+    font-family: var(--ff-main);
 }
-#wklyRemoveSelectionBtn:hover{
-    transform: scale(1.07);
-    color: var(--col-main);
+.game_sub.open{
+    max-height: 6rem;
 }
-.wkly_odds{
+.game_sub p{
+    margin-bottom: 0.2em;
+}
+.game_sub > div{
+    padding: 1rem 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+}
+.game_sub .market_info{
+    width: 60%;
+    padding-right: 0.5em;
+}
+.game_sub .comp_info{
+    width: 40%;
+    text-align: right;
+    padding-left: 0.5em;
+}
+
+.game_lhs{
+    font-weight: lighter;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
     font-size: 0.9rem;
 }
-.sport_icon{
-    width: 1em;
+.wkly_games_list .game .home, .wkly_games_list .game .away{
+    width: 14rem;
 }
+.game_rhs{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    min-width: 0;
+}
+.game_rhs .icon_btn{
+    margin-left: auto;
+    transition: all 0.2s ease;
+    color: var(--col-sub);
+}
+.game_rhs .icon_btn:hover{
+    transform: scale(1.05);
+    color: var(--col-main);
+}
+.wkly_games_list .game .sport_icon{
+    width: 0.9em;
+}
+.wkly_games_list .game .odds{
+    font-size: 0.9rem;
+    font-family: var(--ff-style);
+}
+.wkly_games_list .game_rhs{
+    margin-right: 0.5rem;
+}
+.wkly_games_list .game .time{
+    font-weight: 300;
+}
+
+.errors i{
+    color: inherit;
+}
+.slip_preview .center_info_txt{
+    overflow-wrap: anywhere;
+}
+.center_info .error{
+    color: var(--col-error);
+}
+.indicator_grp{
+    display: none;
+}
+.indicator_grp:has(.htmx-request){
+    display: flex;
+}
+#customSpinner + .center_info_holder, .indicator_grp:has(#customSpinner) + .preview_main {
+    display: block;
+}
+#customSpinner.htmx-request + .center_info_holder, .indicator_grp:has(#customSpinner.htmx-request) + .preview_main{
+    display: none;
+}
+/* PREVIEW */
+
 .win_status{
     font-size: 1rem;
     vertical-align: bottom;
@@ -1640,16 +1728,18 @@ ul.indented > li{
 .rules strong{
     font-weight: 500;
 }
-#wklyPreview .center_info, #previewDisplay .center_info{
+#previewDisplay .center_info{
     padding: 2em;
 }
-#wklyPreview .center_info_txt, #previewDisplay .center_info_txt{
+#previewDisplay .center_info_txt{
     margin-bottom: 1rem;
 }
 
 .board{
     background-color: var(--bgcol-lighter);
     padding: 2em 1em;
+    display: flex;
+    flex-direction: column;
 }
 .board_title_tab{
     display: flex;
@@ -1663,9 +1753,14 @@ ul.indented > li{
     border: none;
     font-size: 0.85rem;
 }
-.board_title_tab .active_title_tab{
-    font-size: 1.3rem;
-    color: var(--col-main) ;
+.board_title_tab [aria-selected = true]{
+    font-size: 1.3rem !important;
+    color: var(--col-main) !important;
+    padding: 0;
+    margin: 0;
+}
+.board_title_tab [aria-selected = true]:hover{
+    background-color: transparent;
 }
 .board .label{
     color: var(--col-muted);
@@ -1674,13 +1769,17 @@ ul.indented > li{
     text-align: right;
     margin-bottom: 1rem;
 }
+.wkly_label{
+    padding-right: 1em;
+}
 .percent_label{
     margin-right: 1rem;
 }
 .board .explanation{
     color: var(--col-muted);
     font-size: 0.8rem;
-    margin: 5rem 0 0;
+    margin-top: auto;
+    padding-top: 5rem;
     font-weight: 300;
 }
 .explanation strong{
@@ -1703,7 +1802,6 @@ ul.indented > li{
     display: flex;
     align-items: center;
     width: 85%;
-    background: url('imgs/others/leaderboard_bg.png');
     background-position: var(--pos-x) var(--pos-y);
 }
 .user_card:hover{
@@ -1738,7 +1836,7 @@ ul.indented > li{
     border-radius: 0 30px 30px 0;
     width: 30%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     padding-left: 0.5em;
     padding-right: 1em;
@@ -1756,12 +1854,8 @@ ul.indented > li{
     font-size: 1.5em;
     cursor: pointer;
 }
-.leaderboard_helper_btn .anim{
-    width: 1.4em;
-    height: 1.4em;
-}
 .leaderboard_helper_btn a{
-    color: var(--col-base);
+    color: #2424bc;
 }
 .lb_award .first_icon{
     color: var(--bgcol-award);
@@ -1854,10 +1948,16 @@ ul.indented > li{
 .code_modal_format thead{
     color: var(--col-muted);
     border-bottom: var(--border-main);
+    font-size: 0.9em;
 }
 .code_modal_format tbody td{
     color: var(--col-sub);
     padding: 0.5em;
+}
+.code_modal_format caption{
+    color: var(--col-muted);
+    text-align: center;
+    margin: 1em;
 }
 .modal_footer{
     margin-top: auto;
@@ -1867,7 +1967,7 @@ ul.indented > li{
 }
 
 .your_wkly_info{
-    box-shadow: var(--bxs-darkest);
+    box-shadow: var(--bxs-light);
     border: var(--border-main);
     border-radius: 30%;
     position: fixed;
@@ -1877,11 +1977,15 @@ ul.indented > li{
     width: 3rem;
     height: 3rem;
     z-index: 1;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #2424bc;
 }
-.your_wkly_info img{
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
+.your_wkly_info i{
+    color: #fff;
+    font-size: 2rem;
 }
 
 
@@ -2221,6 +2325,12 @@ ul.indented > li{
 .gd_slip_code .icon_btn i{
     font-size: 16px;
 }
+.gd_slip_code .icon_btn:nth-of-type(2){
+    color: #2424bc;
+}
+.gd_slip_code .icon_btn:nth-of-type(2) i{
+    font-size: 14px;
+}
 .gd_code_extra{
     display: flex;
     font-size: 0.75rem;
@@ -2497,6 +2607,7 @@ ul.indented > li{
 @media screen and (max-width: 50rem) {
     body{
         --height-sticky: 5.9rem;
+        --height-content: 4.9rem;
     }
 
 
@@ -2653,26 +2764,25 @@ ul.indented > li{
         margin-right: 0;
     }
 
-    .lb_jumbotron{
-        display: none;
-    }
     .wkly_form_holder, .form_holder{
         flex-direction: column;
     }
-    #wklyGameForm, #wklyPreview, #previewDisplay, #previewSlipForm{
+    #wklyGameForm, #previewDisplay, #previewSlipForm{
         width: 100%;
     }
     #wklyGameForm, #previewSlipForm{
         height: auto;
         margin-bottom: 2em;
     }
-    #wklyPreview{
-        height: 30vh;
+    #wklyGameForm{
         max-height: 50vh;
     }
     #previewDisplay{
         height: auto;
         margin-bottom: 20vh;
+    }
+    .leaderboard_ .user_row{
+        margin-bottom: 1rem;
     }
     .user_card{
         gap: 2%;
@@ -2682,14 +2792,22 @@ ul.indented > li{
         padding-left: 1em;
         width: 65%;
     }
+    .board .label{
+        font-size: 0.7em;
+    }
     .lb_award{
         display: none;
     }
+    .leaderboard_helper_btn a{
+        font-size: 1.5rem;
+    }
     .leaderboard_profile_img{
         margin-left: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
     }
     .lb_username{
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
     .user_card .rhs{
         font-size: 0.75rem;
@@ -2698,15 +2816,11 @@ ul.indented > li{
     .leaderboard_helper_btn{
         font-size: 2rem;
     }
-    .leaderboard_helper_btn .anim{
-        width: 2rem;
-        height: 2rem;
-    }
     .wkly_leaderboard .leaderboard_helper_btn:last-of-type{
         display: none;
     }
     .global_leaderboard .user_card{
-        width: 85% ;
+        width: 85%;
     }
     .global_leaderboard .card_helpers{
         width: 13%;

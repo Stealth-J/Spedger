@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_extensions',
     'django.contrib.humanize',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -181,3 +183,24 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "account_login"
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "home"
+
+from datetime import timedelta
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+CELERY_BEAT_SCHEDULE = {
+    'check-live-games-status-every-5-minutes': {
+        'task': "spedger_main.tasks.update_live_games",
+        'schedule': timedelta(minutes = 2),
+    },
+    'update-settled-slips-every-30-minutes': {
+        'task': 'spedger_main.tasks.update_settled_slips',
+        'schedule': timedelta(minutes = 2),
+    },
+    'update-ongoing-duels-every-30-minutes': {
+        'task': "spedger_main.tasks.update_ongoing_duels",
+        'schedule': timedelta(minutes = 2),
+    }
+}

@@ -212,6 +212,13 @@ span.award_icon{
     align-items: end;
     padding: 0.5rem;
 }
+.green_dot{
+    border-radius: 999px;
+    height: 0.2em;
+    padding: 0.3em;
+    margin-right: 0.4em;
+    background-color: var(--col-success);
+}
 .entry_btn{
     border: none;
     background-color: transparent;
@@ -246,26 +253,10 @@ span.award_icon{
     background-color: var(--bgcol-card);
     position: relative;
 }
-/* .entry .game::before{
-    content: "";
-    top: 0;
-    left: 0;
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-top: 1.2rem solid var(--bgcol-focus);
-    border-right: 1.2em solid transparent;
-    transition: transform 0.25s ease, filter 0.25s ease;
-    transform-origin: top left;
-} */
 .entry .game:hover{
     box-shadow: var(--bxs-darker);
     color: var(--col-main);
 }
-/* .entry .game:hover::before {
-    transform: rotate(-6deg) translate(-2px, -2px);
-    filter: drop-shadow(2px 3px 4px rgba(149,157,165,.2));
-} */
 .top_row{
     display: flex;
     justify-content: space-between;
@@ -329,6 +320,7 @@ span.award_icon{
     padding: 0.7em;
     z-index: 10;
     text-align: left;
+    font-weight: 300;
 }
 .entry .game_extra:not(.game_extra:last-of-type){
     display: block;

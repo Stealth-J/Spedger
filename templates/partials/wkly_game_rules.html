@@ -1,0 +1,109 @@
+{% load custom_filters %}
+
+<details>
+    <summary class="rules_toggler">
+        <span>New to the game? </span>
+    </summary>
+
+    <article class="rules">
+        <article class="rules_block">
+            <p class="rules_block_header">Welcome to the game</p>
+            <p class="rules_block_body">
+                If this is your first time playing, here’s a quick guide to help you get started and make the most out of each gameweek.
+            </p>
+        </article>
+
+        <article class="rules_block">
+            <p class="rules_block_header">How to Play</p>
+            <ol class="rules_block_body">
+                <li><span>Enter your Sporty slip code and submit.</span></li>
+                <li><span>
+                    Before submitting, <strong>review all the games on your slip carefully</strong> to ensure everything is accurate — once you submit for the week, it cannot be changed.
+                </span></li>
+                <li><span>
+                    All selections that are not supported are automatically removed from the slip.
+                </span></li>
+            </ol>
+        </article>
+
+        <article class="rules_block">
+            <p class="rules_block_header">Game Rules</p>
+            <ol class="rules_block_body">
+                <li><span>
+                    Your Slip must have a combined total odds of at least <strong>10.0 </strong>
+                </span></li>
+
+                <li><span>
+                    Each slip must contain at least <strong> 5 </strong> selections.
+                </span></li>
+
+                <li><span>
+                    Only include games that fall between 
+                    <strong> 
+                        <time datetime="{{ current_wkly_game.start_date|date:'c' }}"> 
+                            {{ current_wkly_game.start_date|format_date_with_days }}
+                        </time> to 
+                        <time datetime = "{{ current_wkly_game.end_date|date:'c' }}"> 
+                            {{ current_wkly_game.end_date|format_date_with_days }} 
+                        </time> 
+                    </strong>. 
+                    This window represents the full gameweek
+                </span></li>
+                
+                <li><span>
+                    You can only submit <strong> one slip</strong> per week
+                </span> </li>
+            </ol>
+        </article>
+
+        <article class="rules_block">
+            <p class="rules_block_header">Leaderboards and Points</p>
+            <p class="rules_block_content">
+                Throughout the gameweek, your slip will earn points based on your results. You can track your standing anytime on the leaderboards.
+            </p>
+
+            <ol class="rules_block_body">
+
+                <li><span>
+                    Players who achieve a perfect record for their slip (100% correct selections) always take priority on the leaderboard.
+                </span></li>
+
+                <li>
+                    <span> If more than one player finishes with 100%:</span>
+                    
+                    <ul class="indented">
+                        <li>
+                            <span> The slip with the <strong>higher total odds </strong> ranks higher</span>
+                        </li>
+
+                        <li>
+                            <span> If total odds are identical, the player with the <strong> single highest odd </strong> among their selections gets the edge. </span>
+                        </li>
+                    </ul>
+                </li>
+
+                <li><span>
+                    Those without perfect slips would have their points determined by their success rate
+                </span></li>
+
+                <li>
+                    <span class="indented"> Success rate is calculated as: <strong class="indented">(Number of correct selections ÷ Total Selections) x 100</strong> </span>
+
+                    <ul class="indented">
+                        <li><span>
+                            A higher success rate places you higher on the leaderboard, regardless of how many total selections were made. 
+                        </span></li>
+
+                        <li><span>
+                            When multiple players have the same success rate, total odds are used as the tiebreaker. 
+                        </span></li>
+                        <li><span>
+                            If total odds also match, the slip with the highest single odd selection wins the tie.
+                        </span></li>
+                    </ul>
+                </li>
+            </ol>
+        </article>
+
+    </article>
+</details>

@@ -51,9 +51,9 @@
             {% endif %}
         </header>
 
-        <article class="gd_code_info">
+        <article class="gd_code_info ">
             <p class="gd_slip_code">
-                <span id="sentCode{{ msg.id }}">
+                <span id="sentCode{{ msg.id }}" >
                     {{ msg.slip.slip_code }}
                 </span>
                 <button class="icon_btn" data-copied="sentCode{{ msg.id }}">
@@ -65,9 +65,9 @@
                     {{ msg.slip.total_odds|filter_chat_odds }} ({{ msg.slip.total_events }})
                 </p>
                 {% if msg.slip.settled and msg.slip.slip_won %}
-                    <span class="gd_code_symbol"><i class="ri-close-circle-fill"></i></span>
-                {% elif msg.slip.settled and not msg.slip.slip_won %}
                     <span class="gd_code_symbol"><i class="ri-checkbox-circle-fill"></i></span>
+                {% elif msg.slip.settled and not msg.slip.slip_won %}
+                    <span class="gd_code_symbol"><i class="ri-close-circle-fill"></i></span>
                 {% endif %}
             </span>
         </article>
@@ -80,3 +80,4 @@
     </article>
 
 {% endif %}
+

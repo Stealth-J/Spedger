@@ -1,18 +1,24 @@
 {% load static %}
 {% load custom_filters %}
+{% load humanize %}
 
 <div class="entry" id = "entry{{ entry.id }}">
     <details class="entry_details">
         <summary>
             <div class="entry_slip">
                 <div class="entry_main">
-                    <p class="slip_code">{{ entry.slip.slip_code }} 
+                    <p class="slip_code">
+                        {{ entry.slip.slip_code }} 
                         <strong> ({{ entry.slip.total_events }}) </strong>
                     </p>
-
+                    
                     <span>
+                        {% if not entry.slip.settled %}
+                            <span class = "green_dot"></span>
+                        {% endif %}
+
                         <p class="total_odds" title="total odds">
-                            {{ entry.slip.total_odds|floatformat }}
+                            {{ entry.slip.total_odds|floatformat|intcomma }}
                         </p>
                         <p class="percent" title="Win percentage">
                             {{ entry.slip.win_percentage|floatformat }}%
@@ -31,10 +37,11 @@
                 </div>
 
                 <span class="entry_btns">
+
                     <span class="entry_btn" >
                         <i class="ri-arrow-down-s-line" data-toggle-icon = 'yes' ></i>
                     </span>   
-
+                    
                     <button class="entry_btn entry_delete_btn" type="button" data-modal="deleteEntriesModal" data-button aria-expanded="false" data-entry-id = "{{ entry.id }}">
                         <i class="ri-delete-bin-line"></i>
                     </button>

@@ -208,7 +208,7 @@ function initEntriesDropdowns(){
 }
 
 function initEntriesModal(){
-    modalBtns = modalBtns.filter((btn) => bdy.contains(bdy));
+    modalBtns = modalBtns.filter((btn) => bdy.contains(btn));
     finds('.entries [data-modal]').forEach((btn) => {
         if (!modalBtns.includes(btn)) {
             modalObj = new ModalObj(btn);

@@ -69,6 +69,7 @@ document.body.addEventListener('htmx:afterRequest', function(e) {
         initCustomDetails();
         initTabs2();
         initCopyLogic();
+        initBackgrounds();
         finds('[hx-clear-input]').forEach((inp) => {
             inp.value = '';
         })
@@ -189,11 +190,13 @@ finds('summary').forEach((sum) => {
 
 
 // RENDERING VARIABLE IMAGES FROM DJANGO
-finds('[data-bg]').forEach((elem) => {
-    let imgPath = elem.dataset.bg;
-    elem.style.backgroundImage = `url("${imgPath}")`;
-})
-
+function initBackgrounds(){
+    finds('[data-bg]').forEach((elem) => {
+        let imgPath = elem.dataset.bg;
+        elem.style.backgroundImage = `url("${imgPath}")`;
+    })
+}
+initBackgrounds();
 
 
 // FINDING LEFTOVER SPACE

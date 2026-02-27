@@ -20,7 +20,7 @@
                         </figcaption>
                     </figure>
 
-                    <article class="duel_stats {% if duel.winning_user == duel.challenger %} winner {% endif %}">
+                    <article class="duel_stats {% if duel.winning_user == duel.challenger.user %} winner {% endif %}">
                         <p title="win %">
                             {{ duel.challenger.slip.win_percentage|floatformat }}
                         </p>
@@ -46,7 +46,7 @@
                         </figcaption>
                     </figure>
 
-                    <article class="duel_stats {% if duel.winning_user == duel.recipient %} winner {% endif %}">
+                    <article class="duel_stats {% if duel.winning_user == duel.recipient.user %} winner {% endif %}">
                         <p title="win %">
                             {{ duel.recipient.slip.win_percentage|floatformat }}
                         </p>
@@ -58,7 +58,7 @@
                 </div>
 
                 <div class = "duel_main_date">
-                    <small class = "text_muted">{{ duel.created_at|timesince|format_timesince }} ago.</small>
+                    <small class = "text_muted">{{ duel.created_at|timesince }} ago.</small>
                 </div>
             </article>
         </summary>
