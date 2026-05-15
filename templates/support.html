@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %} Help & Support {% endblock %}
 
@@ -24,10 +25,51 @@
                 <h1>How to Use?</h1>
             </header>
             
+            <section class="pellets">
+                <div class = "pellet active_pellet" data-pellet = "Preview">
+                    <p>Preview Codes</p>
+                </div>
+                <div class = "pellet" data-pellet = "Diary">
+                    <p>Diary</p>
+                </div>
+                <div class = "pellet" data-pellet = "Boards">
+                    <p>Leaderboards</p>
+                </div>
+                <div class = "pellet" data-pellet = "Duels">
+                    <p>Duels</p>
+                </div>
+            </section>
+
+            <section class="status_dots">
+            </section>
+
+            <section class = "carousel">
+                <button class="nav_btn back_btn btn2_">
+                    <i class="ri-arrow-left-s-line"></i>
+                </button>
+                
+                <section class="carousel_canvas">
+                    <figure class = "slide_img">
+                        <img src="{% static 'img/help_tips/preview_1.png' %}" alt="">
+                    </figure>
+                    <figure class = "slide_img">
+                        <img src="{% static 'img/help_tips/preview_2.png' %}" alt="">
+                    </figure>
+                    <figure class = "slide_img">
+                        <img src="{% static 'img/help_tips/preview_3.png' %}" alt="">
+                    </figure>
+                    <figure class = "slide_img">
+                        <img src="{% static 'img/help_tips/preview_4.png' %}" alt="">
+                    </figure>
+                </section>
+                                
+                <button class="nav_btn forward_btn btn2_">
+                    <i class="ri-arrow-right-s-line"></i>
+                </button>
+            </section>
         </section>
 
         <section class="legal_btns">
-
             <button class="btn2_ share_btn">
                 <a href = "{% url 'terms' %}"> View Terms and Conditions </a>
             </button>
@@ -123,5 +165,170 @@
             submitFeedbackFormBtn.disabled = false;
             find('textarea', feedbackForm).value = '';
         })
+
+        
+        class CarouselObj{
+            constructor(elem_){
+                this.elem_ = elem_;
+                this.backwardBtn = find('.nav_btn.back_btn', elem_);
+                this.forwardBtn = find('.nav_btn.forward_btn', elem_);
+                this.canvas = find('.carousel_canvas', elem_);
+                
+                this.dots = find('.status_dots', elem_.parentElement);
+                this.initPellets(elem_);
+
+                window.addEventListener('resize', this.resizeImages.bind(this));
+                this.canvas.addEventListener('scrollend', this.handleNavBtnsVisibility.bind(this));
+                
+                this.backwardBtn.addEventListener('click', this.backwardNavigation.bind(this));
+                this.forwardBtn.addEventListener('click', this.forwardNavigation.bind(this));
+
+                this.pellets = find('.pellets', elem_.parentElement);
+                this.activePellet = find('.active_pellet', this.pellets);
+                this.allImages = {
+                    'Preview': [
+                        'preview_1', 'preview_2', 'preview_3', 'preview_4'
+                    ],
+                    'Diary': [
+                        'diary_1', 'diary_2', 'diary_3', 'diary_4'
+                    ],
+                    'Boards': [
+                        'boards_1'
+                    ],
+                    'Duels': [
+                        'duels_1', 'duels_2', 'duels_3', 
+                    ],
+                };
+                this.currentImages = this.allImages['Preview'];
+        
+                finds('.pellet', this.pellets).forEach((pel) => {
+                    pel.addEventListener('click', this.changePellet.bind(this));
+                })
+            }
+            
+            changePellet(e){
+                let pellet = e.currentTarget;
+                if (pellet.classList.contains('active_pellet')) return;
+                
+                this.activePellet.classList.remove('active_pellet');
+                this.activePellet = pellet;
+                this.activePellet.classList.add('active_pellet');
+
+                this.currentImages = this.allImages[ this.activePellet.dataset.pellet ];
+                this.replaceOldCanvasImages();
+            }
+            initPellets(elem_){
+                this.currentlyScrolling = false;
+
+                this.slideImgs = finds('.slide_img', elem_);
+                this.activeSlide = this.slideImgs[0];
+                this.activeSlideNo = 0;
+                this.Imgs = finds('img', elem_);
+                
+                this.activateStatusDots();
+                this.resizeImages();
+                this.handleNavBtnsVisibility();
+            }
+            replaceOldCanvasImages(){
+                this.canvas.innerHTML = '';
+                for (let i of this.currentImages){
+                    let testFigure = document.createElement('figure')
+                    let testImage = document.createElement('img')
+                    testImage.src = `/static/img/help_tips/${i}.png`
+                    testImage.classList.add('slide_img');
+                    testFigure.append(testImage);
+                    this.canvas.append(testFigure);
+                }
+                this.initPellets(this.elem_);
+            }
+
+            activateStatusDots(){
+                this.dots.innerHTML = '';
+                for (let i = 1; i <= this.slideImgs.length; i++){
+                    let dot = document.createElement('span');
+                    dot.className = 'status_dot';
+                    this.dots.append(dot);
+                    if (i == 1) {
+                        this.activeDot = dot;
+                        dot.classList.add('active');
+                    }
+                }
+            }
+            updateStatusDot(){
+                this.activeDot.classList.remove('active');
+                let allDots = finds('.status_dot', this.dots);
+                this.activeDot = allDots[this.activeSlideNo];
+                this.activeDot.classList.add('active')
+            }
+            resizeImages(){
+                this.Imgs.forEach((img) => {
+                    img.style.width = `${this.elem_.offsetWidth}px`;
+                })
+                this.canvas.scrollTo({
+                    left: this.elem_.offsetWidth * this.activeSlideNo, behavior: 'smooth'
+                })
+            }
+
+            forwardNavigation(){
+                if ((this.canvas.scrollLeft + this.canvas.offsetWidth + 2) >= this.canvas.scrollWidth) return;
+
+                if (!this.currentlyScrolling){
+                    this.canvas.scrollBy({
+                        left: this.elem_.clientWidth, behavior: 'smooth'
+                    })
+                    this.activeSlideNo += 1;
+                    this.activeSlide = this.slideImgs[this.activeSlideNo];
+                    this.updateStatusDot();
+                    this.currentlyScrolling = true;
+                }
+            }
+            backwardNavigation(){
+                if (this.canvas.scrollLeft == 0) return;
+                
+                if (!this.currentlyScrolling){
+                    this.canvas.scrollBy({
+                        left: -this.elem_.clientWidth, behavior: 'smooth'
+                    })
+                    this.activeSlideNo -= 1;
+                    this.activeSlide = this.slideImgs[this.activeSlideNo];
+                    this.updateStatusDot();
+                    this.currentlyScrolling = true;
+                }
+            }
+            handleNavBtnsVisibility(){
+                this.currentlyScrolling = false;
+                if ((this.canvas.scrollLeft + this.canvas.offsetWidth + 2) >= this.canvas.scrollWidth){
+                    this.forwardBtn.disabled = true;
+                } else {
+                    this.forwardBtn.disabled = false;
+                }
+                
+                if (this.canvas.scrollLeft == 0){
+                    this.backwardBtn.disabled = true;
+                } else {
+                    this.backwardBtn.disabled = false;
+                }
+                
+            }
+
+        }
+
+        let headingImages = {
+            'Preview Codes': [
+                'background1', 'background8', 'background10', 'background5'
+            ],
+            'Diary': [
+                'background4', 'background5', 'background6', 'background4'
+            ],
+            'Leaderboards': [
+                'background7', 'background8', 'background9', 'background7'
+            ],
+            'Duels': [
+                'background1', 'background2', 'background3', 'background2'
+            ],
+        }
+        
+        let cs = new CarouselObj(find('.carousel'));
+
     </script>
 {% endblock %}

@@ -53,6 +53,9 @@ def format_date(date):
 @register.filter
 def format_date_with_days(date):
     date_format = "%a %b %d (%H:%M)"
+    if not date:
+        return
+    
     return date.strftime(date_format)
 
 

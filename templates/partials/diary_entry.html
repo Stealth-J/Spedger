@@ -91,7 +91,11 @@
                     <span class="game_footer" >
                         <img class="sport_icon" src = "{% static game.sport_icon %}" alt = '{{ game.sport }} icon'>
                         
-                        {% if game.event_settled and game.event_won %}
+                        {% if game.event_cancelled %}
+                            <span class="success_icon">
+                                <strong title = 'Cancelled'>Cd</strong>
+                            </span>
+                        {% elif game.event_settled and game.event_won %}
                             <span class="success_icon">
                                 <i class="ri-checkbox-circle-fill"></i>
                             </span>

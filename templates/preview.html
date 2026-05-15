@@ -18,7 +18,7 @@
             <p class="form_header"> Preview Slip </p>
             
             <div class="form_flex">
-                <input type="text" placeholder="Slip code..." name = "slip_code" maxlength = "10" hx-clear-input required>
+                <input type="text" placeholder="Slip code..." name = "slip_code" maxlength = "10" hx-clear-input required autocomplete = "off">
             </div>
             
             <span class = "preview_form_span">
@@ -60,7 +60,7 @@
                                 {{ slip_code }}
                             </p>
                             <button  data-copied="previewCode">
-                                <i class="ri-file-copy-line"></i>
+                                {% include 'partials/copy_svg.html' %}
                             </button>
                         </span>
 

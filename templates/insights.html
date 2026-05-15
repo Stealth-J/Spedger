@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Insights {% endblock %}
+
+{% block styles %}
+    <style>
+        section{
+            background: var(--bgcol-lighter);
+            box-shadow: var(--bxs-board);
+            font-family: var(--ff-duel);
+            padding: 2rem;
+            margin: 3rem 2rem;
+            min-height: 50vh;
+            font-size: 1.2rem;
+        }
+        @media screen and (max-width: 50rem) {
+            section{
+                margin: 0 1rem;
+                padding: 1.5rem 1rem;
+                font-size: 1rem;
+                min-height: 20vh;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <section>
+        <p> This page is still under development. Check back another time. </p>
+    </section>
+
+{% endblock %}

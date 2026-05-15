@@ -86,7 +86,6 @@
 
                 </div>
 
-                <span class="footer_btn"> <button class="btn2_ share_btn">Load More...</button> </span>
             </section>
 
 
@@ -161,15 +160,32 @@
                 <section id = "duelsHistory" >
                     {% block duels_history_block %}
                         {% if your_duels %}
+                        
+                            <article class="duels_history" >
+                                {% block duels_block %}
+                                    {% for duel in your_duels %}
+                                        {% include 'partials/duel.html' %}
+                                    {% endfor %}
 
-                            <article class="duels_history">
-                                {% for duel in your_duels %}
-                                    {% include 'partials/duel.html' %}
-                                {% endfor %}
+                                    {% if request.htmx  %}
+                                        {% if your_duels.has_next %}
+                                            <button id = "loadMoreDuelsBtn" class="btn2_ share_btn" hx-post = "{% url 'load_more_duels' your_duels.next_page_number %}" hx-target = ".duels_history" hx-swap = "beforeend" hx-swap-oob = "true" >
+                                                Load More...
+                                            </button>
+                                        {% else %}
+                                            <button id = "loadMoreDuelsBtn" class = "btn2_ share_btn" hx-swap-oob = "true" disabled>
+                                                Load More...
+                                            </button>
+                                        {% endif %}
+                                    {% endif %}
+
+                                {% endblock %}
                             </article>
 
                             <div class="footer_btn">
-                                <button class="btn2_ share_btn">Load More...</button>
+                                <button id = "loadMoreDuelsBtn" class="btn2_ share_btn" hx-post = "{% url 'load_more_duels' your_duels.next_page_number %}" hx-target = ".duels_history" hx-swap = "beforeend">
+                                    Load More...
+                                </button>
                             </div>
 
                         {% else %}

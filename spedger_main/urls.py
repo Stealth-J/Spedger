@@ -12,6 +12,7 @@ urlpatterns = [
     path('users', users, name = "users"),
     path('search_users', search_users, name = "search_users"),
     path('filter_duels', filter_duels, name = "filter_duels"),
+    path('load_more_duels/<int:page_num>', load_more_duels, name = "load_more_duels"),
 
     path('send_friend_request/<str:sk>', send_friend_request, name = "send_friend_request"),
     path('unfriend_user/<str:sk>', unfriend_user, name = "unfriend_user"),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('leaderboards', leaderboards_view, name = "leaderboards"),
     path('register_wkly_game', register_wkly_game, name = "register_wkly_game"),
     path('reload_leaderboards/<str:board>', reload_leaderboards, name = "reload_leaderboards"),
+    path('create_weekly_game', create_weekly_game, name = "create_weekly_game"),
 
 #   sk - group_id
     path('groups', groups, name = "groups"),
@@ -56,6 +58,8 @@ urlpatterns = [
     path('support', support, name = "support"),
     path('terms', terms, name = "terms"),
     path('privacy-policy', privacy_policy, name = "privacy_policy"),
+
+    path('insights', insights, name = "insights"),
 
     path('custom_logout', custom_logout, name = "custom_logout"),
     path('htmx_messages', htmx_messages, name = "htmx_messages"),

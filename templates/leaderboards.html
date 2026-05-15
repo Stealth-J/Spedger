@@ -36,6 +36,9 @@
         #customSpinner2{
             margin-bottom: 2rem;
         }
+        #wklyGameForm .text_muted{
+            font-size: 0.85rem;
+        }
 
 
         @media screen and (max-width: 50rem) {
@@ -59,6 +62,10 @@
                 <div class="form_flex">
                     <input type="text" placeholder="Slip code..." name = "slip_code" maxlength = "10" required autocomplete = "off" {% if is_current_player %} value = "{{ player_obj.slip.slip_code }}" readonly {% endif %}>
                 </div>
+
+                {% if previous_obj %}
+                    <p class = "text_muted">Recent Rank: {{ previous_obj.ranking }}</p>
+                {% endif %}
 
                 {% if not is_current_player %}
                     <button class="form_action_btn" type = "submit"> 
@@ -188,6 +195,12 @@
                     {% if is_current_player and not profile_obj.private_acct %}
                         <aside class="your_wkly_info" data-button data-modal="yourInfoModal" aria-expanded="false" title="you">
                             <span> <i class="ri-user-4-line"></i> </span>
+                        </aside>
+                    {% endif %}
+                    
+                    {% if request.user.is_staff %}
+                        <aside class="your_wkly_info" data-button data-modal="createNewGameModal" aria-expanded="false" title="create">
+                            <span> <i class="ri-pencil-line"></i> </span>
                         </aside>
                     {% endif %}
 
@@ -462,7 +475,7 @@
                                     {{ player_obj.games_lost|return_0_if_none }}
                                 </td>
                                 <td class="tb_percent">
-                                    {{ player_obj.accuracy}}
+                                    {{ player_obj.accuracy|floatformat:1}}
                                 </td>
                                 <td class="tb_odds">
                                     {{ player_obj.slip.total_odds|floatformat|intcomma }}
@@ -479,6 +492,33 @@
             </div>
         </div>
     {% endif %}
+
+    <div class="modalContainer create_game_modal" id = "createNewGameModal">
+        <div class="modal" >
+
+            <form id="createGameForm" method = "POST" action = "{% url 'create_weekly_game' %}">
+                {% csrf_token %}
+
+                <p class="form_header"> Create New Game</p>
+                <div>
+                    <label for="from_date">
+                        From
+                    </label>
+                    <input type="datetime-local" id = "from_date" name = "from_date_val" required>
+                </div>
+                <div>
+                    <label for="to_date">
+                        To
+                    </label>
+                    <input type="datetime-local" id = "to_date" name = "to_date_val" required>
+                </div>
+
+                <button class="form_action_btn" type = "submit"> 
+                    Create
+                </button>
+            </form>
+        </div>
+    </div>
 
 {% endblock %}
 

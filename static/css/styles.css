@@ -1438,6 +1438,83 @@ p.version_number{
     color: var(--col-main);
 }
 
+.pellets{
+    display: flex;
+    gap: 0.5em;
+}
+.pellet{
+    border-radius: 6px;
+    border: var(--border-main);
+    padding: 0.3em 0.65em;
+    cursor: pointer;
+    color: var(--col-sub);
+}
+.pellet:hover{
+    background-color: var(--bgcol-card);
+}
+.pellet.active_pellet{
+    background-color: var(--bgcol-darker);
+    color: var(--col-main);
+}
+.carousel{
+    display: flex;
+    align-items: flex-start;
+    margin: 2rem 0;
+    width: calc(100vw - 240px - 9rem);
+    position: relative;
+}
+.carousel .nav_btn{
+    position: absolute;
+    font-size: 2rem;
+    font-weight: bolder;
+    padding: 0.25em;
+    top: 40%;
+    color: var(--col-main);
+    transition: all 0.5s ease-out;
+    border: none;
+}
+.carousel .nav_btn:hover{
+    transform: translateX(-5px);
+}
+.carousel .nav_btn[disabled]{
+    opacity: 0;
+}
+.carousel .back_btn{
+    left: 0;
+}
+.carousel .back_btn:hover{
+    transform: translateX(-2px);
+}
+.carousel .forward_btn{
+    right: 0;
+}
+.carousel .forward_btn:hover{
+    transform: translateX(2px);
+}
+.carousel_canvas{
+    display: flex;
+    scrollbar-width: none;
+    overflow-x: hidden;
+    border-radius: 6px;
+    box-shadow: var(--bxs-darkest);
+}
+.status_dots{
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+}
+.status_dot{
+    background-color: var(--bgcol-focus);
+    padding: 0.4em;
+    height: 0.2em;
+    margin-right: 1rem;
+    border-radius: 999px;
+    transition: all 0.2s ease-in;
+}
+.status_dot.active{
+    background-color: var(--col-muted);
+}
+
 
 
 
@@ -1983,9 +2060,48 @@ ul.indented > li{
     align-items: center;
     background-color: #2424bc;
 }
+.your_wkly_info:nth-of-type(2){
+    right: 7rem;
+    background-color: transparent;
+}
 .your_wkly_info i{
     color: #fff;
     font-size: 2rem;
+}
+.your_wkly_info:nth-of-type(2) i{
+    color: #2424bc;
+}
+
+.create_game_modal .modal{
+    width: 25rem;
+    height: auto;
+}
+#createGameForm{
+    display: flex;
+    flex-direction: column;
+}
+#createGameForm .form_header{
+    margin: 1rem 0;
+    margin-left: 0.5em;
+    font-weight: 300;
+}
+#createGameForm div{
+    display: flex;
+    margin-bottom: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.3rem;
+}
+#createGameForm input{
+    width: 80%;
+    border: var(--border-main);
+    border-radius: 6px;
+    padding: 0.5rem;
+    color: var(--col-muted);
+}
+#createGameForm input:focus{
+    outline: none;
+    border: var(--border-sub);
 }
 
 
@@ -2601,6 +2717,7 @@ ul.indented > li{
     .gd_member_username{
         width: 7rem;
     }
+
 }
 
 
@@ -2751,6 +2868,9 @@ ul.indented > li{
         padding: 1rem;
         font-size: 0.85em;
     }
+    .carousel{
+        width: calc(100vw - 3rem);
+    }
     #feedbackForm{
         flex-direction: column;
         align-items: flex-start;
@@ -2762,6 +2882,9 @@ ul.indented > li{
     #feedbackForm button{
         margin-left: auto;
         margin-right: 0;
+    }
+    .pellets{
+        flex-wrap: wrap;
     }
 
     .wkly_form_holder, .form_holder{

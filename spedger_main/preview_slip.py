@@ -53,7 +53,6 @@ def preview(code, platform = 'sportybet'):
                 pick = pick, 
                 pick_id = pick_id,
                 odds = odds, 
-                status_class = status_class, 
                 sport = sport_name,
                 sport_id = sport_id,
                 sport_icon = sport_icon,

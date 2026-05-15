@@ -2,12 +2,19 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from .models import Duel, FriendRequest, Profile
 from django.db.models import F, Window, Count, Sum, Case, When, Q, ExpressionWrapper, FloatField, Max
-from django.db.models.functions import DenseRank
+from django.db.models.functions import DenseRank, Round
 from django.core.paginator import Paginator
+from django.template.loader import render_to_string
 
 
 def send_mail(subject, body, email):
     email = EmailMessage(subject, body, to = [email])
+    email.send()
+
+def send_mail_with_template(subject, template_name, context, email):
+    body = render_to_string(template_name, context)
+    email = EmailMessage(subject, body, to = [email])
+    email.content_subtype = "html"
     email.send()
 
 
@@ -33,7 +40,7 @@ def rank_group_members(qs):
         ),
         winning_slips_temp = Count(
             Case(When(
-                Q(user__slips__settled = True) & Q(user__slips__slip_won = True)
+                Q(user__slips__settled = True) & Q(user__slips__slip_won = True), then = 1
             ))
         ),
         total_slips = Count('user__slips'),
@@ -64,7 +71,7 @@ def rank_users_leaderboards(wkly_qs = None, wkly = True):
                 ))
             ),
             accuracy = ExpressionWrapper(
-                ( F('events_won') / F('total_events') ) * 100, output_field = FloatField()
+                ( F('events_won') * 100.0 ) / F('total_events'), output_field = FloatField()
             ),
             highest_selection = Max('slip__slip_events__event_odd'),
             games_won = Count(

@@ -43,6 +43,10 @@ def profile(request, sk):
     if request.user != this_profile.user:
         all_slips = all_slips.exclude(weekly = True)
 
+    all_player_objs = WeeklyGameParticipant.objects.filter(user = request.user, wkly_game__current_game = False).order_by('id')
+    recent_finish = all_player_objs.last().ranking
+    highest_finish = all_player_objs.aggregate(result = models.Min('ranking'))['result']
+
     slips = paginate(request, all_slips)
     is_viewer = request.user in this_profile.viewers.all()
 
@@ -58,6 +62,8 @@ def profile(request, sk):
     context = {
         'this_profile': this_profile,
         'country_code': COUNTRY_CODES.get(this_profile.nationality.lower()),
+        'recent_finish': recent_finish or 'None',
+        'highest_finish': highest_finish or 'None',
         'this_slips': slips,
         'from_profile_view': 'yes',
         'is_viewer': request.user in this_profile.viewers.all(),
@@ -250,6 +256,7 @@ def users(request):
     received_requests = total_requests.filter(recipient = request.user, status = 'open')
 
     your_duels = duels.exclude(duel_status = 'rejected')
+    your_duels = paginate(request, your_duels)
     open_duels = Duel.objects.prefetch_related('duellists').filter(duellists__user = request.user, duel_status = 'open', duellists__recipient = True)
 
     context = {
@@ -261,6 +268,16 @@ def users(request):
         'open_duels': open_duels,
     }
     return render(request, 'users.html', context)
+
+
+@verified_email_required
+def load_more_duels(request, page_num):
+    duels = Duel.objects.prefetch_related('duellists').filter(duellists__user = request.user).exclude(duel_status = 'rejected').order_by('-created_at')
+    your_duels = paginate(request, duels, page_num)
+    context = {'your_duels': your_duels}
+    html = render_block_to_string('users.html', 'duels_block', context, request)
+    response = HttpResponse(html)
+    return response
 
 
 @verified_email_required
@@ -316,7 +333,7 @@ def search_users(request):
     keyword = request.POST.get('search_word')
     results = Profile.objects.filter(
         Q(full_name__icontains = keyword) | Q(user__username__icontains = keyword)
-    ).exclude(user = request.user).exclude(private_acct = True)
+    ).exclude(user = request.user).exclude(private_acct = True)[:30]
     context = { 
         'user_results': results, 
         'center_info_msg': center_info_msg,
@@ -649,7 +666,10 @@ def filter_entries(request):
 @verified_email_required
 def leaderboards_view(request):
     center_info_msg = 'Slip preview would appear here'
-    current_wkly_game = WeeklyGame.objects.prefetch_related('game_participants', 'game_participants__slip').filter(current_game = True).first()
+    all_games = WeeklyGame.objects.prefetch_related('game_participants', 'game_participants__slip').order_by('id')
+    all_player_objs = WeeklyGameParticipant.objects.filter(user = request.user, wkly_game__current_game = False).order_by('id')
+
+    current_wkly_game = all_games.filter(current_game = True).first()
     player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
     is_current_player = bool(player_obj)
     valid_games = []
@@ -658,11 +678,15 @@ def leaderboards_view(request):
     try:
         wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
         global_board = rank_users_leaderboards(wkly = False)
+        previous_obj = all_player_objs.last()
 
         if is_current_player:
             valid_games = reverse_slip_obj(player_obj.slip)
             slip_info = get_slip_details(valid_games)
-            player_obj = wkly_board.filter(user = request.user).first()
+            for each in list(wkly_board):
+                if each.user == request.user:
+                    player_obj = each
+                    break
         
         context = {
             'center_info_msg': center_info_msg,
@@ -671,6 +695,7 @@ def leaderboards_view(request):
             'valid_games': valid_games,
             'slip_info': slip_info,
             'player_obj': player_obj,
+            'previous_obj': previous_obj,
             'wkly_users': wkly_board[:30],
             'global_users': global_board[:30],
         }
@@ -685,6 +710,7 @@ def leaderboards_view(request):
             'valid_games': [],
             'slip_info': None,
             'player_obj': None,
+            'previous_obj': None,
             'wkly_users': [],
             'global_users': [],
         }
@@ -737,8 +763,12 @@ def register_wkly_game(request):
     return response
 
 
-@verified_email_required
 def reload_leaderboards(request, board):
+    if not request.user.is_authenticated:
+        response = HttpResponse()
+        response['HX-Redirect'] = reverse('account_login')
+        return response
+    
     current_wkly_game = WeeklyGame.objects.prefetch_related('game_participants', 'game_participants__slip').filter(current_game = True).first()
 
     try:
@@ -778,6 +808,29 @@ def reload_leaderboards(request, board):
         response['HX-Reswap'] = 'none'
         response['HX-Trigger'] = 'hx_message_init'
         return response
+
+
+@verified_email_required
+def create_weekly_game(request):
+    try:
+        if not request.user.is_staff:
+            raise Exception('You are not a staff member')
+        
+        current_game = WeeklyGame.objects.filter(current_game = True).first()
+        from_ = datetime.fromisoformat( request.POST.get('from_date_val') )
+        to_ = datetime.fromisoformat( request.POST.get('to_date_val') )
+        WeeklyGame.objects.create(
+            start_date = dj_tz.make_aware(from_), 
+            end_date = dj_tz.make_aware(to_)
+        )
+        current_game.current_game = False
+        current_game.save()
+        update_players_ranks.delay()
+
+    except Exception as e:
+        messages.warning(request, str(e))
+
+    return redirect('leaderboards')
 
 
 @verified_email_required
@@ -1357,6 +1410,11 @@ def reject_duel(request):
         response['HX-Trigger'] = 'hx_message_init'
 
     return response
+
+
+def insights(request):
+    context = {}
+    return render(request, 'insights.html', context)
 
 
 

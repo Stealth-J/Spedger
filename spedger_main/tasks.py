@@ -4,6 +4,7 @@ from .async_helpers import *
 from asgiref.sync import async_to_sync, sync_to_async
 from django.utils import timezone as dj_tz
 from datetime import datetime
+from .helpers import rank_users_leaderboards, send_mail_with_template
 
 
 def link_json_to_obj_and_update(data, code_tuple):
@@ -11,10 +12,11 @@ def link_json_to_obj_and_update(data, code_tuple):
     slip_events = list( slip_obj.slip_events.filter(event_settled = False) )
     outcomes_dict_ids = {}
     outcomes_dict_teams = {}
+    accepted_status = ['Ended', 'Cancelled']
 
     for each in data.get('outcomes'):
         try:
-            if each.get('matchStatus') == 'Ended':
+            if each.get('matchStatus') in accepted_status:
                 eventId = each.get('eventId')
                 home = each.get('homeTeamName')
                 away = each.get('awayTeamName')
@@ -25,7 +27,12 @@ def link_json_to_obj_and_update(data, code_tuple):
 
                 outcomes_dict_ids[eventId, market, pick, comp] = each
                 outcomes_dict_teams[teams, market, pick, comp] = each
-        
+            else:
+                CustomError.objects.create(
+                    error_class = 'Unknown Match Status',
+                    error_txt = f'Game between {each.get('homeTeamName')} and {each.get('awayTeamName')}. Event id - {each.get('eventId')}'
+                )
+
         except Exception as e:
             print(f'Parsing data for JSON changed - {str(e)}')
 
@@ -42,9 +49,12 @@ def link_json_to_obj_and_update(data, code_tuple):
 
             if event_outcome != '':
                 each.event_settled = True
-                isWinning = event_outcome.get('markets')[0].get('outcomes')[0].get('isWinning')
-                if isWinning:
-                    each.event_won = bool(int(isWinning))
+                if event_outcome.get('matchStatus') == 'Cancelled':
+                    each.event_cancelled = True
+                else:
+                    isWinning = event_outcome.get('markets')[0].get('outcomes')[0].get('isWinning')
+                    if isWinning:
+                        each.event_won = bool(int(isWinning))
                 updated_events.append(each)
 
         except Exception as e:
@@ -70,7 +80,7 @@ def update_live_games():
             except Exception as e:
                 print(f'Error - {str(e)}')
 
-    SlipEvent.objects.bulk_update(updated_events_total, ['event_settled', 'event_won'])
+    SlipEvent.objects.bulk_update(updated_events_total, ['event_settled', 'event_won', 'event_cancelled', 'event_postponed'])
 
 
 @shared_task
@@ -104,9 +114,46 @@ def update_ongoing_duels():
             each.settled = True
             each.settled_date = dj_tz.make_aware(datetime.now())
             if each.winner and each.winner != 'Draw':
-                print(each.winner)
                 each.winning_user = each.winner.user
 
             updated_duels.append(each)
 
     Duel.objects.bulk_update(updated_duels, ['settled', 'settled_date', 'winning_user'])
+
+
+@shared_task
+def update_players_ranks():
+    all_games = WeeklyGame.objects.prefetch_related('game_participants').order_by('id')
+    previous_game = all_games.exclude(current_game = True).last()
+    players_list = []
+
+    game_players = rank_users_leaderboards(previous_game.game_participants.all())
+    for each in game_players:
+        each.ranking = each.rank
+        players_list.append(each)
+
+    WeeklyGameParticipant.objects.bulk_update(players_list, ['ranking'])
+    send_congratulatory_mails.delay()
+
+
+@shared_task 
+def send_congratulatory_mails():
+    all_games = WeeklyGame.objects.prefetch_related('game_participants').order_by('id')
+    previous_game = all_games.exclude(current_game = True).last()
+
+    for player in previous_game.game_participants.all():
+        if player.ranking <= 5:
+            message = 'Congratulations on your top 5 finish.'
+            if player.ranking == 1:
+                message = 'Congratulations - you finished 1st place this week'
+            
+            context = {
+                'title': 'Weekly Competition Result',
+                'full_name': player.user.user_profile.full_name,
+                'message': message,
+                'ranking': player.ranking,
+                'start_date': previous_game.start_date.strftime("%d %b, %Y"),
+                'end_date': previous_game.end_date.strftime("%d %b, %Y"),
+            }
+
+            send_mail_with_template('Weekly Result', 'emails/weekly_result.html', context, player.user.email)

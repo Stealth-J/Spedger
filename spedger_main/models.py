@@ -163,6 +163,7 @@ class WeeklyGameParticipant(models.Model):
     user = models.ForeignKey(User, related_name = 'wkly_game_performances', on_delete = models.CASCADE)
     wkly_game = models.ForeignKey(WeeklyGame, related_name = 'game_participants', on_delete = models.CASCADE)
     slip = models.ForeignKey(Slip, related_name = 'wkly_game_slip', on_delete = models.CASCADE)
+    ranking = models.PositiveIntegerField(null = True, blank = True)
 
 
 class DeleteReason(models.Model):
@@ -277,3 +278,9 @@ class Profile(models.Model):
             return 'None'
         string = f'{self.winning_slips_count}/{self.user.slips.count()} ({self.pure_percentage}%)'
         return string
+
+
+class CustomError(models.Model):
+    error_class = models.CharField(max_length = 100)
+    error_txt = models.TextField()
+    created_at = models.DateTimeField(auto_now_add = True)
