@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %} Home {% endblock %}
+
+
+{% block content %}
+    {{ accuracy|json_script:"acc" }}
+
+    <div class="wrap">
+        <div class="card hero">
+            <h1>TEST YOUR GAME KNOWLEDGE WITH SPEDGER</h1>
+            <p class="small">Book picks. Track outcomes. See if your instincts beat the crowd.</p>
+
+            <div class="hero grid">
+                <div class="mini">
+                    <div class="chip">
+                        W-L Record
+                    </div>
+                    <div class="stat">
+                        {{ profile_obj.winning_slips_count }}– {{ losses }}
+                    </div>
+                </div>
+
+                <div class="mini">
+                    <div class="chip">Accuracy</div>
+                    <div class="gauge">
+                        <span id="acc">{{ accuracy }}%</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="side">
+            <div class="card feature">
+                <div>
+                    <h3>Track your record</h3>
+                    <p class="small">
+                        See wins, misses, streaks and history.
+                    </p>
+                </div>
+                <span class = "more_btn"><a href = "{% url 'insights' %}">
+                    <i class="ri-more-line"></i>
+                </a></span>
+            </div>
+
+            <div class="card feature">
+                <div>
+                    <h3>Compete against others</h3>
+                    <p class="small">
+                        Duel friends and gain bragging rights
+                    </p>
+                </div>
+                <span class = "more_btn"><a href = "/users?tab=duels">
+                    <i class="ri-more-line"></i>
+                </a></span>
+            </div>
+
+            <div class="card feature">
+                <div>
+                    <h3>Build a community</h3>
+                    <p class="small">
+                        Create and join prediction groups
+                    </p>
+                </div>
+                <span class = "more_btn"><a href = "{% url 'groups' %}">
+                    <i class="ri-more-line"></i>
+                </a></span>
+            </div>
+
+            <div class="card feature text_card">
+                <div>
+                    <h3>Developer</h3>
+                    <p>Idahosa Nosa</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        let accuracy = JSON.parse( document.getElementById('acc').textContent );
+        let v = 0,target = accuracy;
+        const el = document.getElementById('acc');
+        const g = document.querySelector('.gauge');
+        const t = setInterval(() => {
+            v++; 
+            el.textContent = v + '%';
+            g.style.background = `conic-gradient(#10233f 0deg,#10233f ${v*3.6}deg,#dbe4ee ${v*3.6}deg)`; 
+            if(v >= target) clearInterval(t)
+        }, 20)
+    </script>
+
+{% endblock %}

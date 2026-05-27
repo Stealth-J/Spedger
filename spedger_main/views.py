@@ -28,12 +28,11 @@ USERNAME_REGEX = re.compile(r'^(?!.*__)[A-Za-z][A-Za-z0-9_$@!#%&*-]{2,19}$')
 # Create your views here.
 @verified_email_required
 def home(request):
-    xy = ''
-    if request.user.is_authenticated:
-        xy = 'bread'
-    else:
-        return redirect('account_login')
-    return render(request, 'base.html', {'con': xy})
+    losses = request.user.slips.filter(settled = True, slip_won = False).count()
+    events_all = SlipEvent.objects.filter(slip__user = request.user, event_settled = True).count()
+    events_won = SlipEvent.objects.filter(slip__user = request.user, event_settled = True, event_won = True).count()
+    acc = round((events_won / events_all) * 100)
+    return render(request, 'home.html', {'losses': losses, 'accuracy': acc})
 
 
 @verified_email_required

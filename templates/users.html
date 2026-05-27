@@ -183,9 +183,11 @@
                             </article>
 
                             <div class="footer_btn">
-                                <button id = "loadMoreDuelsBtn" class="btn2_ share_btn" hx-post = "{% url 'load_more_duels' your_duels.next_page_number %}" hx-target = ".duels_history" hx-swap = "beforeend">
-                                    Load More...
-                                </button>
+                                {% if your_duels.has_next %}
+                                    <button id = "loadMoreDuelsBtn" class="btn2_ share_btn" hx-post = "{% url 'load_more_duels' your_duels.next_page_number %}" hx-target = ".duels_history" hx-swap = "beforeend">
+                                        Load More...
+                                    </button>
+                                {% endif %}
                             </div>
 
                         {% else %}
