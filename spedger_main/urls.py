@@ -2,7 +2,7 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('home', home, name = "home"),
+    path('', home, name = "home"),
     path('signup', signup, name = "signup"),
     path('profile/<str:sk>', profile, name = "profile"),
     path('load_more_slips_history/<str:sk>/<int:page_num>', load_more_slips_history, name = "load_more_slips_history"),
