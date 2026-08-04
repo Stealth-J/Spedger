@@ -5,6 +5,7 @@ from asgiref.sync import async_to_sync, sync_to_async
 from django.utils import timezone as dj_tz
 from datetime import datetime
 from .helpers import rank_users_leaderboards, send_mail_with_template
+from time import perf_counter
 
 
 def link_json_to_obj_and_update(data, code_tuple):
@@ -65,10 +66,14 @@ def link_json_to_obj_and_update(data, code_tuple):
 
 @shared_task
 def update_live_games():
+    t = perf_counter()
+    
     active_slips = list( Slip.objects.prefetch_related('slip_events').filter(settled = False))
     codes_tuple = [ (slip_obj.slip_code, slip_obj) for slip_obj in active_slips ]
     results = async_to_sync(scrape_slips_info)(codes_tuple)
     updated_events_total = []
+
+    print(f'Scraping took {perf_counter()-t:.2f}s')
 
     for result, code_tuple in zip(results, codes_tuple):
         if result[0]:
