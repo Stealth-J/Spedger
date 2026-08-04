@@ -878,7 +878,6 @@ def group_details(request, sk):
                 messages.warning(request, 'You cannot access a private group without being a member')
                 return redirect('groups')
 
-        print(ranked_qs)
         for each in ranked_qs:
             print( each.pure_odds_temp )
         context = {

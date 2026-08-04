@@ -1,7 +1,7 @@
 from django.core.mail import EmailMessage
 from django.conf import settings
 from .models import Duel, FriendRequest, Profile
-from django.db.models import F, Window, Count, Sum, Case, When, Q, ExpressionWrapper, FloatField, Max
+from django.db.models import F, Window, Count, Sum, Case, When, Q, ExpressionWrapper, FloatField, Max, Value
 from django.db.models.functions import DenseRank, Round
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
@@ -44,9 +44,13 @@ def rank_group_members(qs):
             ))
         ),
         total_slips = Count('user__slips'),
-        pure_percentage_temp = ExpressionWrapper(
-            ( F('winning_slips_temp') / F('total_slips') ) * 100,
-            output_field = FloatField()
+        pure_percentage_temp = Case(
+            When(total_slips = 0, then = Value(0.0)),
+            default = ExpressionWrapper(
+                ( F('winning_slips_temp') / F('total_slips') ) * 100,
+                output_field = FloatField()
+            ),
+            output_field = FloatField(),
         )
     )
 
