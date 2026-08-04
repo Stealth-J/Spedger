@@ -739,7 +739,9 @@ def register_wkly_game(request):
     preview_result = False
     try:
         current_wkly_game = WeeklyGame.objects.filter(current_game = True).first()
-        if current_wkly_game.game_participants.filter(user = request.user).exists():
+        if not current_wkly_game:
+            raise Exception('There is no weekly game yet')
+        elif current_wkly_game.game_participants.filter(user = request.user).exists():
             raise Exception("You have already registered for this game week")
 
         code = request.POST.get('slip_code').strip()
