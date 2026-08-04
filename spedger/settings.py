@@ -198,7 +198,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {
     'check-live-games-status-every-5-minutes': {
         'task': "spedger_main.tasks.update_live_games",
-        'schedule': timedelta(minutes = 5),
+        'schedule': timedelta(minutes = 30),
     },
     'update-settled-slips-every-30-minutes': {
         'task': 'spedger_main.tasks.update_settled_slips',
