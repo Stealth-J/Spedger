@@ -731,7 +731,7 @@ def register_wkly_game(request):
         if not success:
             raise valid_games
         
-        valid_games = filter_wkly_slips(valid_games, current_wkly_game)
+        valid_games = filter_wkly_slips(d_games, current_wkly_game)
         slip_info = get_slip_details(valid_games)
         success, code = book(valid_games)
         if not success:
