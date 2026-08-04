@@ -681,8 +681,12 @@ def leaderboards_view(request):
     all_player_objs = WeeklyGameParticipant.objects.filter(user = request.user, wkly_game__current_game = False).order_by('id')
 
     current_wkly_game = all_games.filter(current_game = True).first()
-    player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
-    is_current_player = bool(player_obj)
+    if all_player_objs:
+        player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
+        is_current_player = bool(player_obj)
+    else:
+        player_obj = None
+        is_current_player = False
     valid_games = []
     slip_info = {}
 
