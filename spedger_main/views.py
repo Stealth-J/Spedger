@@ -50,8 +50,13 @@ def profile(request, sk):
         all_slips = all_slips.exclude(weekly = True)
 
     all_player_objs = WeeklyGameParticipant.objects.filter(user = request.user, wkly_game__current_game = False).order_by('id')
-    recent_finish = all_player_objs.last().ranking
-    highest_finish = all_player_objs.aggregate(result = models.Min('ranking'))['result']
+
+    if all_player_objs:
+        recent_finish = all_player_objs.last().ranking
+        highest_finish = all_player_objs.aggregate(result = models.Min('ranking'))['result']
+    else:
+        recent_finish = 'None'
+        highest_finish = 'None'
 
     slips = paginate(request, all_slips)
     is_viewer = request.user in this_profile.viewers.all()
