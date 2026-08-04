@@ -16,7 +16,8 @@ services:
   django-web:
     build: .
     container_name: django-docker
-    command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --timeout 180
+    # command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --timeout 180
+    command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --access-logfile - --error-logfile - --log-level debug --timeout 180    # to see the entries like in runserver
     volumes:
       - .:/app
     ports:
