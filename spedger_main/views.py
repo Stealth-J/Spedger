@@ -690,45 +690,51 @@ def leaderboards_view(request):
     valid_games = []
     slip_info = {}
 
-    try:
-        wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
-        global_board = rank_users_leaderboards(wkly = False)
-        previous_obj = all_player_objs.last()
+    no_game_context = {
+        'center_info_msg': center_info_msg,
+        'current_wkly_game': [],
+        'is_current_player': False,
+        'valid_games': [],
+        'slip_info': None,
+        'player_obj': None,
+        'previous_obj': None,
+        'wkly_users': [],
+        'global_users': [],
+    }
 
-        if is_current_player:
-            valid_games = reverse_slip_obj(player_obj.slip)
-            slip_info = get_slip_details(valid_games)
-            for each in list(wkly_board):
-                if each.user == request.user:
-                    player_obj = each
-                    break
-        
-        context = {
-            'center_info_msg': center_info_msg,
-            'current_wkly_game': current_wkly_game,
-            'is_current_player': is_current_player,
-            'valid_games': valid_games,
-            'slip_info': slip_info,
-            'player_obj': player_obj,
-            'previous_obj': previous_obj,
-            'wkly_users': wkly_board[:30],
-            'global_users': global_board[:30],
-        }
+    try:
+        if current_wkly_game:
+            wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
+            global_board = rank_users_leaderboards(wkly = False)
+            previous_obj = all_player_objs.last()
+
+            if is_current_player:
+                valid_games = reverse_slip_obj(player_obj.slip)
+                slip_info = get_slip_details(valid_games)
+                for each in list(wkly_board):
+                    if each.user == request.user:
+                        player_obj = each
+                        break
+            
+            context = {
+                'center_info_msg': center_info_msg,
+                'current_wkly_game': current_wkly_game,
+                'is_current_player': is_current_player,
+                'valid_games': valid_games,
+                'slip_info': slip_info,
+                'player_obj': player_obj,
+                'previous_obj': previous_obj,
+                'wkly_users': wkly_board[:30],
+                'global_users': global_board[:30],
+            }
+
+        else:
+            context = no_game_context
     
     except Exception as e:
         print(f'Error - {str(e)}')
         messages.error(request, 'Something unexpected happened')
-        context = {
-            'center_info_msg': center_info_msg,
-            'current_wkly_game': [],
-            'is_current_player': False,
-            'valid_games': [],
-            'slip_info': None,
-            'player_obj': None,
-            'previous_obj': None,
-            'wkly_users': [],
-            'global_users': [],
-        }
+        context = no_game_context
 
     return render(request, 'leaderboards.html', context) 
 
