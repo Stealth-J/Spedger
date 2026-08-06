@@ -801,6 +801,7 @@ def reload_leaderboards(request, board):
             is_current_player = bool(player_obj)
 
             if current_wkly_game:
+                print('yes ------------------------------')
                 wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
 
                 if is_current_player:
@@ -814,6 +815,7 @@ def reload_leaderboards(request, board):
                     'wkly_users': wkly_board[:30],
                 }
             else:
+                print('no ------------------------------')
                 context = {
                     'current_wkly_game': [],
                     'is_current_player': False,
