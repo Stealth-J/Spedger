@@ -797,10 +797,10 @@ def reload_leaderboards(request, board):
 
     try:
         if board == 'wk':
-            player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
-            is_current_player = bool(player_obj)
-
             if current_wkly_game:
+                player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
+                is_current_player = bool(player_obj)
+                
                 print('yes ------------------------------')
                 wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
 
