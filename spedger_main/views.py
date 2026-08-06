@@ -703,9 +703,9 @@ def leaderboards_view(request):
     }
 
     try:
+        global_board = rank_users_leaderboards(wkly = False)
         if current_wkly_game:
             wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
-            global_board = rank_users_leaderboards(wkly = False)
             previous_obj = all_player_objs.last()
 
             if is_current_player:
@@ -730,6 +730,7 @@ def leaderboards_view(request):
 
         else:
             context = no_game_context
+            context['global_users'] = global_board[:30]
     
     except Exception as e:
         print(f'Error - {str(e)}')
@@ -798,18 +799,27 @@ def reload_leaderboards(request, board):
         if board == 'wk':
             player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
             is_current_player = bool(player_obj)
-            wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
 
-            if is_current_player:
-                valid_games = reverse_slip_obj(player_obj.slip)
-                player_obj = wkly_board.filter(user = request.user).first()
-        
-            context = {
-                'current_wkly_game': current_wkly_game,
-                'is_current_player': is_current_player,
-                'player_obj': player_obj,
-                'wkly_users': wkly_board[:30],
-            }
+            if current_wkly_game:
+                wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
+
+                if is_current_player:
+                    valid_games = reverse_slip_obj(player_obj.slip)
+                    player_obj = wkly_board.filter(user = request.user).first()
+            
+                context = {
+                    'current_wkly_game': current_wkly_game,
+                    'is_current_player': is_current_player,
+                    'player_obj': player_obj,
+                    'wkly_users': wkly_board[:30],
+                }
+            else:
+                context = {
+                    'current_wkly_game': [],
+                    'is_current_player': False,
+                    'player_obj': None,
+                    'wkly_users': []
+                }
 
             html = render_block_to_string('leaderboards.html', 'wkly_boards_block', context, request)
             response = HttpResponse(html)
@@ -846,9 +856,10 @@ def create_weekly_game(request):
             start_date = dj_tz.make_aware(from_), 
             end_date = dj_tz.make_aware(to_)
         )
-        current_game.current_game = False
-        current_game.save()
-        update_players_ranks.delay()
+        if current_game:
+            current_game.current_game = False
+            current_game.save()
+            update_players_ranks.delay()
 
     except Exception as e:
         messages.warning(request, str(e))
@@ -944,7 +955,7 @@ def mute_user(request, pk):
             profile_obj.muted_users.remove(user_obj)
         else:
             profile_obj.muted_users.add(user_obj)    
-        messages.success(request, 'Reload page to save changes')
+        messages.success(request, 'Reload page to show changes')
 
     except Exception as e:
         print(f'Error - {e}')
