@@ -299,9 +299,11 @@
 
                             </table>
 
-                            <button class="btn2_ share_btn" id="loadMoreBtn" hx-post = "{% url 'load_more_slips_history' sk=this_profile.public_id page_num=this_slips.next_page_number %}" hx-target = ".slips_history_tbody" hx-swap = "beforeend">
-                                Load More
-                            </button>
+                            {% if this_profile.has_next %}
+                                <button class="btn2_ share_btn" id="loadMoreBtn" hx-post = "{% url 'load_more_slips_history' sk=this_profile.public_id page_num=this_slips.next_page_number %}" hx-target = ".slips_history_tbody" hx-swap = "beforeend">
+                                    Load More
+                                </button>
+                            {% endif %}
 
                         {% else %}
 
