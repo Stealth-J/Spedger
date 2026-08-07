@@ -282,7 +282,9 @@ class Profile(models.Model):
     @property
     def get_wkly_score(self):
         user_wkly_obj = WeeklyGameParticipant.objects.filter(user = self.user, wkly_game__current_game = True).first()
-        return user_wkly_obj.slip.win_percentage or '-'
+        if user_wkly_obj:
+            return user_wkly_obj.slip.win_percentage 
+        return '-'
 
 
 class CustomError(models.Model):
