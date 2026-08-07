@@ -801,7 +801,6 @@ def reload_leaderboards(request, board):
                 player_obj = current_wkly_game.game_participants.filter(user = request.user).first()
                 is_current_player = bool(player_obj)
                 
-                print('yes ------------------------------')
                 wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
 
                 if is_current_player:
@@ -815,7 +814,6 @@ def reload_leaderboards(request, board):
                     'wkly_users': wkly_board[:30],
                 }
             else:
-                print('no ------------------------------')
                 context = {
                     'current_wkly_game': [],
                     'is_current_player': False,
@@ -880,7 +878,7 @@ def group_details(request, sk):
     muted_ids = profile_obj.muted_users.values_list('id', flat = True)
 
     try:
-        group_obj = GroupChat.objects.filter(group_id = sk).first()
+        group_obj = GroupChat.objects.prefetch_related('group_members').filter(group_id = sk).first()
         chat_msgs = group_obj.group_chat_msgs.exclude(user__id__in = muted_ids).order_by('-created_at')
         chat_msgs = paginate(request, chat_msgs)
 

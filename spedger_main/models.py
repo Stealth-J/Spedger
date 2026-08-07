@@ -279,6 +279,11 @@ class Profile(models.Model):
         string = f'{self.winning_slips_count}/{self.user.slips.count()} ({self.pure_percentage}%)'
         return string
 
+    @property
+    def get_wkly_score(self):
+        user_wkly_obj = WeeklyGameParticipant.objects.filter(user = self.user, wkly_game__current_game = True)
+        return user_wkly_obj.slip.win_percentage
+
 
 class CustomError(models.Model):
     error_class = models.CharField(max_length = 100)
