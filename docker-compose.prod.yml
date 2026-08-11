@@ -5,8 +5,6 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
@@ -17,7 +15,7 @@ services:
     build: .
     container_name: django-docker
     # command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --timeout 180
-    command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --access-logfile - --error-logfile - --log-level debug --timeout 180    # to see the entries like in runserver
+    command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --access-logfile - --error-logfile - --log-level debug --timeout 180 --config gunicorn.conf.py    # to see the entries like in runserver
     volumes:
       - .:/app
     ports:

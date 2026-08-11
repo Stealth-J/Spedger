@@ -1443,6 +1443,7 @@ section.setting_block{
 }
 .setting_block h1{
     font-weight: 600;
+    font-size: 0.85rem;
 }
 .settings_page input[type = checkbox]{
     height: 2em;
@@ -2999,6 +3000,9 @@ ul.indented > li{
     .settings_page input[type = checkbox]{
         height: 1.5em;
         width: 1.5em;
+    }
+    .setting_block h1{
+        font-size: 1.3rem;
     }
 
     .support_page{
