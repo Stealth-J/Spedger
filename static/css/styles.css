@@ -1443,7 +1443,7 @@ section.setting_block{
 }
 .setting_block h1{
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 1.1rem;
 }
 .settings_page input[type = checkbox]{
     height: 2em;
