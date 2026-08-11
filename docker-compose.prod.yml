@@ -15,7 +15,7 @@ services:
     build: .
     container_name: django-docker
     # command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --timeout 180
-    command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --access-logfile - --error-logfile - --log-level debug --timeout 180 --workers 2    # to see the entries like in runserver
+    command: gunicorn spedger.wsgi:application --bind 0.0.0.0:8000 --access-logfile - --error-logfile - --log-level debug --timeout 30     # to see the entries like in runserver
     volumes:
       - .:/app
     depends_on:
@@ -50,8 +50,6 @@ services:
 
   redis:
     image: redis:7
-    ports:
-      - "6379:6379"
     restart: always
 
   celery-beat:
