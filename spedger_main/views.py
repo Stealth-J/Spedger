@@ -678,7 +678,7 @@ def filter_entries(request):
 def leaderboards_view(request):
     center_info_msg = 'Slip preview would appear here'
     all_games = WeeklyGame.objects.prefetch_related('game_participants', 'game_participants__slip').order_by('id')
-    all_player_objs = WeeklyGameParticipant.objects.filter(user = request.user, wkly_game__current_game = False).order_by('id')
+    all_player_objs = WeeklyGameParticipant.objects.filter(wkly_game__current_game = True).order_by('id')
 
     current_wkly_game = all_games.filter(current_game = True).first()
     if all_player_objs:
@@ -1372,6 +1372,7 @@ def send_duel_request(request):
     return response
 
 
+@verified_email_required
 def accept_duel(request):
     code = request.POST.get('slip_code')
     duel_id = request.POST.get('duel_id')
@@ -1420,6 +1421,7 @@ def accept_duel(request):
     return response
 
 
+@verified_email_required
 def reject_duel(request):
     duel_id = request.POST.get('duel')
     duel_obj = Duel.objects.filter(id = duel_id).first()
@@ -1446,6 +1448,7 @@ def reject_duel(request):
     return response
 
 
+@verified_email_required
 def insights(request):
     context = {}
     return render(request, 'insights.html', context)

@@ -10,6 +10,7 @@ def duel_winner(duelists):
             if duelist.slip.win_percentage > highest_percent:
                 highest_percent = duelist.slip.win_percentage
                 current_winner = duelist
+                highest_odds = duelist.slip.total_odds
             elif duelist.slip.win_percentage == highest_percent:
                 if duelist.slip.total_odds > highest_odds:
                     highest_odds = duelist.slip.total_odds

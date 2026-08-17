@@ -275,7 +275,7 @@
 
                 <section class="your_code user_code">
                     <p class="txt_ellipse">You</p>
-                    <input type="text" placeholder="Your Code..." maxlength="15" name = "slip_code" hx-clear-input required>
+                    <input type="text" placeholder="Your Code..." maxlength="15" name = "slip_code" hx-clear-input required autocomplete = "off">
                 </section>
 
                 <section class="their_code user_code">
@@ -322,7 +322,7 @@
             <form action="" class="duel_form" hx-post = "{% url 'accept_duel' %}" hx-target = "#acceptDuelFormErrors" hx-swap = "outerHTML" hx-indicator = "#customSpinner3">
 
                 <section class="your_code user_code">
-                    <input type="text" placeholder="Your Code..." maxlength="15" name = "slip_code" hx-clear-input required>
+                    <input type="text" placeholder="Your Code..." maxlength="15" name = "slip_code" hx-clear-input required autocomplete = "off">
                     <input type="hidden" class="duel_id_input" name = "duel_id">
                 </section>
 
