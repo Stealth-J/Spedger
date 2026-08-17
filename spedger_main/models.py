@@ -288,7 +288,7 @@ class Profile(models.Model):
 
     @property
     def duels_record(self):
-        all_duels = Duel.objects.filter(settled = True, user_duels__user = self.user)
+        all_duels = Duel.objects.filter(settled = True, duellists__user = self.user)
         duels_won = all_duels.filter(winning_user = self.user).count()
         duels_drawn = all_duels.filter(winning_user = None).count()
         duels_lost = all_duels.count() - duels_won
