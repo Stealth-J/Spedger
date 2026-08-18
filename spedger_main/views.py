@@ -267,6 +267,10 @@ def users(request):
     received_requests = total_requests.filter(recipient = request.user, status = 'open')
 
     your_duels = duels.exclude(duel_status = 'rejected')
+    for each in your_duels:
+        recipient_obj = each.duellists.all().exclude(user = request.user).first()
+        each.record = get_duel_record(your_duels, request.user, recipient_obj)
+        
     your_duels = paginate(request, your_duels)
     open_duels = Duel.objects.prefetch_related('duellists').filter(duellists__user = request.user, duel_status = 'open', duellists__recipient = True)
 
@@ -283,9 +287,10 @@ def users(request):
 
 @verified_email_required
 def load_more_duels(request, page_num):
+    profile_obj = request.user.user_profile
     duels = Duel.objects.prefetch_related('duellists').filter(duellists__user = request.user).exclude(duel_status = 'rejected').order_by('-created_at')
     your_duels = paginate(request, duels, page_num)
-    context = {'your_duels': your_duels}
+    context = {'your_duels': your_duels, 'profile_obj': profile_obj}
     html = render_block_to_string('users.html', 'duels_block', context, request)
     response = HttpResponse(html)
     return response

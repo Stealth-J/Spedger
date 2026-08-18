@@ -288,11 +288,9 @@ class Profile(models.Model):
 
     @property
     def duels_record(self):
-        all_duels = Duel.objects.filter(settled = True, duellists__user = self.user)
-        duels_won = all_duels.filter(winning_user = self.user).count()
-        duels_drawn = all_duels.filter(winning_user = None).count()
-        duels_lost = all_duels.count() - duels_won
-        return f'({duels_won}-{duels_drawn}-{duels_lost})'
+        all_duels = Duel.objects.filter(settled = True, duellists__user = self.user).exclude(duel_status = 'rejected')
+        return get_duel_record(all_duels, self.user)
+
 
 
 class CustomError(models.Model):

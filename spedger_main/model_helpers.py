@@ -43,3 +43,13 @@ def return_slips_events(slips, accurate = False):
         accurate_events = [ evt for evt in slips_events if evt.event_settled and evt.event_won ]
     
     return slips_events, accurate_events
+
+
+def get_duel_record(duels_obj, user_obj, recipient_user = None):
+    if recipient_user:
+        duels_obj = duels_obj.filter(duellists__user = recipient_user)
+        
+    duels_won = duels_obj.filter(winning_user = user_obj).count()
+    duels_drawn = duels_obj.filter(winning_user = None).count()
+    duels_lost = duels_obj.count() - duels_won
+    return f'({duels_won}-{duels_drawn}-{duels_lost})'

@@ -13,7 +13,10 @@
 
                         <figcaption class="txt_ellipse duel_username" data-duel = "{{ duel.id }}" data-min-odds = "{{ duel.minimum_odds }}">
                             {% if duel.challenger.user == request.user %}
-                                you
+                                you 
+                                <small class = 'text_muted'>
+                                    {{ profile_obj.duels_record }}
+                                </small>
                             {% else %}
                                 {{ duel.challenger.user.username }}
                             {% endif %}
@@ -39,7 +42,10 @@
 
                         <figcaption class="txt_ellipse duel_username" data-duel = "{{ duel.id }}" data-min-odds = "{{ duel.minimum_odds }}">
                             {% if duel.recipient.user == request.user %}
-                                you
+                                you 
+                                <small class = 'text_muted'>
+                                    {{ profile_obj.duels_record }}
+                                </small>
                             {% else %}
                                 {{ duel.recipient.user.username }}
                             {% endif %}
