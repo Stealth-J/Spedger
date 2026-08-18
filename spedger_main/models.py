@@ -232,7 +232,7 @@ class Profile(models.Model):
     def pure_percentage(self):
         if self.user.slips.count() < 1:
             return 'None'
-        return round(self.winning_slips_count / self.user.slips.count(), 2)
+        return round((self.winning_slips_count / self.user.slips.count()) * 100, 2)
     
     @property
     def highest_winning_odds(self):
@@ -262,7 +262,7 @@ class Profile(models.Model):
         if len(total_events) < 1:
             return 0
         result = (len(events_won) / len(total_events)) * 100 
-        return round(len(events_won) / len(total_events), 1)
+        return round(result, 1)
     
     @property
     def pure_odds(self):
@@ -290,10 +290,6 @@ class Profile(models.Model):
     def duels_record(self):
         all_duels = Duel.objects.filter(duellists__user = self.user)
         return get_duel_record(all_duels, self.user)
-        duels_won = all_duels.filter(winning_user = self.user).count()
-        duels_drawn = all_duels.filter(winning_user = None).count()
-        duels_lost = all_duels.count() - duels_won
-        return f'({duels_won}-{duels_drawn}-{duels_lost})'
     
 
 
