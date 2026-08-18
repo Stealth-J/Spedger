@@ -37,7 +37,7 @@ def return_slips_events(slips, accurate = False):
     slips_events = []
     accurate_events = []
     for slip in slips:
-        for evt in slip.slip_events.all():
+        for evt in slip.slip_events.filter(event_settled = True):
             slips_events.append(evt)
     if accurate:
         accurate_events = [ evt for evt in slips_events if evt.event_settled and evt.event_won ]

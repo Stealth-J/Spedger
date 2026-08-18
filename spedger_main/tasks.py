@@ -67,7 +67,7 @@ def link_json_to_obj_and_update(data, code_tuple):
 @shared_task
 def update_live_games():
     t = perf_counter()
-    
+
     active_slips = list( Slip.objects.prefetch_related('slip_events').filter(settled = False))
     codes_tuple = [ (slip_obj.slip_code, slip_obj) for slip_obj in active_slips ]
     results = async_to_sync(scrape_slips_info)(codes_tuple)
@@ -102,6 +102,7 @@ def update_settled_slips():
             slip.settled = True
         if total_events == events_won:
             slip.slip_won = True
+            send_perfect_slips_mails.delay(slip)
 
         updated_slips.append(slip)
     Slip.objects.bulk_update(updated_slips, ['settled', 'slip_won'])
@@ -120,6 +121,8 @@ def update_ongoing_duels():
             each.settled_date = dj_tz.make_aware(datetime.now())
             if each.winner and each.winner != 'Draw':
                 each.winning_user = each.winner.user
+                recipient = each.duellists.exclude(user = each.winner.user).first()
+                send_duels_congratulatory_mails.delay(each.winner.id, recipient.id, duel_won = True)
 
             updated_duels.append(each)
 
@@ -153,8 +156,7 @@ def send_congratulatory_mails():
                 message = 'Congratulations - you finished 1st place this week'
             
             context = {
-                'title': 'Weekly Competition Result',
-                'full_name': player.user.user_profile.full_name,
+                'username': player.user.username,
                 'message': message,
                 'ranking': player.ranking,
                 'start_date': previous_game.start_date.strftime("%d %b, %Y"),
@@ -162,3 +164,37 @@ def send_congratulatory_mails():
             }
 
             send_mail_with_template('Weekly Result', 'emails/weekly_result.html', context, player.user.email)
+
+
+@shared_task
+def send_duels_congratulatory_mails(user_obj_id, recipient_id, duel_won = False):
+    user_obj = DuellistInfo.objects.filter(id = user_obj_id)
+    recipient = DuellistInfo.objects.filter(id = recipient_id)
+    score = 'none'
+
+    if duel_won:
+        title = 'Duel Won'
+        message = f'Congratulations. You beat {recipient.user.username} in your recent duel'
+        score = f'{user_obj.slip.win_percentage} - {recipient.slip.win_percentage}'
+
+    else:
+        title = 'Duel Received'
+        message = f'You have received a duel request from {recipient.user.username}'
+
+    context = {
+        'title': title,
+        'username': recipient.user.username,
+        'message': message, 
+        'score': score
+    }
+    send_mail_with_template('Duels', 'emails/duel_notifs.html', context, user_obj.user.email)
+
+
+@shared_task
+def send_perfect_slips_mails(slip):
+    context = {
+        'username': slip.user.username,
+        'slip_code': slip.slip_code, 
+    }
+
+    send_mail_with_template('Perfect Slip', 'emails/perfect_slip_notifs.html', context, slip.user.email)

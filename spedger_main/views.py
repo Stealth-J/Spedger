@@ -1363,6 +1363,7 @@ def send_duel_request(request):
             duel_obj = Duel.objects.create(minimum_odds = minimum_odds)
             challenger_obj = DuellistInfo.objects.create(slip = slip_obj, duel_obj = duel_obj, user = request.user)
             recipient_obj = DuellistInfo.objects.create(duel_obj = duel_obj, recipient = True, user = recipient_obj)
+            send_duels_congratulatory_mails.delay(recipient_obj.id, challenger_obj.id)
 
             context['duel'] = duel_obj
             response = render(request, 'partials/duel.html', context)

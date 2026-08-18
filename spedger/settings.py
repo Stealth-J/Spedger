@@ -161,7 +161,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 PAGE_SIZE = 25
 
-ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_SESSION_REMEMBER = True  # so i dont get logged out as much again
 
 ACCOUNT_SIGNUP_FIELDS = {
     "username*",
