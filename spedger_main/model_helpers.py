@@ -46,10 +46,11 @@ def return_slips_events(slips, accurate = False):
 
 
 def get_duel_record(duels_obj, user_obj, recipient_user = None):
+    duels_obj = duels_obj.filter(settled = True)
     if recipient_user:
         duels_obj = duels_obj.filter(duellists__user = recipient_user)
         
     duels_won = duels_obj.filter(winning_user = user_obj).count()
     duels_drawn = duels_obj.filter(winning_user = None).count()
-    duels_lost = duels_obj.count() - duels_won
+    duels_lost = duels_obj.count() - duels_won - duels_drawn
     return f'({duels_won}-{duels_drawn}-{duels_lost})'
