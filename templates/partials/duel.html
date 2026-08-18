@@ -15,7 +15,7 @@
                             {% if duel.challenger.user == request.user %}
                                 you 
                                 <small class = 'text_muted'>
-                                    {{ profile_obj.duels_record }}
+                                    {{ duel.record }}
                                 </small>
                             {% else %}
                                 {{ duel.challenger.user.username }}
@@ -44,7 +44,7 @@
                             {% if duel.recipient.user == request.user %}
                                 you 
                                 <small class = 'text_muted'>
-                                    {{ profile_obj.duels_record }}
+                                    {{ duel.record }}
                                 </small>
                             {% else %}
                                 {{ duel.recipient.user.username }}
