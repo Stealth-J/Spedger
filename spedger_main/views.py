@@ -268,7 +268,7 @@ def users(request):
 
     your_duels = duels.exclude(duel_status = 'rejected')
     for each in your_duels:
-        recipient_obj = each.duellists.all().exclude(user = request.user).first()
+        recipient_obj = each.duellists.all().exclude(user = request.user).first().user
         each.record = get_duel_record(your_duels, request.user, recipient_obj)
 
     your_duels = paginate(request, your_duels)
@@ -290,7 +290,7 @@ def load_more_duels(request, page_num):
     duels = Duel.objects.prefetch_related('duellists').filter(duellists__user = request.user).exclude(duel_status = 'rejected').order_by('-created_at')
 
     for each in duels:
-        recipient_obj = each.duellists.all().exclude(user = request.user).first()
+        recipient_obj = each.duellists.all().exclude(user = request.user).first().user
         each.record = get_duel_record(your_duels, request.user, recipient_obj)
 
     your_duels = paginate(request, duels, page_num)
