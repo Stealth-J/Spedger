@@ -60,7 +60,7 @@ class Slip(models.Model):
             return 0
         
         events_won = self.slip_events.filter( event_won = True ).count()
-        return (events_won / total_events ) * 100
+        return round((events_won / total_events ) * 100, 1)
 
 
 class SlipEvent(models.Model):
@@ -232,7 +232,7 @@ class Profile(models.Model):
     def pure_percentage(self):
         if self.user.slips.count() < 1:
             return 'None'
-        return round((self.winning_slips_count / self.user.slips.count()) * 100, 2)
+        return round((self.winning_slips_count / self.user.slips.count()) * 100, 1)
     
     @property
     def highest_winning_odds(self):

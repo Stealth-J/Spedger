@@ -102,7 +102,7 @@ def update_settled_slips():
             slip.settled = True
         if total_events == events_won:
             slip.slip_won = True
-            send_perfect_slips_mails.delay(slip)
+            send_perfect_slips_mails.delay(slip.id)
 
         updated_slips.append(slip)
     Slip.objects.bulk_update(updated_slips, ['settled', 'slip_won'])
@@ -191,7 +191,8 @@ def send_duels_congratulatory_mails(user_obj_id, recipient_id, duel_won = False)
 
 
 @shared_task
-def send_perfect_slips_mails(slip):
+def send_perfect_slips_mails(slip_id):
+    slip = Slip.objects.filter(id = slip_id)
     context = {
         'username': slip.user.username,
         'slip_code': slip.slip_code, 

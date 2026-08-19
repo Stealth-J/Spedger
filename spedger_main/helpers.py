@@ -47,7 +47,7 @@ def rank_group_members(qs):
         pure_percentage_temp = Case(
             When(total_slips = 0, then = Value(0.0)),
             default = ExpressionWrapper(
-                ( F('winning_slips_temp') / F('total_slips') ) * 100,
+                ( F('winning_slips_temp') * 100.0) / F('total_slips'),
                 output_field = FloatField()
             ),
             output_field = FloatField(),
@@ -57,9 +57,10 @@ def rank_group_members(qs):
     ranked_qs = annotated_qs.annotate(
         rank = Window(
             expression = DenseRank(), 
-            order_by = [F('pure_odds_temp').desc(), F('pure_percentage_temp').desc()],
+            order_by = [ F('pure_odds_temp').desc(), F('pure_percentage_temp').desc() ],
         )
     )
+    print(ranked_qs)
     return ranked_qs
 
 

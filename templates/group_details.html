@@ -174,10 +174,10 @@
                                         </a>
                                     </td>
                                     <td>
-                                        {{ member.pure_odds_temp|return_0_if_none|floatformat|intcomma }}
+                                        {{ member.pure_odds|return_0_if_none|floatformat|intcomma }}
                                     </td>
                                     <td>
-                                        {{ member.pure_percentage_temp|floatformat }}
+                                        {{ member.pure_percentage|floatformat }}
                                     </td>
                                     <td>
                                         {{ member.get_wkly_score }}
