@@ -168,8 +168,8 @@ def send_congratulatory_mails():
 
 @shared_task
 def send_duels_congratulatory_mails(user_obj_id, recipient_id, duel_won = False):
-    user_obj = DuellistInfo.objects.filter(id = user_obj_id)
-    recipient = DuellistInfo.objects.filter(id = recipient_id)
+    user_obj = DuellistInfo.objects.filter(id = user_obj_id).first()
+    recipient = DuellistInfo.objects.filter(id = recipient_id).first()
     score = 'none'
 
     if duel_won:
@@ -192,7 +192,7 @@ def send_duels_congratulatory_mails(user_obj_id, recipient_id, duel_won = False)
 
 @shared_task
 def send_perfect_slips_mails(slip_id):
-    slip = Slip.objects.filter(id = slip_id)
+    slip = Slip.objects.filter(id = slip_id).first()
     context = {
         'username': slip.user.username,
         'slip_code': slip.slip_code, 

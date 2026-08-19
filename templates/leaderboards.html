@@ -312,6 +312,11 @@
                             </div>
 
                             {% for g_user in global_users %}
+                                pure_odds_temp = g_user.pure_odds_temp
+                                pure_percentage_temp = g_user.pure_percentage_temp
+                                total_slips = g_user.total_slips
+                                winning_slips_temp = g_user.winning_slips_temp
+                                ranking = g_user.rank
                                 <div class="user_row">
                                     <div class="user_card">
                                         <section class="lhs">

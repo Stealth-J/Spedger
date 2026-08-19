@@ -60,7 +60,7 @@ def rank_group_members(qs):
             order_by = [ F('pure_odds_temp').desc(), F('pure_percentage_temp').desc() ],
         )
     )
-    print(annotated_qs)
+    
     return ranked_qs
 
 
@@ -99,3 +99,4 @@ def rank_users_leaderboards(wkly_qs = None, wkly = True):
         ranked_qs = rank_group_members(all_profiles)
 
     return ranked_qs
+
