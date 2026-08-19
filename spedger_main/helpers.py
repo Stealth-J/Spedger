@@ -60,7 +60,7 @@ def rank_group_members(qs):
             order_by = [ F('pure_odds_temp').desc(), F('pure_percentage_temp').desc() ],
         )
     )
-    print(ranked_qs)
+    print(annotated_qs)
     return ranked_qs
 
 
