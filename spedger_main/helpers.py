@@ -57,7 +57,7 @@ def rank_group_members(qs):
     ranked_qs = annotated_qs.annotate(
         rank = Window(
             expression = DenseRank(), 
-            order_by = [ F('pure_odds_temp').desc(), F('pure_percentage_temp').desc() ],
+            order_by = [ F('pure_odds_temp').desc(nulls_last = True), F('pure_percentage_temp').desc(nulls_last = True) ],
         )
     )
     
@@ -92,7 +92,7 @@ def rank_users_leaderboards(wkly_qs = None, wkly = True):
         )
         ranked_qs = annotated_qs.annotate(rank = Window(
             expression = DenseRank(),
-            order_by = [ F('accuracy').desc(), F('slip__total_odds').desc(), F('highest_selection').desc() ]
+            order_by = [ F('accuracy').desc(nulls_last = True), F('slip__total_odds').desc(nulls_last = True), F('highest_selection').desc(nulls_last = True) ]
         ))
     else:
         all_profiles = Profile.objects.exclude(private_acct = True)
