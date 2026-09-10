@@ -6,7 +6,7 @@ BOOKING_URLS = {
 }
 BOOKING_HEADERS = {
     'sportybet': {
-        "User-Agent": "Mozilla/5.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
         "Content-Type": "application/json",
         "Origin": "https://www.sportybet.com",
         "Referer": "https://www.sportybet.com/",
