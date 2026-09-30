@@ -153,7 +153,7 @@ def source_insights_stats(request):
                 Q(user__slips__settled = True) & Q(user__slips__slip_won = True), then = F('user__slips__total_odds')
             ))
         ),
-    ).order_by('-total_pure_odds')
+    ).order_by('-total_pure_odds').exclude(total_pure_odds = 0)
     most_accurate = total_users.annotate(
         total_events = Count(
             Case(When(
@@ -359,7 +359,7 @@ def source_insights_stats(request):
     ).order_by('total_events').exclude(total_events = 0)[:7]
 
     # Markets
-    markets_qs = user_slips_events.annotate(
+    markets_qs = user_slips_events.exclude(market_group = 'player').annotate(
         market_class = Case(
             When(market__icontains = 'Over/Under', then = Value("Over/Under")),
             When(market__icontains = 'Corners', then = Value("Corners")),
@@ -427,8 +427,8 @@ def source_insights_stats(request):
         current_month = current_month,
         current_month_txt = MONTHS_DICT[f'{current_month}'],
         most_accurate_pure = most_accurate_pure,
-        accuracy_qs_cm = accuracy_qs_cm.order_by('-calc_accuracy')[:5],
-        top_scorers_qs_cm = accuracy_qs_cm.order_by('-total_pure_odds')[:5],
+        accuracy_qs_cm = accuracy_qs_cm.order_by('-calc_accuracy').exclude(total_events = 0)[:5],
+        top_scorers_qs_cm = accuracy_qs_cm.order_by('-total_pure_odds').exclude(total_events = 0)[:5],
         top_scorers_qs = the_best[:5],
         accuracy_qs = most_accurate[:5],
         largest_win = highest_pure_odds,
