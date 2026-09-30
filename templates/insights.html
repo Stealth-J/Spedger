@@ -1,34 +1,691 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %} Insights {% endblock %}
 
 {% block styles %}
-    <style>
-        section{
-            background: var(--bgcol-lighter);
-            box-shadow: var(--bxs-board);
-            font-family: var(--ff-duel);
-            padding: 2rem;
-            margin: 3rem 2rem;
-            min-height: 50vh;
-            font-size: 1.2rem;
-        }
-        @media screen and (max-width: 50rem) {
-            section{
-                margin: 0 1rem;
-                padding: 1.5rem 1rem;
-                font-size: 1rem;
-                min-height: 20vh;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/insights.css' %}"> 
 {% endblock %}
 
 {% block content %}
 
-    <section>
-        <p> This page is still under development. Check back another time. </p>
-    </section>
+    {% if warning_msg %}
+        <section>
+            <p> This page is still under development. Check back another time. </p>
+        </section> 
+
+    {% else %}
+        {{ insights_data.week_days_list|json_script:"days_list" }}
+        {{ insights_data.week_days_slips_list|json_script:"days_slips_no_list" }}
+        {{ insights_data.week_days_accuracy_list|json_script:"days_accuracy_list" }}
+        {{ insights_data.week_days_wins_list|json_script:"days_wins_list" }}
+
+        {{ insights_data.months_list|json_script:"months_list" }}
+        {{ insights_data.months_slips_list|json_script:"months_slips_list" }}
+        {{ insights_data.months_accuracy_list|json_script:"months_accuracy_list" }}
+        {{ insights_data.months_wins_list|json_script:"months_wins_list" }}
+        {{ show_your_monthly_chart|json_script:"show_your_monthly_chart" }}
+
+        {{ insights_data.teams_names_list|json_script:"teams_names_list" }}
+        {{ insights_data.teams_selections_no_list|json_script:"teams_selections_list" }}
+        
+        {{ insights_data.sports_list|json_script:"sports_list" }}
+        {{ insights_data.sports_selections_list|json_script:"sports_selections_list" }}
+        {{ insights_data.competitions_list|json_script:"competitions_list" }}
+        {{ insights_data.competitions_selections_list|json_script:"competitions_selections_list" }}
+        
+        {{ insights_data.markets_list|json_script:"markets_list" }}
+        {{ insights_data.markets_selections_list|json_script:"markets_selections_list" }}
+        {{ insights_data.markets_accuracy_list|json_script:"markets_accuracy_list" }}
+
+        {{ insights_data.odds_list|json_script:"odds_list" }}
+        {{ insights_data.odds_selections_list|json_script:"odds_selections_list" }}
+        {{ insights_data.odds_accuracy_list|json_script:"odds_accuracy_list" }}
+
+
+        <nav class = "insights_nav">
+            <a href="#general_sect" title = "General">
+                <i class="ri-global-line"></i>
+                <span> General </span>
+            </a>
+            <a href="#period_sect" title = "Period">
+                <i class="ri-calendar-line"></i>
+                <span> Period </span>
+            </a>
+            <a href="#teams_and_players_sect" title = "Teams and Players">
+                <i class="ri-basketball-line"></i>
+                <span> Teams and Players </span>
+            </a>
+            <a href="#sports_and_competitions_sect" title = "Sports and Competitions">
+                <i class="ri-trophy-line"></i>
+                <span> Sports and Competitions </span>
+            </a>
+            <a href="#markets_sect" title = "Markets">
+                <i class="ri-flag-line"></i>
+                <span> Markets </span>
+            </a>         
+        </nav>
+
+        <section class="general_area">
+
+            <section class="insights_section" id = "general_sect">
+                <header class="insights_section_header">
+                    <h2>Podium</h2>
+                </header>
+            
+                <article class="insights_card blob_podium_card the_best_card" data-bg = "{% static 'img/insights_cards/cold_2.jpg' %}">
+                    <span class="blob_podium_desc_txt">
+                        The best
+                    </span>
+
+                    <figure class = "podium_user">
+                        <a href="{% url 'profile' insights_data.the_best.public_id %}">
+                            <img src="{% static insights_data.the_best.avatar %}" alt="Profile img">
+                        </a>
+                        <figcaption class="">
+                            {% if user.user_profile == insights_data.the_best %}
+                                you
+                            {% else %}
+                                @{{ insights_data.the_best.user.username }}
+                            {% endif %}
+                        </figcaption>
+                    </figure>
+                    
+                    <h5 class = "podium_fig">{{ insights_data.the_best.total_pure_odds|floatformat:1 }}</h5>
+                </article>
+
+                <article class="insights_card blob_podium_card accurate_card" data-bg = "{% static 'img/insights_cards/cold_2.jpg' %}">
+                    <span class="blob_podium_desc_txt">
+                        Most Accurate
+                    </span>
+
+                    <figure class = "podium_user">
+                        <a href="{% url 'profile' insights_data.most_accurate.public_id %}">
+                            <img src="{% static insights_data.most_accurate.avatar %}" alt="User profile image">
+                        </a>
+                        <figcaption class="">
+                            {% if user.user_profile == insights_data.the_best %}
+                                you
+                            {% else %}
+                                @{{ insights_data.most_accurate.user.username }}
+                            {% endif %}
+                        </figcaption>
+                    </figure>
+
+                    <h5 class = "podium_fig">{{ insights_data.most_accurate.calc_accuracy|floatformat:1 }}%</h5>
+                </article>
+
+                <article class="insights_card blob_podium_card accurate_pure_card" data-bg = "{% static 'img/insights_cards/cold_2.jpg' %}" >
+                    <span class="blob_podium_desc_txt">
+                        Most Accurate (pure)
+                    </span>
+
+                    <figure class = "podium_user">
+                        <a href="{% url 'profile' insights_data.most_accurate_pure.public_id %}">
+                            <img src="{% static insights_data.most_accurate_pure.avatar %}" alt="User profile image">
+                        </a>
+                        <figcaption class="">
+                            {% if user.user_profile == insights_data.most_accurate_pure %}
+                                you
+                            {% else %}
+                                @{{ insights_data.most_accurate_pure.user.username }}
+                            {% endif %}
+                        </figcaption>
+                    </figure>
+
+                    <h5 class = "podium_fig">{{ insights_data.most_accurate_pure.calc_accuracy|floatformat:1 }}%</h5>
+                </article>
+
+                {% if monthly_slips and show_monthly_boards %}
+                <article class="insights_card blob_simple_list_card top_scorers_card" data-bg = "{% static 'img/insights_cards/random_1.jpg' %}">
+                    <figure>
+                        <figcaption>
+                            Top Scorers ({{ insights_data.current_month_txt }})
+                        </figcaption>
+
+                        <table>
+                            <tbody>
+                                {% for each in insights_data.top_scorers_qs_cm %}
+                                    {% if each.total_events > 0 %}
+                                    <tr>
+                                        <td><a href="{% url 'profile' each.public_id %}">
+                                            {% if user.user_profile == each %}
+                                                you
+                                            {% else %}
+                                                @{{ each.user.username }}
+                                            {% endif %}
+                                        </a></td>
+                                        <td>{{ each.total_pure_odds|floatformat:1 }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </figure>
+                </article>
+
+                <article class="insights_card blob_simple_list_card most_acc_card" data-bg = "{% static 'img/insights_cards/random_1.jpg' %}">
+                    <figure>
+                        <figcaption>
+                            Most Accurate ({{ insights_data.current_month_txt }})
+                        </figcaption>
+
+                        <table>
+                            <tbody>
+                                {% for each in insights_data.accuracy_qs_cm %}
+                                    <tr>
+                                        <td><a href="{% url 'profile' each.public_id %}">
+                                            {% if user.user_profile == each %}
+                                                you
+                                            {% else %}
+                                                @{{ each.user.username }}
+                                            {% endif %}
+                                        </a></td>
+                                        <td>{{ each.calc_accuracy|floatformat:1 }}%</td>
+                                    </tr>
+                                {% endfor %}
+                                
+                            </tbody>
+                        </table>
+                    </figure>
+                </article>
+
+                {% else %}
+                <article class="insights_card blob_simple_list_card top_scorers_card" data-bg = "{% static 'img/insights_cards/random_1.jpg' %}">
+                    <figure>
+                        <figcaption>
+                            Top Scorers
+                        </figcaption>
+
+                        <table>
+                            <tbody>
+                                {% for each in insights_data.top_scorers_qs %}
+                                    <tr>
+                                        <td><a href="{% url 'profile' each.public_id %}">
+                                            {% if user.user_profile == each %}
+                                                you
+                                            {% else %}
+                                                @{{ each.user.username }}
+                                            {% endif %}
+                                        </a></td>
+                                        <td>{{ each.total_pure_odds|floatformat:1 }}</td>
+                                    </tr>
+                                    
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </figure>
+                </article>
+
+                <article class="insights_card blob_simple_list_card most_acc_card" data-bg = "{% static 'img/insights_cards/random_1.jpg' %}">
+                    <figure>
+                        <figcaption>
+                            Most Accurate 
+                        </figcaption>
+
+                        <table>
+                            <tbody>
+                                {% for each in insights_data.accuracy_qs %}
+                                    <tr>
+                                        <td><a href="{% url 'profile' each.public_id %}">
+                                            {% if user.user_profile == each %}
+                                                you
+                                            {% else %}
+                                                @{{ each.user.username }}
+                                            {% endif %}
+                                        </a></td>
+                                        <td>{{ each.calc_accuracy|floatformat:1 }}%</td>
+                                    </tr>
+                                {% endfor %}
+                                
+                            </tbody>
+                        </table>
+                    </figure>
+                </article>                
+                {% endif %}
+
+                {% if insights_data.highest_pure_odds %}
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/cold_1.jpg' %}">
+                    <span class="blob_sec_txt">
+                        Largest Win (odds)
+                    </span>
+                    
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.largest_win.total_odds|floatformat:1 }}
+                    </h4>
+
+                    <figure class = "podium_user">
+                        <a href="{% url 'profile' insights_data.largest_win.user.user_profile.public_id %}">
+                            <img src="{% static insights_data.largest_win.user.user_profile.avatar %}" alt="Profile img">
+                        </a>
+                        <figcaption class="">
+                            {% if user == insights_data.largest_win.user %}
+                                you
+                            {% else %}
+                                @{{ insights_data.largest_win.user.username }}
+                            {% endif %}
+                        </figcaption>
+                    </figure>
+                </article>
+                {% endif %}
+
+            </section>
+
+
+            <section class="insights_section" id = "period_sect">
+                <header class = "insights_section_header">
+                    <h2>Period</h2>
+                </header>
+
+                {% if insights_data.longest_streak > 1 %}
+                    <article class = 'insights_card blob_small_card' data-bg = "{% static 'img/insights_cards/warm_1.jpg' %}">
+                        <h3 class="blob_main_txt">
+                            {{ insights_data.longest_streak }}
+                        </h3>
+                        <span class="blob_sec_txt">
+                            longest streak
+                        </span>
+                    </article>
+                {% else %}
+                    <article class = 'insights_card blob_small_card' data-bg = "{% static 'img/insights_cards/warm_1.jpg' %}">
+                        <h3 class="blob_main_txt">
+                            {{ insights_data.active_days }}
+                        </h3>
+                        <span class="blob_sec_txt">
+                            Active days
+                        </span>
+                    </article>
+                {% endif %}
+
+                <article class = 'insights_card blob_medium_card' data-bg = "{% static 'img/insights_cards/stats_3.jpg' %}">
+                    <span class="blob_header_txt">
+                        Your most memorable day
+                    </span>
+                    <span class="blob_medium_txt">
+                        {{ insights_data.most_memorable.entry_date|format_memorable_day }}
+                    </span>
+                    <span class="blob_small_closing_txt">
+                        Pure odds: {{ insights_data.most_memorable.total_odds|floatformat:1 }}
+                    </span>
+                    {% if insights_data.most_memorable.calc_accuracy < 100 %}
+                        <span class="blob_small_closing_txt">
+                            Accuracy: {{ insights_data.most_memorable.calc_accuracy|floatformat:1  }}%
+                        </span>
+                    {% endif %}
+                </article>
+
+                <article class="insights_card blob_full_card">
+                    <figure>
+                        <canvas id = 'period_canvas'>
+
+                        </canvas>
+                        
+                        <figcaption class = 'chart_label'>
+                            {% if show_your_monthly_chart %}
+                                Chart showing accuracy accross months
+                            {% else %}
+                                Chart showing accuracy accross days of the week
+                            {% endif %}
+                        </figcaption>
+                    </figure>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/warm_3.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.day_bet_most }}
+                    </h4>
+                    <span class="blob_sec_txt">
+                        Most slips ({{ insights_data.day_bet_most_value }})
+                    </span>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/warm_3.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.day_win_most }}
+                    </h4>
+                    <span class="blob_sec_txt">
+                        Most wins ({{ insights_data.day_win_most_value }})
+                    </span>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card fail_card' data-bg = "{% static 'img/insights_cards/warm_3.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.day_lose_most }}
+                    </h4>
+                    <span class="blob_sec_txt">
+                        Worst day ({{ insights_data.day_lose_most_value|floatformat:0 }}%)
+                    </span>
+                </article>
+
+
+                {% comment %} only show month if the user has had enough months under their belt. also show 1 between winningest and best {% endcomment %}
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/warm_3.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.month_bet_most }}
+                    </h4>
+                    <span class="blob_sec_txt">
+                        Most slips ({{ insights_data.month_bet_most_value }})
+                    </span>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/warm_3.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.best_month }}
+                    </h4>
+                    <span class="blob_sec_txt">
+                        Best Month ({{ insights_data.best_month_value|floatformat:0 }}%)
+                    </span>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card fail_card' data-bg = "{% static 'img/insights_cards/warm_3.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.worst_month }}
+                    </h4>
+                    <span class="blob_sec_txt">
+                        Worst Month ({{ insights_data.worst_month_value|floatformat:0 }}%)
+                    </span>
+                </article>
+            </section>
+
+
+            <section class="insights_section" id="teams_and_players_sect">
+                <header class = "insights_section_header">
+                    <h2>Teams and Players</h2>
+                </header>
+
+                <article class="insights_card blob_two_part_card">
+                    <span class = "blob_tag blob_tag_up">
+                        <p>Teams Selection</p>
+                    </span>
+
+                    
+                    <div class = 'blob_inner_info'>
+                        <figure>
+                            <canvas id = "teams_canvas">
+
+                            </canvas>
+                        </figure>
+
+                        <div class = "pie_chart_rundown">
+                            <p>Teams and total number of selections</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="insights_card blob_simple_list_card" data-bg = "{% static 'img/insights_cards/cold_1.jpg' %}">
+                    <figure>
+                        <figcaption>
+                            Teams Accuracy
+                        </figcaption>
+
+                        <table>
+                            <tbody>
+                                {% for team_data in insights_data.teams_chart_data %}
+                                    <tr>
+                                        <td>{{ team_data.team }}</td>
+                                        <td>{{ team_data.calc_accuracy }}%</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </figure>
+                </article>
+
+                <article class="insights_card blob_simple_list_card" data-bg = "{% static 'img/insights_cards/cold_1.jpg' %}">
+                    <figure>
+                        <figcaption class = "right_tag">
+                            Players Accuracy
+                        </figcaption>
+
+                        {% if insights_data.players_chart_data.count > 0 %}
+                            <table>
+                                <tbody>
+                                    {% for player_data in insights_data.players_chart_data %}
+                                        <tr>
+                                            <td>{{ player_data.player_involved }}</td>
+                                            <td>{{ player_data.calc_accuracy }}%</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <span class = "insights_card_center_msg">
+                                <p>No player selections found!</p>
+                            </span>
+                        {% endif %}
+                    </figure>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/cold_3.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.total_teams_predicted }}
+                    </h4>
+                    <span class="blob_sec_txt">
+                        Total number of teams included in selections
+                    </span>
+                </article>
+
+                {% if insights_data.players_selection_accuracy > 0 %}
+                    <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/random_2.jpg' %}">
+                        <h4 class="blob_main_txt">
+                            {{ insights_data.players_selection_accuracy }}%
+                        </h4>
+                        
+                        <span class="blob_sec_txt">
+                            accuracy of player predictions {% if insights_data.players_selection_accuracy < 30 %} (ouch!) {% elif insights_data.players_selection_accuracy > 70 %} (nice!) {% endif %}
+                        </span>
+                    </article>
+                {% endif %}
+            </section>
+
+
+            <section class = "insights_section" id = "sports_and_competitions_sect">
+                <header class = "insights_section_header">
+                    <h2>Sports and Competitions</h2>
+                </header>
+
+                <article class="insights_card blob_two_part_card">
+                    <span class = "blob_tag blob_tag_up">
+                        <p>Sports Selections</p>
+                    </span>
+
+                    <div class = 'blob_inner_info'>
+                        <figure>
+                            <canvas id = "sports_canvas">
+
+                            </canvas>
+                        </figure>
+
+                        <div class = "pie_chart_rundown">
+                            <p>Sports and total number of selections</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="insights_card blob_two_part_card">
+                    <span class = "blob_tag blob_tag_up">
+                        <p>Competitions Selections</p>
+                    </span>
+                    
+                    <div class = 'blob_inner_info'>
+                        <div class = "pie_chart_rundown">
+                            <p>Competitions and total number of selections</p>
+                        </div>
+                        
+                        <figure>
+                            <canvas id = "competitions_canvas">
+
+                            </canvas>
+                        </figure>
+                    </div>
+                </article>
+
+                <article class="insights_card blob_simple_list_card" data-bg = "{% static 'img/insights_cards/warm_1.jpg' %}">
+                    <figure>
+                        <figcaption>
+                            Sports Accuracy
+                        </figcaption>
+
+                        <table>
+                            <tbody>
+                                {% for sport_data in insights_data.sports_chart_data %}
+                                    {% if sport_data.total_events > 0 %}
+                                        <tr>
+                                            <td>{{ sport_data.sport }}</td>
+                                            <td>{{ sport_data.calc_accuracy|floatformat:0 }}%</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </figure>
+                </article>
+
+                <article class="insights_card blob_simple_list_card" data-bg = "{% static 'img/insights_cards/warm_1.jpg' %}">
+                    <figure>
+                        <figcaption class = "right_tag">
+                            Competitions Accuracy
+                        </figcaption>
+
+                        <table>
+                            <tbody>
+                                {% for competition_data in insights_data.competitions_chart_data %}
+                                    {% if competition_data.total_events > 0 %}
+                                        <tr>
+                                            <td>{{ competition_data.competition }}</td>
+                                            <td>{{ competition_data.calc_accuracy|floatformat:0 }}%</td>
+                                        </tr>
+                                    {% endif%}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </figure>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/warm_2.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.competitions_predicted }}
+                    </h4>
+                    <span class="blob_tert_txt">
+                        Competitions Predicted
+                    </span>
+                </article>
+
+            </section>
+
+
+            <section class = "insights_section" id = "markets_sect">
+                <header class = "insights_section_header">
+                    <h2>Markets</h2>
+                </header>
+
+                <article class="insights_card blob_full_graph_card">
+                    <figure>
+                        <canvas id = 'markets_canvas'>
+
+                        </canvas>
+                    </figure>
+
+                    <figcaption>Market Performance</figcaption>   
+                </article>
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/cold_2.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.fav_market.market_class }}
+                    </h4>
+                    <span class="blob_tert_txt">
+                        Favourite Market to select ({{ insights_data.fav_market.total_events }})
+                    </span>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/cold_2.jpg' %}">
+                    <span class="blob_sec_txt">
+                        Best Market
+                    </span>
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.best_market.market_class }}
+                    </h4>
+                    <span class="blob_tert_txt">
+                        Accuracy: {{ insights_data.best_market.calc_accuracy|floatformat:0 }}%
+                    </span>
+                </article>
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/cold_2.jpg' %}">
+                    <span class="blob_sec_txt">
+                        Worst Market
+                    </span>
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.worst_market.market_class }}
+                    </h4>
+                    <span class="blob_tert_txt">
+                        Accuracy: {{ insights_data.worst_market.calc_accuracy|floatformat:0 }}%
+                    </span>
+                </article>
+            </section>
+
+            <section class="insights_section" id = "extra_sect">
+                <header class = "insights_section_header">
+                    <h2>Extra Info</h2>
+                </header>
+
+                <article class="insights_card blob_full_graph_card">
+                    <figure>
+                        <canvas id = 'extras_canvas'>
+
+                        </canvas>
+                    </figure>
+
+                    <figcaption>Risk chart</figcaption>   
+                </article>                
+
+                <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/stats_3.jpg' %}">
+                    <h4 class="blob_main_txt">
+                        {{ insights_data.avg_length|floatformat:0 }}
+                    </h4>
+                    <span class="blob_sec_txt">
+                        Average length of selections
+                    </span>
+                </article>
+
+                {% if insights_data.slips_won %}
+                    <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/stats_3.jpg' %}">
+                        <h4 class="blob_main_txt">
+                            {{ insights_data.optimal_length|floatformat:1 }}
+                        </h4>
+                        <span class="blob_sec_txt">
+                            Optimal length of selections
+                        </span>
+                    </article>
+
+                    <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/stats_3.jpg' %}">
+                        <h4 class="blob_main_txt">
+                            {{ insights_data.days_since_win }}
+                        </h4>
+                        <span class="blob_sec_txt">
+                            Days since last win
+                        </span>
+                    </article>
+                {% endif %}
+
+            </section>
+
+            <article class="quick_notes">
+                <h4>A quick note</h4>
+                <p>In the period section, slips yet to be processed fully are included and unprocessed selections are treated as failed selections.</p>
+                <p>These statistics are here to help you spot patterns and make better predictions, not to be relied on blindly. Use them alongside your own judgement.</p>
+                <p>If you notice an issue or need help, contact us.</p>
+            </article>
+        </section>
+    
+    {% endif %}
 
 {% endblock %}
+
+
+{% block scripts %}
+    <script src = "{% static 'js/insights.js' %}"></script> 
+{% endblock scripts %}

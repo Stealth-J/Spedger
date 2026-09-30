@@ -113,3 +113,9 @@ def format_chat_date(date):
         new_date = f'{new_date} ago.'
 
     return new_date
+
+
+@register.filter
+def format_memorable_day(date):
+    new_date = f"{date.day}{'th' if 10 <= date.day % 100 <= 20 else {1:'st', 2:'nd', 3:'rd'}.get(date.day % 10, 'th')} {date.strftime('%b, %Y')}"
+    return new_date

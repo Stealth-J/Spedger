@@ -1,0 +1,535 @@
+html{
+    scroll-behavior: smooth;
+}
+
+body{
+    --ff-main: 'Nunito Sans', sans-serif;
+    --ff-slip: 'Space grotesk', sans-serif;
+    --ff-duel: 'Quicksand', sans-serif;
+    --ff-style: 'Poppins', var(--ff-main), sans-serif;
+    --col-muted: #919191;
+    --col-main: #000;
+    --col-sub: #3f3f3f;
+    --col-base: #ffa500;
+    --col-base-lighter: #ffaf00;
+    --col-base-lightest: #ffbf00;
+    --col-error: #ff3a00;
+    --col-success: #38cb82;
+    --bgcol-main: #fff;
+    --bgcol-lighter: #fff;
+    --bgcol-darker: #ededed;
+    --bgcol-offmain: #ededed;
+    --bgcol-focus: #cdcdcd;
+    --bgcol-card: #f7f7f7;
+    --bgcol-award: #FFD700;
+    --bgcol-table: #eef3ff;
+    --bgcol-overlay: rgba(0, 0, 0, 0.3);
+    --border-main: 1px solid var(--bgcol-focus);
+    --border-sub: 1px solid var(--col-main);
+    --border-last: 1px solid var(--col-sub);
+    --bxs-light: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+    --bxs-darker: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    --bxs-board: rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px;
+    --bxs-darkest: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    --height-sticky: 3.4rem;
+    --radius-profile: 30%;
+    --height-nav: 3.2rem;
+    --height-content: calc(100vh - 3.2rem);
+    --width-content: calc(100vw - 210px);
+}
+
+
+.insights_nav{
+    position: sticky;
+    top: var(--height-nav);
+    display: flex;
+    justify-content: flex-start;
+    background-color: var(--bgcol-lighter);
+    border: var(--border-main);
+    margin: 0.4rem 1rem; 
+    border-radius: 12px;
+    padding: 0;
+    z-index: 2;
+}
+.insights_nav i{
+    display: none;
+}
+.insights_nav > a{
+    flex-grow: 1;
+    flex-basis: 1;
+    padding: .5rem 1rem;
+    font-size: 0.85rem;
+    color: var(--col-sub);
+    font-weight: 500;
+}
+.insights_nav > a:hover{
+    font-size: 0.85rem;
+    background-color: var(--bgcol-card);
+    color: var(--col-main);
+}
+.insights_nav > a:first-of-type{
+    border-radius: 12px 0 0 12px;
+}
+.insights_nav > a:last-of-type{
+    border-radius: 0 12px 12px 0;
+}
+
+
+.general_area{
+    padding: 1.5rem;
+    display: grid;
+    gap: 7em;
+}
+.insights_section{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1em;
+}
+.insights_section > header{
+    grid-column: 1/-1;
+}
+.insights_section_header > h2 {
+    background: linear-gradient(90deg, #ec4899, #7c3aed, #2424bc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: normal;
+}
+
+.insights_card{
+    border-radius: 19px;
+    background: var(--bgcol-main);
+    padding: 1.2rem;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+    overflow-wrap: anywhere;
+    min-width: 0;
+    background-position: var(--pos-x) var(--pos-y);
+}
+.insights_card:hover {
+    border: none;
+    transform: translateY(-3px);
+    box-shadow: var(--bxs-board);
+}
+.blob_podium_card, .blob_smaller_card{
+    display: flex;
+    flex-direction: column;
+    padding-top: 0.5rem;
+}
+.the_best_card{
+    grid-column: 1/ 2;
+}
+.accurate_card{
+    grid-column: 2/ 3;
+}
+.accurate_pure_card{
+    grid-column: 3/ 4;
+}
+.blob_podium_desc_txt, .blob_smaller_card .blob_sec_txt{
+    margin-left: auto;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+}
+.blob_podium_card figure{
+    margin-top: auto;
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.blob_podium_card figure img{
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-profile);
+}
+.blob_podium_card figcaption{
+    font-size: 1.1rem;
+    font-family: var(--ff-style);
+}
+.podium_fig{
+    font-weight: normal;
+    font-size: 1.1rem;
+}
+.top_scorers_card{
+    grid-column: 1/ 2;
+}
+.most_acc_card{
+    grid-column: 2/ 3;
+}
+#general_sect .blob_smaller_card{
+    grid-column: 3/ 4;
+}
+.blob_simple_list_card figure{
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    max-height: 12rem;
+    scrollbar-width: none;
+}
+.blob_simple_list_card figcaption{
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: var(--col-muted);
+}
+.blob_simple_list_card table{
+    font-size: 0.8rem;
+}
+.blob_simple_list_card td{
+    font-family: var(--ff-style);
+    padding: 0.3rem;
+}
+.blob_simple_list_card td:last-child{
+    text-align: right;
+}
+.blob_main_txt{
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #ec4899, #7c3aed, #2424bc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.blob_smaller_card figure{
+    margin-top: auto;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.blob_smaller_card figure img{
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-profile);
+}
+.blob_smaller_card figcaption{
+    font-size: 1.1rem;
+    font-family: var(--ff-style);
+}
+
+#period_sect{
+    grid-template-columns: repeat(6, 1fr);
+}
+#period_sect .fail_card .blob_main_txt{
+    background: linear-gradient(90deg, #f97316, #f59e0b, #facc15);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.blob_small_card{
+    grid-column: 1 / 2;
+}
+.blob_medium_card{
+    grid-column: 2 / 4;
+}
+.blob_full_card{
+    grid-column: 4 / 7;
+}
+#period_sect .blob_smaller_card{
+    grid-column: span 2;
+    padding-bottom: 0.5rem;
+}
+.blob_small_card{
+    display: flex;
+    flex-direction: column;
+}
+.blob_small_card .blob_main_txt{
+    margin-left: auto;
+}
+.blob_small_card .blob_sec_txt{
+    margin-top: auto;
+    font-size: 0.85rem;
+}
+.blob_medium_card{
+    display: flex;
+    flex-direction: column;
+}
+.blob_medium_card span{
+    display: block;
+}
+.blob_header_txt{
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--col-muted);
+}
+.blob_medium_card .blob_medium_txt{
+    font-size: 1.5rem;
+}
+.blob_small_closing_txt{
+    margin-top: auto;
+    margin-left: auto;
+    font-size: 0.85rem;
+}
+.blob_full_card canvas{
+    height: 10rem;
+    width: auto;
+}
+.chart_label{
+    color: var(--col-muted);
+    font-weight: normal;
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 1rem;
+}
+.blob_smaller_card{
+    display: flex;
+    flex-direction: column;
+}
+#period_sect .blob_smaller_card .blob_main_txt, #teams_and_players_sect .blob_smaller_card .blob_main_txt, #markets_sect .blob_smaller_card .blob_main_txt{
+    margin-bottom: 1rem;
+}
+#period_sect .blob_smaller_card .blob_sec_txt, #teams_and_players_sect .blob_smaller_card .blob_sec_txt{
+    margin-top: auto;
+    margin-left: auto;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+#teams_and_players_sect{
+    grid-template-columns: repeat(6, 1fr);
+}
+#teams_and_players_sect .blob_two_part_card{
+    grid-column: span 3;
+}
+#teams_and_players_sect .blob_simple_list_card{
+    grid-column: span 3;
+}
+#teams_and_players_sect .blob_smaller_card{
+    grid-column: span 2;
+}
+.blob_two_part_card{
+    display: flex;
+    flex-direction: column;
+    padding-top: 0.8rem;
+}
+.blob_two_part_card .blob_tag{
+    margin-bottom: 1rem;
+    margin-left: auto;
+    font-size: 0.9rem;
+    color: var(--col-muted);
+}
+.blob_two_part_card .blob_inner_info{
+    display: flex;
+    gap: 0.8rem;
+    justify-content: space-between;
+}
+.pie_chart_rundown{
+    font-size: 0.9rem;
+    margin-top: auto;
+    color: var(--col-muted);
+}
+.pie_chart_rundown li{
+    padding: 0.1rem;
+}
+#teams_and_players_sect .blob_simple_list_card figcaption{
+    color: var(--col-main);
+}
+.insights_card_center_msg{
+    font-size: 1.4rem;
+    height: 100%;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+#sports_and_competitions_sect{
+    grid-template-columns: repeat(6, 1fr);
+}
+#sports_and_competitions_sect .blob_two_part_card{
+    grid-column: span 3;
+}
+#sports_and_competitions_sect .blob_simple_list_card{
+    grid-column: span 3;
+}
+#sports_and_competitions_sect .blob_smaller_card{
+    grid-column: span 2;
+}
+
+#markets_sect{
+    grid-template-columns: repeat(6, 1fr);
+}
+#markets_sect .blob_full_graph_card{
+    grid-column: span 6;
+}
+#markets_sect .blob_full_graph_card figcaption, #extra_sect .blob_full_graph_card figcaption{
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+#markets_sect .blob_smaller_card{
+    grid-column: span 2;
+}
+#markets_sect .blob_sec_txt{
+    margin-bottom: 0.5rem;
+    margin-left: auto;
+    font-size: 0.85rem;
+}
+#markets_sect .blob_tert_txt{
+    margin-top: auto;
+}
+.blob_full_graph_card figcaption{
+    text-align: center;
+    color: var(--col-muted);
+}
+
+#extra_sect{
+    grid-template-columns: repeat(3, 1fr);
+}
+#extra_sect .blob_full_graph_card{
+    grid-column: span 3;
+}
+#extra_sect .blob_smaller_card{
+    grid-column: span 1;
+}
+#extra_sect .blob_smaller_card .blob_sec_txt{
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.quick_notes{
+    border-radius: 19px;
+    background-color: var(--bgcol-main);
+    padding: 1.2rem;
+    border: var(--border-main);
+    font-size: 0.9rem;
+    color: var(--col-muted);
+}
+.quick_notes h4{
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+}
+.quick_notes p{
+    margin-bottom: 0.2rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media screen and (max-width: 68rem) {
+    .blob_small_card{
+        grid-column: 1 / 4;
+    }
+    .blob_medium_card{
+        grid-column:  4 / 7;
+    }
+    .blob_full_card{
+        grid-column: span 6;
+    }
+
+    #teams_and_players_sect .blob_two_part_card, #sports_and_competitions_sect .blob_two_part_card{
+        grid-column: span 6;
+    }
+    #teams_and_players_sect .blob_smaller_card{
+        grid-column: span 3;
+    }
+    #sports_and_competitions_sect .blob_smaller_card{
+        grid-column: span 3;
+    }
+}
+
+
+@media screen and (max-width: 50rem) {
+    body{
+        --height-nav: 4.9rem;
+    }
+    .main_nav{
+        margin-bottom: 0;
+    }
+    .general_area{
+        padding-top: 0;
+    }
+
+    .insights_nav{
+        flex: 1;
+        top: calc(100vh - var(--height-nav));
+        margin-top: 0;
+    }
+    .insights_nav i{
+        display: block;
+        font-size: 1.1rem;
+        color: var(--col-muted);
+    }
+    .insights_nav i:hover{
+        color: var(--col-main);
+    }
+    .insights_nav span{
+        display: none;
+    }
+
+    .insights_section{
+        grid-template-columns: 50% 50%;
+    }
+    .the_best_card, .accurate_card, .accurate_pure_card, .top_scorers_card, .most_acc_card, #general_sect .blob_smaller_card{
+        grid-column: span 2;
+    }
+    .blob_podium_card figure img{
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+    .blob_podium_card figcaption{
+        font-size: 1.4rem;
+    }
+    .blob_main_txt{
+        margin-bottom: 1rem;
+        font-size: 1.7rem;
+    }
+
+    #period_sect, #teams_and_players_sect, #sports_and_competitions_sect, #markets_sect, #extra_sect{
+        grid-template-columns: 50% 50%;
+    }
+    .blob_small_card{
+        grid-column: span 1;
+    }
+    .blob_medium_card, .blob_full_card{
+        grid-column: span 2;
+    }
+
+    #teams_and_players_sect .blob_two_part_card, #teams_and_players_sect .blob_simple_list_card, #teams_and_players_sect .blob_smaller_card{
+        grid-column: span 2;
+    }
+    .blob_two_part_card .blob_inner_info{
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .blob_two_part_card .blob_inner_info figure{
+        order: 1;
+    }
+    .pie_chart_rundown{
+        order: 2;
+        text-align: right;
+    }
+    .blob_two_part_card:nth-of-type(2) .pie_chart_rundown{
+        text-align: left;
+    }
+    .insights_card_center_msg{
+        font-size: 1.2rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    #sports_and_competitions_sect .blob_two_part_card, #sports_and_competitions_sect .blob_simple_list_card,
+    #sports_and_competitions_sect .blob_smaller_card{
+        grid-column: span 2;
+    }
+
+    #markets_sect .blob_full_graph_card, #markets_sect .blob_smaller_card{
+        grid-column: span 2;
+    }
+    #extra_sect .blob_full_graph_card{
+        grid-column: span 2;
+    }
+
+    .quick_notes{
+        margin-bottom: 5rem;
+    }
+}

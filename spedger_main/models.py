@@ -69,6 +69,8 @@ class SlipEvent(models.Model):
     participants = models.JSONField(default = list, blank = True)
     pick = models.CharField(max_length = 200)
     market = models.CharField(max_length = 200)
+    player_involved = models.CharField(max_length = 200, null = True, blank = True)
+    market_group = models.CharField(max_length = 10, choices = [('team', 'Team'), ('player', 'Player')], default = 'team')
     sport = models.CharField(max_length = 50)
     competition = models.CharField(max_length = 200, null = True, blank = True)
     event_odd = models.DecimalField(max_digits = 30, null = True, blank = True, decimal_places = 2)
@@ -232,7 +234,9 @@ class Profile(models.Model):
     def pure_percentage(self):
         if self.user.slips.count() < 1:
             return 'None'
-        return round((self.winning_slips_count / self.user.slips.count()) * 100, 1)
+        
+        user_slips_settled = self.user.slips.filter(settled = True)
+        return round((self.winning_slips_count / user_slips_settled.count()) * 100, 1)
     
     @property
     def highest_winning_odds(self):
@@ -274,9 +278,9 @@ class Profile(models.Model):
     @property
     def pure_odds_write_up(self):
         if self.user.slips.count() < 1:
-            print(self.user.slips.count())
             return 'None'
-        string = f'{self.winning_slips_count}/{self.user.slips.count()} ({self.pure_percentage}%)'
+        
+        string = f'{self.winning_slips_count}/{self.user.slips.filter(settled = True).count()} ({self.pure_percentage}%)'
         return string
 
     @property

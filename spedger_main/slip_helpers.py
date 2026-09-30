@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 from types import SimpleNamespace
 from .models import Slip, SlipEvent, DiaryEntry
 import math
+import re
 
 
 TIME_STRING_FORMAT = "%d %b %y, %H:%M"
@@ -147,6 +148,22 @@ def remove_unsupported_selections(games_data):
     return valid_games_data
 
 
+def selection_type(specifier, outcome_id, group):
+    if any("player" in str(value).lower() for value in (specifier, outcome_id, group)):
+        return "player"
+    return "team"
+def get_player_name(market_desc, pick_desc):
+    if market_desc:
+        match = re.match(r"^([A-Za-zÀ-ÿ'-]+),\s+([A-Za-zÀ-ÿ'-]+)\b", market_desc)
+        if match:
+            return f"{match.group(1)} {match.group(2)}"
+    if pick_desc:
+        match = re.match(r"^(.+?)\s*\([^)]*\)", pick_desc)
+        if match:
+            return match.group(1).strip()
+    return None
+
+
 def create_slip_obj(request, valid_games, slip_info, code, wkly = False, log_in_diary = False):
     try:
         slip_events = []
@@ -164,6 +181,8 @@ def create_slip_obj(request, valid_games, slip_info, code, wkly = False, log_in_
         for game in valid_games:
             teams = [game.home_team, game.away_team]
             naive_date = datetime.strptime(game.start_time, TIME_STRING_FORMAT)
+            market_group_txt = selection_type(game.specifier, game.pick_id, game.market_group)
+            player_involved = get_player_name(game.market_type, game.pick)
 
             slip_event_obj = SlipEvent(
                 slip = slip_obj,
@@ -171,6 +190,8 @@ def create_slip_obj(request, valid_games, slip_info, code, wkly = False, log_in_
                 event_id = game.event_id,
                 pick = game.pick,
                 market = game.market_type,
+                market_group = market_group_txt,
+                player_involved = player_involved,
                 sport = game.sport,
                 competition = game.league,
                 event_odd = game.odds,

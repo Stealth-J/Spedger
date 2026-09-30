@@ -14,7 +14,7 @@
 
             
             {% if score == 'none' %}
-                <a href = "/users?tab=duels" style = "text-decoration: none; margin-top: 45px; display:flex; justify-content: end;">
+                <a href = "{% url 'users' %}" style = "text-decoration: none; margin-top: 45px; display:flex; justify-content: end;">
                     Respond to request
                 </a>
             {% else %}
@@ -22,7 +22,7 @@
                     Final Score: <strong>{{ score }}</strong>
                 </div>
 
-                <a href = "/users?tab=duels" style = "text-decoration: none; margin-top: 45px; display:flex; justify-content: end;">
+                <a href = "{% url 'users' %}" style = "text-decoration: none; margin-top: 45px; display:flex; justify-content: end;">
                     See full stats
                 </a>
             {% endif %}
