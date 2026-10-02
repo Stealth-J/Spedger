@@ -1464,39 +1464,45 @@ def reject_duel(request):
 def insights(request):
     context = {}
 
-    try:
-        slip_wins_objs = request.user.slips.filter(settled = True, slip_won = True)
+    # try:
+    #     slip_wins_objs = request.user.slips.filter(settled = True, slip_won = True)
 
-        if request.user.slips.count() < 10 :
-            raise NotEnoughDataError(f'Not enough data logged to access this feature. ({10 - request.user.slips.count()} remaining)')
-        elif Slip.objects.filter(settled = True).values_list('user', flat = True).distinct().count() < 2:
-            raise NotEnoughDataError('Not enough data to access this feature')
-        elif slip_wins_objs.count() < 2:
-            raise NotEnoughDataError(f'Not enough data logged to access this feature, ({2 - slip_wins_objs.count()} wins left)')
+    #     if request.user.slips.count() < 10 :
+    #         raise NotEnoughDataError(f'Not enough data logged to access this feature. ({10 - request.user.slips.count()} remaining)')
+    #     elif Slip.objects.filter(settled = True).values_list('user', flat = True).distinct().count() < 2:
+    #         raise NotEnoughDataError('Not enough data to access this feature')
+    #     elif slip_wins_objs.count() < 2:
+    #         raise NotEnoughDataError(f'Not enough data logged to access this feature, ({2 - slip_wins_objs.count()} wins left)')
 
-        show_largest_win = randomize(0.9)
-        show_monthly_boards = randomize(0.3) and ( SlipEvent.objects.filter(event_settled = True, slip__entry_date__month = datetime.now().month).values_list('slip__user', flat = True).distinct().count() >= 2)
-        show_players_chart = randomize(1/20)
+    #     show_largest_win = randomize(0.9)
+    #     show_monthly_boards = randomize(0.3) and ( SlipEvent.objects.filter(event_settled = True, slip__entry_date__month = datetime.now().month).values_list('slip__user', flat = True).distinct().count() >= 2)
+    #     show_players_chart = randomize(1/20)
 
-        insights_data = source_insights_stats(request)
-        show_monthly_slips = bool(Slip.objects.filter(entry_date__month = insights_data.current_month))
-        show_your_monthly_chart = randomize(0.3) and ( SlipEvent.objects.filter(event_settled = True, slip__user = request.user).values_list('slip__entry_date', flat = True).distinct().count() >= 3 )
+    #     insights_data = source_insights_stats(request)
+    #     show_monthly_slips = bool(Slip.objects.filter(entry_date__month = insights_data.current_month))
+    #     show_your_monthly_chart = randomize(0.3) and ( SlipEvent.objects.filter(event_settled = True, slip__user = request.user).values_list('slip__entry_date', flat = True).distinct().count() >= 3 )
 
-        context = {
-            'insights_data': insights_data,
-            'show_largest_win': show_largest_win,
-            'show_players_chart': show_players_chart,
-            'monthly_slips': show_monthly_slips,
-            'show_monthly_boards': show_monthly_boards,
-            'show_your_monthly_chart': show_your_monthly_chart,
-        }
+    #     context = {
+    #         'insights_data': insights_data,
+    #         'show_largest_win': show_largest_win,
+    #         'show_players_chart': show_players_chart,
+    #         'monthly_slips': show_monthly_slips,
+    #         'show_monthly_boards': show_monthly_boards,
+    #         'show_your_monthly_chart': show_your_monthly_chart,
+    #     }
 
-    except NotEnoughDataError as e:
-        context['warning_msg'] = str(e)
-    except Exception as e:
-        print(f'Error - {e}')
-        messages.error(request, 'An error occurred')
+    # except NotEnoughDataError as e:
+    #     context['warning_msg'] = str(e)
+    # except Exception as e:
+    #     print(f'Error - {e}')
+    #     messages.error(request, 'An error occurred')
         
+    if request.htmx:
+        print(request.POST.getlist('playersNames'))
+
+    context = {
+        'all_events': SlipEvent.objects.all(),
+    }
     return render(request, 'insights.html', context)
 
 

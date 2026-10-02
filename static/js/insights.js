@@ -188,7 +188,7 @@ const oddsChart = new Chart(extras_canvas, {
                 beginAtZero: true,
             }
         },
-        borderRadius: 17,
+        borderRadius: 7,
         borderWidth: 1
     }
 });

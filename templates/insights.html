@@ -10,7 +10,7 @@
 
 {% block content %}
 
-    {% if warning_msg %}
+    {% comment %} {% if warning_msg %}
         <section>
             <p> This page is still under development. Check back another time. </p>
         </section> 
@@ -248,7 +248,7 @@
                 </article>                
                 {% endif %}
 
-                {% if insights_data.highest_pure_odds %}
+                {% if insights_data.largest_win %}
                 <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/cold_1.jpg' %}">
                     <span class="blob_sec_txt">
                         Largest Win (odds)
@@ -362,7 +362,6 @@
                 </article>
 
 
-                {% comment %} only show month if the user has had enough months under their belt. also show 1 between winningest and best {% endcomment %}
                 <article class = 'insights_card blob_smaller_card' data-bg = "{% static 'img/insights_cards/warm_3.jpg' %}">
                     <h4 class="blob_main_txt">
                         {{ insights_data.month_bet_most }}
@@ -682,7 +681,18 @@
             </article>
         </section>
     
-    {% endif %}
+    {% endif %} {% endcomment %}
+    
+    <form action = "" hx-post = "{% url 'insights' %}" hx-swap = 'none'>
+        {% for each in all_events %}
+            <label for = 'cb{{ each.id}}'>
+                Overview: {{ each }}
+                Pick: {{ each.pick }}
+                Market: {{ each.market }}
+            </label><br><br>
+        {% endfor %}
+        <button>Submit</button>
+    </form>
 
 {% endblock %}
 

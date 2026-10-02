@@ -428,7 +428,7 @@ def source_insights_stats(request):
         current_month_txt = MONTHS_DICT[f'{current_month}'],
         most_accurate_pure = most_accurate_pure,
         accuracy_qs_cm = accuracy_qs_cm.order_by('-calc_accuracy').exclude(total_events = 0)[:5],
-        top_scorers_qs_cm = accuracy_qs_cm.order_by('-total_pure_odds').exclude(total_events = 0)[:5],
+        top_scorers_qs_cm = accuracy_qs_cm.order_by('-total_pure_odds').exclude(total_pure_odds = 0)[:5],
         top_scorers_qs = the_best[:5],
         accuracy_qs = most_accurate[:5],
         largest_win = highest_pure_odds,

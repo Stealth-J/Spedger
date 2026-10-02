@@ -153,14 +153,14 @@ def selection_type(specifier, outcome_id, group):
         return "player"
     return "team"
 def get_player_name(market_desc, pick_desc):
-    if market_desc:
-        match = re.match(r"^([A-Za-zÀ-ÿ'-]+),\s+([A-Za-zÀ-ÿ'-]+)\b", market_desc)
-        if match:
-            return f"{match.group(1)} {match.group(2)}"
-    if pick_desc:
-        match = re.match(r"^(.+?)\s*\([^)]*\)", pick_desc)
-        if match:
-            return match.group(1).strip()
+    desc = market_desc or pick_desc
+    match = re.match(r"^([A-Za-zÀ-ÿ.'-]+(?:\s+[A-Za-zÀ-ÿ.'-]+)*),\s+([A-Za-zÀ-ÿ.'-]+)", desc)
+    if match:
+        return f"{match.group(2)} {match.group(1)}"
+    else:
+        match2 = re.match(r"^(.+?)\s*\(", desc)
+        if match2:
+            return match2.group(1).strip()
     return None
 
 
