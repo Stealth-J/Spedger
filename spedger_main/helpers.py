@@ -377,7 +377,7 @@ def source_insights_stats(request):
         ))
     ).exclude(total_events = 0)
     markets_charts_qs = markets_qs.order_by('total_events').exclude(total_events = 0)[:5]
-    print(markets_charts_qs)
+    print(markets_qs.order_by('total_events').exclude(total_events = 0))
 
     # Extra
     odds_qs = user_slips_events.filter(event_settled = True).annotate(
