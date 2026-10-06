@@ -364,6 +364,7 @@ def source_insights_stats(request):
             When(market__icontains = 'Over/Under', then = Value("Over/Under")),
             When(market__icontains = 'Corners', then = Value("Corners")),
             When(market__icontains = 'Draw No Bet', then = Value("DNB")),
+            When(market__icontains = 'Winner', then = Value("Winner")),
             default = F('market'),
             output_field = CharField()
         )
@@ -476,8 +477,8 @@ def source_insights_stats(request):
         markets_selections_list = list(markets_charts_qs.values_list('total_events', flat = True)),
         markets_accuracy_list = list(markets_charts_qs.values_list('calc_accuracy', flat = True)),
         fav_market = markets_qs.order_by('-total_events').first(),
-        best_market = markets_qs.order_by('-calc_accuracy').first(),
-        worst_market = markets_qs.order_by('calc_accuracy').first(),
+        best_market = markets_qs.exclude(total_events = 1).order_by('-calc_accuracy').first(),
+        worst_market = markets_qs.exclude(total_events = 1).order_by('calc_accuracy').first(),
         odds_list = list(odds_qs.values_list('odds_range', flat = True)),
         odds_accuracy_list = list(odds_qs.values_list('calc_accuracy', flat = True)),
         odds_selections_list = list(odds_qs.values_list('total_events', flat = True)),
