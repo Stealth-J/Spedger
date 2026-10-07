@@ -180,6 +180,9 @@ const oddsChart = new Chart(extras_canvas, {
         datasets: [{
             label: oddsChartLabel,
             data: oddsChartData,
+            minBarLength: 10,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
         }]
     },
     options: {

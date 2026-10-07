@@ -355,7 +355,7 @@ def search_users(request):
     keyword = request.POST.get('search_word')
     results = Profile.objects.filter(
         Q(full_name__icontains = keyword) | Q(user__username__icontains = keyword)
-    ).exclude(user = request.user).exclude(private_acct = True)[:30]
+    ).exclude(user = request.user).exclude(private_acct = True)[:7]
     context = { 
         'user_results': results, 
         'center_info_msg': center_info_msg,

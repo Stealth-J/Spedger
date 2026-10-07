@@ -332,7 +332,7 @@ def source_insights_stats(request):
         calc_accuracy = ExpressionWrapper(
             ( F('events_won') * 100.0 ) / NullIf(F('total_events'), 0), output_field = FloatField()
         ),
-    )[:10]
+    )[:7]
     if players_slip_events.count() > 0:
         players_selection_accuracy = round( (players_slip_events.filter(event_won = True, event_settled = True).count() / players_slip_events.count()) * 100 )
     else:
