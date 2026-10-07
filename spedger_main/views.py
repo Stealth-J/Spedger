@@ -1468,7 +1468,7 @@ def insights(request):
         slip_wins_objs = request.user.slips.filter(settled = True, slip_won = True)
 
         if request.user.slips.count() < 10 :
-            raise NotEnoughDataError(f'Not enough data logged to access this feature. ({10 - request.user.slips.count()} remaining)')
+            raise NotEnoughDataError(f'Not enough data logged to access this feature. ({10 - request.user.slips.count()} slips left)')
         elif Slip.objects.filter(settled = True).values_list('user', flat = True).distinct().count() < 2:
             raise NotEnoughDataError('Not enough data to access this feature')
         elif slip_wins_objs.count() < 2:
