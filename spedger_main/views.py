@@ -1475,7 +1475,7 @@ def insights(request):
             raise NotEnoughDataError(f'Not enough data logged to access this feature, ({2 - slip_wins_objs.count()} wins left)')
 
         show_largest_win = randomize(0.9)
-        show_monthly_boards = randomize(0.3) and ( SlipEvent.objects.filter(event_settled = True, slip__entry_date__month = datetime.now().month).values_list('slip__user', flat = True).distinct().count() >= 2)
+        show_monthly_boards = randomize(0.2) and ( SlipEvent.objects.filter(event_settled = True, slip__entry_date__month = datetime.now().month).values_list('slip__user', flat = True).distinct().count() >= 2)
         show_players_chart = randomize(1/20)
 
         insights_data = source_insights_stats(request)

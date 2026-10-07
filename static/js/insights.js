@@ -58,7 +58,11 @@ if (show_your_monthly_chart){
         datasets: [{
             type: 'bar',
             label: 'Total slips',
-            data: months_slips_list
+            data: months_slips_list,
+
+            borderWidth: 1,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
         }, {
             type: 'line',
             label: lineLabel,
@@ -78,7 +82,11 @@ if (show_your_monthly_chart){
         datasets: [{
             type: 'bar',
             label: 'Total slips',
-            data: days_slips_no_list
+            data: days_slips_no_list,
+
+            borderWidth: 1,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
         }, {
             type: 'line',
             label: lineLabel,
@@ -92,14 +100,17 @@ const periodChart = new Chart(period_canvas, {
     data: chartData,
     options: {
         responsive: true,
+        maintainAspectRatio: false,
+
         scales: {
             y: {
-                beginAtZero: true
+                ticks: {
+                    stepSize: 50;
+                }
             }
         },
+
         tension: 0.5,
-        borderWidth: 1,
-        borderRadius: 7,
         pointRadius: 2,
         pointHitRadius: 10,
     }
@@ -142,7 +153,12 @@ const marketsChart = new Chart(markets_canvas, {
         datasets: [{
             type: 'bar',
             label: 'Total selections',
-            data: markets_selections_list
+            data: markets_selections_list,
+
+            borderWidth: 1,
+            minBarLength: 10,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
         }, {
             type: 'line',
             label: 'Accuracy (%)',
@@ -152,14 +168,16 @@ const marketsChart = new Chart(markets_canvas, {
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
+        
         scales: {
             y: {
-                beginAtZero: true,
+                ticks: {
+                    stepSize: 30
+                }
             }
         },
         tension: 0.5,
-        borderRadius: 7,
-        borderWidth: 1,
         pointRadius: 2,
         pointHitRadius: 10,
     }
@@ -180,18 +198,22 @@ const oddsChart = new Chart(extras_canvas, {
         datasets: [{
             label: oddsChartLabel,
             data: oddsChartData,
+            borderWidth: 1,
             minBarLength: 10,
             barPercentage: 0.5,
             categoryPercentage: 0.7,
         }]
     },
     options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
         scales: {
             y: {
-                beginAtZero: true,
+                ticks: {
+                    stepSize: 50
+                }
             }
         },
-        borderRadius: 7,
-        borderWidth: 1
     }
 });
