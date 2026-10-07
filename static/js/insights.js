@@ -104,9 +104,7 @@ const periodChart = new Chart(period_canvas, {
 
         scales: {
             y: {
-                ticks: {
-                    stepSize: 50,
-                }
+                beginAtZero: true,
             }
         },
 
@@ -172,9 +170,7 @@ const marketsChart = new Chart(markets_canvas, {
         
         scales: {
             y: {
-                ticks: {
-                    stepSize: 30
-                }
+                beginAtZero: true,
             }
         },
         tension: 0.5,
@@ -210,9 +206,7 @@ const oddsChart = new Chart(extras_canvas, {
 
         scales: {
             y: {
-                ticks: {
-                    stepSize: 50
-                }
+                beginAtZero: true,
             }
         },
     }
