@@ -170,7 +170,9 @@ const marketsChart = new Chart(markets_canvas, {
         
         scales: {
             y: {
-                beginAtZero: true,
+                ticks: {
+                    stepSize: 50,
+                }
             }
         },
         tension: 0.5,
@@ -206,7 +208,9 @@ const oddsChart = new Chart(extras_canvas, {
 
         scales: {
             y: {
-                beginAtZero: true,
+                ticks: {
+                    stepSize: 50,
+                }
             }
         },
     }
