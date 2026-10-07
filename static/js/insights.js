@@ -100,7 +100,6 @@ const periodChart = new Chart(period_canvas, {
     data: chartData,
     options: {
         responsive: true,
-        maintainAspectRatio: false,
 
         scales: {
             y: {
@@ -166,7 +165,6 @@ const marketsChart = new Chart(markets_canvas, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false,
         
         scales: {
             y: {
@@ -202,7 +200,6 @@ const oddsChart = new Chart(extras_canvas, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false,
 
         scales: {
             y: {
