@@ -103,11 +103,14 @@ const periodChart = new Chart(period_canvas, {
 
         scales: {
             y: {
-                beginAtZero: true,
+                ticks: {
+                    stepSize: 50;
+                }
             }
         },
 
         tension: 0.5,
+        borderWidth: 1,
         pointRadius: 2,
         pointHitRadius: 10,
     }
@@ -152,7 +155,6 @@ const marketsChart = new Chart(markets_canvas, {
             label: 'Total selections',
             data: markets_selections_list,
 
-            borderWidth: 1,
             minBarLength: 10,
             barPercentage: 0.5,
             categoryPercentage: 0.7,
@@ -172,6 +174,7 @@ const marketsChart = new Chart(markets_canvas, {
             }
         },
         tension: 0.5,
+        borderWidth: 1,
         pointRadius: 2,
         pointHitRadius: 10,
     }
