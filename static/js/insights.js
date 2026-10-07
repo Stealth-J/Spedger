@@ -104,7 +104,7 @@ const periodChart = new Chart(period_canvas, {
         scales: {
             y: {
                 ticks: {
-                    stepSize: 50;
+                    stepSize: 50,
                 }
             }
         },
