@@ -718,6 +718,7 @@ def leaderboards_view(request):
         if current_wkly_game:
             wkly_board = rank_users_leaderboards(current_wkly_game.game_participants.all())
             previous_obj = all_player_objs.last()
+            previous_obj = WeeklyGameParticipant.objects.filter(user = request.user).exclude(wkly_game__current_game = True).order_by('id').last()
 
             if is_current_player:
                 valid_games = reverse_slip_obj(player_obj.slip)
