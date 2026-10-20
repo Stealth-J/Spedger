@@ -1794,10 +1794,10 @@ p.version_number{
     text-align: right;
     padding-left: 0.5em;
 }
-.game_won{
+.game_won .odds{
     color: var(--col-success);
 }
-.game_lost{
+.game_lost .odds{
     color: var(--col-error);
 }
 
