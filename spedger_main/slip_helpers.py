@@ -246,6 +246,8 @@ def reverse_slip_obj(slip_obj):
             odds = game.event_odd,
             start_time = event_date,
             league = game.competition,
+            event_won = game.event_won,
+            event_settled = game.event_settled,
         )
 
         valid_games.append(game_data)

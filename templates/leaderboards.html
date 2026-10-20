@@ -95,7 +95,7 @@
                         <div class="wkly_games_list">
                             {% for game in valid_games %}
                         
-                                <article class="game" id = "game{{ game.id_ }}">
+                                <article class="game {% if game.event_won %} game_won {% elif game.event_settled %} game_lost {% endif %}" id = "game{{ game.id_ }}">
                                     <article class="game_main">
                                         <div class="game_lhs">
                                             <p class="home txt_ellipse">{{ game.home_team }} </p>

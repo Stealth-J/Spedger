@@ -17,22 +17,23 @@ def link_json_to_obj_and_update(data, code_tuple):
 
     for each in data.get('outcomes'):
         try:
-            if each.get('matchStatus') in accepted_status:
-                eventId = each.get('eventId')
-                home = each.get('homeTeamName')
-                away = each.get('awayTeamName')
-                teams = f'{home} - {away}'
-                market = each.get('markets')[0].get('desc')
-                pick = each.get('markets')[0].get('outcomes')[0].get('desc')
-                comp = each.get('sport').get('category').get('tournament').get('name')
+            if each.get('status') == 4 and each.get('markets')[0].get('status') == 3:
+                if each.get('matchStatus') in accepted_status:
+                    eventId = each.get('eventId')
+                    home = each.get('homeTeamName')
+                    away = each.get('awayTeamName')
+                    teams = f'{home} - {away}'
+                    market = each.get('markets')[0].get('desc')
+                    pick = each.get('markets')[0].get('outcomes')[0].get('desc')
+                    comp = each.get('sport').get('category').get('tournament').get('name')
 
-                outcomes_dict_ids[eventId, market, pick, comp] = each
-                outcomes_dict_teams[teams, market, pick, comp] = each
-            else:
-                CustomError.objects.create(
-                    error_class = 'Unknown Match Status',
-                    error_txt = f'Game between {each.get('homeTeamName')} and {each.get('awayTeamName')}. Event id - {each.get('eventId')}'
-                )
+                    outcomes_dict_ids[eventId, market, pick, comp] = each
+                    outcomes_dict_teams[teams, market, pick, comp] = each
+                else:
+                    CustomError.objects.create(
+                        error_class = 'Unknown Match Status',
+                        error_txt = f'Game between {each.get('homeTeamName')} and {each.get('awayTeamName')}. Event id - {each.get('eventId')}'
+                    )
 
         except Exception as e:
             print(f'Parsing data for JSON changed - {str(e)}')

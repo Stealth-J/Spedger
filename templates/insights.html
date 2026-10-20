@@ -105,7 +105,7 @@
                             <img src="{% static insights_data.most_accurate.avatar %}" alt="User profile image">
                         </a>
                         <figcaption class="">
-                            {% if user.user_profile == insights_data.the_best %}
+                            {% if user.user_profile == insights_data.most_accurate %}
                                 you
                             {% else %}
                                 @{{ insights_data.most_accurate.user.username }}

@@ -347,7 +347,7 @@ def source_insights_stats(request):
         calc_accuracy = ExpressionWrapper(
             ( F('events_won') * 100.0 ) / NullIf(F('total_events'), 0), output_field = FloatField()
         ),
-    ).order_by('total_events').exclude(total_events = 0)[:7]
+    ).order_by('-total_events').exclude(total_events = 0)[:7]
     competitions_qs = user_slips_events.values('competition').annotate(
         total_events = Count('id', filter = Q(event_settled = True)),
         events_won = Count(
@@ -356,7 +356,7 @@ def source_insights_stats(request):
         calc_accuracy = ExpressionWrapper(
             ( F('events_won') * 100.0 ) / NullIf(F('total_events'), 0), output_field = FloatField()
         ),
-    ).order_by('total_events').exclude(total_events = 0)[:7]
+    ).order_by('-total_events').exclude(total_events = 0)[:7]
 
     # Markets
     markets_qs = user_slips_events.exclude(market_group = 'player').annotate(

@@ -1794,6 +1794,12 @@ p.version_number{
     text-align: right;
     padding-left: 0.5em;
 }
+.game_won{
+    color: var(--col-success);
+}
+.game_lost{
+    color: var(--col-error);
+}
 
 .game_lhs{
     font-weight: lighter;
