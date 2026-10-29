@@ -13,7 +13,7 @@ def link_json_to_obj_and_update(data, code_tuple):
     slip_events = list( slip_obj.slip_events.filter(event_settled = False) )
     outcomes_dict_ids = {}
     outcomes_dict_teams = {}
-    accepted_status = ['Ended', 'Cancelled']
+    accepted_status = ['Ended', 'Cancelled', 'AP', 'AET']
 
     for each in data.get('outcomes'):
         try:
