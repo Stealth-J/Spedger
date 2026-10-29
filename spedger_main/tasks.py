@@ -14,7 +14,6 @@ def link_json_to_obj_and_update(data, code_tuple):
     outcomes_dict_ids = {}
     outcomes_dict_teams = {}
     accepted_status = ['Ended', 'Cancelled']
-    print(slip_events)
 
     for each in data.get('outcomes'):
         try:
@@ -59,10 +58,6 @@ def link_json_to_obj_and_update(data, code_tuple):
                     if isWinning:
                         each.event_won = bool(int(isWinning))
                 updated_events.append(each)
-            else:
-                print(f'{each} does not have event outcome')
-                print(f'outcomes_dict_ids: {outcomes_dict_ids}')
-                print(f'event_outcome: {event_outcome}')
 
         except Exception as e:
             print(f'Error - {str(e)}')
