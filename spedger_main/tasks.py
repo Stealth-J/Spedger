@@ -32,7 +32,7 @@ def link_json_to_obj_and_update(data, code_tuple):
                 else:
                     CustomError.objects.create(
                         error_class = 'Unknown Match Status',
-                        error_txt = f'Game between {each.get('homeTeamName')} and {each.get('awayTeamName')}. Event id - {each.get('eventId')}'
+                        error_txt = f'Game between {each.get('homeTeamName')} and {each.get('awayTeamName')}. Event id - {each.get('eventId')}. Unknown status - f{each.get('matchStatus')}'
                     )
 
         except Exception as e:
